@@ -2,8 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Header from '../components/astro/Header.astro';
 import Footer from '../components/astro/Footer.astro';
-import { FilterBar } from '../components/react/FilterBar';
-import { CameraGrid } from '../components/react/CameraGrid';
+import { MainContent } from '../components/react/MainContent';
 ---
 
 <Base>
@@ -11,10 +10,7 @@ import { CameraGrid } from '../components/react/CameraGrid';
     <Header />
     <main class="flex-1">
       <div class="px-4 py-4 md:px-6">
-        <FilterBar client:load />
-        <div class="mt-4">
-          <CameraGrid client:load />
-        </div>
+        <MainContent client:load />
       </div>
     </main>
     <Footer />
