@@ -2,6 +2,7 @@
 import Base from '../layouts/Base.astro';
 import Header from '../components/astro/Header.astro';
 import Footer from '../components/astro/Footer.astro';
+import { CameraGrid } from '../components/react/CameraGrid';
 ---
 
 <Base>
@@ -9,12 +10,7 @@ import Footer from '../components/astro/Footer.astro';
     <Header />
     <main class="flex-1">
       <div class="px-4 py-4 md:px-6">
-        <div id="filter-bar">
-          <!-- React FilterBar island will mount here -->
-        </div>
-        <div id="camera-grid" class="mt-4">
-          <!-- React CameraGrid island will mount here -->
-        </div>
+        <CameraGrid client:load />
       </div>
     </main>
     <Footer />
