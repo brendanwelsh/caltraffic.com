@@ -1,8 +1,10 @@
 import { useState, useCallback } from 'react';
 import { useStore } from '@nanostores/react';
-import { selectedDistrict, searchQuery, selectedRoute, selectedCity } from '@/stores/filters';
+import { selectedDistrict, searchQuery, selectedRoute, selectedCity, viewMode } from '@/stores/filters';
 import { useEnrichedCameras } from '@/hooks/use-enriched-cameras';
 import { CameraCard } from './CameraCard';
+import { CameraDetailDialog } from './CameraDetailDialog';
+import { MapView } from './MapView';
 import type { EnrichedCamera } from '@/hooks/use-enriched-cameras';
 
 const PAGE_SIZE = 20;
@@ -12,6 +14,7 @@ export function CameraGrid() {
   const search = useStore(searchQuery);
   const routeFilter = useStore(selectedRoute);
   const cityFilter = useStore(selectedCity);
+  const view = useStore(viewMode);
   const [page, setPage] = useState(1);
   const [selectedCamera, setSelectedCamera] = useState<EnrichedCamera | null>(null);
 
@@ -100,71 +103,11 @@ export function CameraGrid() {
         </div>
       )}
 
-      {/* Camera detail dialog will be added in Task 9 */}
       {selectedCamera && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-          onClick={() => setSelectedCamera(null)}
-        >
-          <div
-            className="mx-4 max-h-[90vh] w-full max-w-3xl overflow-auto rounded-xl border border-border bg-card p-6 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <img
-                  src={`https://shields.caltranscameras.app/${selectedCamera.route}.svg`}
-                  alt={selectedCamera.route}
-                  className="h-6"
-                />
-                <h2 className="text-lg font-semibold">{selectedCamera.location || selectedCamera.city}</h2>
-              </div>
-              <button
-                onClick={() => setSelectedCamera(null)}
-                className="rounded-md p-1 hover:bg-accent"
-                aria-label="Close"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-              </button>
-            </div>
-            <img
-              src={selectedCamera.imageUrl}
-              alt={`Camera view: ${selectedCamera.location}`}
-              className="w-full rounded-lg"
-            />
-            <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
-              <div><span className="text-muted-foreground">Route:</span> {selectedCamera.route} {selectedCamera.direction}</div>
-              <div><span className="text-muted-foreground">City:</span> {selectedCamera.city}</div>
-              <div><span className="text-muted-foreground">County:</span> {selectedCamera.county}</div>
-              <div><span className="text-muted-foreground">District:</span> D{String(selectedCamera.district).padStart(2, '0')}</div>
-              <div><span className="text-muted-foreground">Status:</span> {selectedCamera.hasVideo ? 'Live Video' : selectedCamera.isStale ? 'Stale' : 'Photo'}</div>
-              <div><span className="text-muted-foreground">Postmile:</span> {selectedCamera.postmile.toFixed(1)}</div>
-            </div>
-            {selectedCamera.nearbyIncidents.length > 0 && (
-              <div className="mt-4">
-                <h3 className="text-sm font-semibold text-red-400 mb-2">Nearby Incidents</h3>
-                {selectedCamera.nearbyIncidents.map((inc) => (
-                  <div key={inc.id} className="rounded-md bg-red-500/10 border border-red-500/20 p-3 mb-2 text-sm">
-                    <p className="font-medium">{inc.type} — {inc.location}</p>
-                    <p className="text-muted-foreground mt-1">{inc.description}</p>
-                  </div>
-                ))}
-              </div>
-            )}
-            {selectedCamera.nearbyCMS.length > 0 && (
-              <div className="mt-4">
-                <h3 className="text-sm font-semibold text-amber-400 mb-2">Nearby CMS Signs</h3>
-                {selectedCamera.nearbyCMS.map((cms) => (
-                  <div key={cms.id} className="rounded-md bg-green-900 border border-green-700 p-3 mb-2 font-mono text-sm text-amber-300 text-center">
-                    {cms.phase1Lines.map((line, i) => (
-                      <div key={i}>{line}</div>
-                    ))}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+        <CameraDetailDialog
+          camera={selectedCamera}
+          onClose={() => setSelectedCamera(null)}
+        />
       )}
     </div>
   );
