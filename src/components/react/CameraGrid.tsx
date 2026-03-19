@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useStore } from '@nanostores/react';
 import { selectedDistrict, searchQuery, selectedRoute, selectedCity, viewMode } from '@/stores/filters';
 import { useEnrichedCameras } from '@/hooks/use-enriched-cameras';
+import { useUrlState } from '@/hooks/use-url-state';
 import { CameraCard } from './CameraCard';
 import { CameraDetailDialog } from './CameraDetailDialog';
 import { MapView } from './MapView';
@@ -10,6 +11,7 @@ import type { EnrichedCamera } from '@/hooks/use-enriched-cameras';
 const PAGE_SIZE = 20;
 
 export function CameraGrid() {
+  useUrlState();
   const district = useStore(selectedDistrict);
   const search = useStore(searchQuery);
   const routeFilter = useStore(selectedRoute);

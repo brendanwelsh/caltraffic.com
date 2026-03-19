@@ -18,6 +18,13 @@ export function FilterBar() {
   const view = useStore(viewMode);
   const [searchInput, setSearchInput] = useState(search);
 
+  // Sync local input when store changes externally (e.g., URL init)
+  useEffect(() => {
+    if (search !== searchInput) {
+      setSearchInput(search);
+    }
+  }, [search]);
+
   // Debounced search
   useEffect(() => {
     const timer = setTimeout(() => {
