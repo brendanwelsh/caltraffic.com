@@ -73,6 +73,25 @@ export function CameraGrid() {
     );
   }
 
+  if (view === 'map') {
+    return (
+      <div>
+        <div className="mb-3">
+          <p className="text-sm text-muted-foreground">
+            {filtered.length} cameras on map
+          </p>
+        </div>
+        <MapView cameras={filtered} onCameraClick={handleCameraClick} />
+        {selectedCamera && (
+          <CameraDetailDialog
+            camera={selectedCamera}
+            onClose={() => setSelectedCamera(null)}
+          />
+        )}
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="mb-3 flex items-center justify-between">
