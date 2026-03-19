@@ -5,7 +5,6 @@ import tailwindcss from '@tailwindcss/vite';
 import cloudflare from '@astrojs/cloudflare';
 
 export default defineConfig({
-  output: 'hybrid',
   adapter: cloudflare(),
   integrations: [react()],
   vite: {

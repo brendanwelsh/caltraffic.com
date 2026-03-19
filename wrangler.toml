@@ -2,6 +2,8 @@ name = "california-traffic-lens"
 compatibility_date = "2024-12-01"
 pages_build_output_dir = "dist"
 
-[[kv_namespaces]]
-binding = "CIRCUIT_BREAKER"
-id = ""
+# KV namespace for circuit breaker state
+# Uncomment after creating: wrangler kv:namespace create CIRCUIT_BREAKER
+# [[kv_namespaces]]
+# binding = "CIRCUIT_BREAKER"
+# id = "your-kv-namespace-id"
