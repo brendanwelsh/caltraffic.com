@@ -1,0 +1,72 @@
+---
+import Base from '../layouts/Base.astro';
+import Header from '../components/astro/Header.astro';
+import Footer from '../components/astro/Footer.astro';
+---
+
+<Base title="About — California Traffic Lens">
+  <div class="flex min-h-screen flex-col">
+    <Header />
+    <main class="flex-1 px-4 py-8 md:px-6 max-w-4xl mx-auto">
+      <h1 class="text-3xl font-bold mb-6">About California Traffic Lens</h1>
+      <p class="text-muted-foreground mb-8 text-lg">
+        Real-time traffic cameras, incidents, and road conditions across all 12 Caltrans districts in California.
+      </p>
+
+      <h2 class="text-xl font-semibold mb-4">Data Sources</h2>
+      <ul class="space-y-2 text-muted-foreground mb-8">
+        <li><strong class="text-foreground">CCTV Cameras</strong> — Caltrans CWWP2 live camera feeds</li>
+        <li><strong class="text-foreground">CMS Signs</strong> — Changeable Message Signs from Caltrans</li>
+        <li><strong class="text-foreground">CHP Incidents</strong> — California Highway Patrol live incident feed</li>
+        <li><strong class="text-foreground">Weather Alerts</strong> — National Weather Service active alerts</li>
+        <li><strong class="text-foreground">Chain Control</strong> — Caltrans chain requirement status</li>
+        <li><strong class="text-foreground">Lane Closures</strong> — Active lane and road closures</li>
+        <li><strong class="text-foreground">RWIS</strong> — Roadway Weather Information System sensors</li>
+        <li><strong class="text-foreground">Travel Times</strong> — Caltrans corridor travel time estimates</li>
+      </ul>
+
+      <h2 class="text-xl font-semibold mb-4">District Capability Matrix</h2>
+      <p class="text-muted-foreground mb-4">
+        Not all data sources are available in every district. This is a Caltrans limitation, not an app limitation.
+      </p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm border border-border rounded-lg">
+          <thead>
+            <tr class="border-b border-border bg-muted/50">
+              <th class="px-3 py-2 text-left font-medium">District</th>
+              <th class="px-3 py-2 text-center font-medium">CCTV</th>
+              <th class="px-3 py-2 text-center font-medium">CMS</th>
+              <th class="px-3 py-2 text-center font-medium">CC</th>
+              <th class="px-3 py-2 text-center font-medium">LCS</th>
+              <th class="px-3 py-2 text-center font-medium">RWIS</th>
+              <th class="px-3 py-2 text-center font-medium">TT</th>
+              <th class="px-3 py-2 text-center font-medium">Video</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-border"><td class="px-3 py-2">D01 — Eureka</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-muted-foreground">-</td><td class="px-3 py-2 text-center text-muted-foreground">-</td><td class="px-3 py-2 text-center text-green-500">Y</td></tr>
+            <tr class="border-b border-border"><td class="px-3 py-2">D02 — Redding</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-muted-foreground">-</td><td class="px-3 py-2 text-center text-green-500">Y</td></tr>
+            <tr class="border-b border-border"><td class="px-3 py-2">D03 — Sacramento</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td></tr>
+            <tr class="border-b border-border"><td class="px-3 py-2">D04 — Bay Area</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-muted-foreground">-</td><td class="px-3 py-2 text-center text-muted-foreground">-</td><td class="px-3 py-2 text-center text-green-500">Y</td></tr>
+            <tr class="border-b border-border"><td class="px-3 py-2">D05 — SLO</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-muted-foreground">-</td><td class="px-3 py-2 text-center text-muted-foreground">-</td><td class="px-3 py-2 text-center text-green-500">Y</td></tr>
+            <tr class="border-b border-border"><td class="px-3 py-2">D06 — Fresno</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-muted-foreground">-</td><td class="px-3 py-2 text-center text-green-500">Y</td></tr>
+            <tr class="border-b border-border"><td class="px-3 py-2">D07 — Los Angeles</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-muted-foreground">-</td><td class="px-3 py-2 text-center text-muted-foreground">-</td><td class="px-3 py-2 text-center text-amber-500">Photo</td></tr>
+            <tr class="border-b border-border"><td class="px-3 py-2">D08 — Inland Empire</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-amber-500">Photo</td></tr>
+            <tr class="border-b border-border"><td class="px-3 py-2">D09 — Bishop</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-muted-foreground">-</td><td class="px-3 py-2 text-center text-amber-500">Photo</td></tr>
+            <tr class="border-b border-border"><td class="px-3 py-2">D10 — Stockton</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-muted-foreground">-</td><td class="px-3 py-2 text-center text-amber-500">Photo</td></tr>
+            <tr class="border-b border-border"><td class="px-3 py-2">D11 — San Diego</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-muted-foreground">-</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-amber-500">Photo</td></tr>
+            <tr><td class="px-3 py-2">D12 — Orange County</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-muted-foreground">-</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-amber-500">Photo</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h2 class="text-xl font-semibold mt-8 mb-4">Refresh Rates</h2>
+      <ul class="space-y-1 text-muted-foreground">
+        <li>Cameras near incidents: every 15 seconds</li>
+        <li>Video cameras: every 30 seconds</li>
+        <li>Default: every 60 seconds</li>
+      </ul>
+    </main>
+    <Footer />
+  </div>
+</Base>
