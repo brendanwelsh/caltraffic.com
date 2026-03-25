@@ -4,6 +4,7 @@ import {
   selectedDistrict,
   selectedRoute,
   selectedCity,
+  selectedCounty,
   searchQuery,
   viewMode,
 } from '@/stores/filters';
@@ -12,6 +13,7 @@ export function useUrlState() {
   const district = useStore(selectedDistrict);
   const route = useStore(selectedRoute);
   const city = useStore(selectedCity);
+  const county = useStore(selectedCounty);
   const search = useStore(searchQuery);
   const view = useStore(viewMode);
   const isInitialized = useRef(false);
@@ -34,6 +36,9 @@ export function useUrlState() {
     const cityParam = params.get('city');
     if (cityParam) selectedCity.set(cityParam);
 
+    const countyParam = params.get('county');
+    if (countyParam) selectedCounty.set(countyParam);
+
     const searchParam = params.get('q');
     if (searchParam) searchQuery.set(searchParam);
 
@@ -52,6 +57,7 @@ export function useUrlState() {
     if (district !== null) params.set('district', String(district));
     if (route) params.set('route', route);
     if (city) params.set('city', city);
+    if (county) params.set('county', county);
     if (search) params.set('q', search);
     if (view === 'map') params.set('view', 'map');
 
@@ -61,5 +67,5 @@ export function useUrlState() {
       : window.location.pathname;
 
     window.history.replaceState(null, '', newUrl);
-  }, [district, route, city, search, view]);
+  }, [district, route, city, county, search, view]);
 }

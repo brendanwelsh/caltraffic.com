@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useStore } from '@nanostores/react';
 import {
-  selectedDistrict, searchQuery, selectedRoute, selectedCity, viewMode,
+  selectedDistrict, searchQuery, selectedRoute, selectedCity, selectedCounty, viewMode,
   showVideoOnly, hideStale, hideUnavailable, unavailableCameras, showWithIncidents, showWithSigns,
 } from '@/stores/filters';
 import { gridDensity } from '@/stores/preferences';
@@ -46,6 +46,7 @@ export function CameraGrid({ showFavoritesOnly }: CameraGridProps) {
   const search = useStore(searchQuery);
   const routeFilter = useStore(selectedRoute);
   const cityFilter = useStore(selectedCity);
+  const countyFilter = useStore(selectedCounty);
   const view = useStore(viewMode);
   const videoOnly = useStore(showVideoOnly);
   const noStale = useStore(hideStale);
@@ -67,6 +68,7 @@ export function CameraGrid({ showFavoritesOnly }: CameraGridProps) {
     return cameras.filter((cam) => {
       if (routeFilter && cam.route !== routeFilter) return false;
       if (cityFilter && cam.city !== cityFilter) return false;
+      if (countyFilter && cam.county !== countyFilter) return false;
       if (videoOnly && !cam.hasVideo) return false;
       if (noStale && cam.isStale) return false;
       if (noUnavailable && brokenCameras.has(cam.id)) return false;
@@ -93,7 +95,7 @@ export function CameraGrid({ showFavoritesOnly }: CameraGridProps) {
       if (a.isStale !== b.isStale) return a.isStale ? 1 : -1;
       return 0;
     });
-  }, [cameras, routeFilter, cityFilter, videoOnly, noStale, noUnavailable, brokenCameras, withIncidents, withSigns, showFavoritesOnly, search, isFavorite]);
+  }, [cameras, routeFilter, cityFilter, countyFilter, videoOnly, noStale, noUnavailable, brokenCameras, withIncidents, withSigns, showFavoritesOnly, search, isFavorite]);
 
   // Filter CMS signs (only show non-blank ones that match current filters)
   const filteredCMS = useMemo(() => {

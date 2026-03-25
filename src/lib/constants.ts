@@ -84,6 +84,13 @@ export const DISTRICT_CENTERS: Record<number, { lat: number; lon: number }> = {
   12: { lat: 33.68, lon: -117.79 },
 };
 
+export function getCountiesForDistrict(district: number | null): string[] {
+  if (district === null) {
+    return Object.values(DISTRICT_COUNTIES).flat().sort();
+  }
+  return (DISTRICT_COUNTIES[district] ?? []).sort();
+}
+
 export const CACHE_TTLS = {
   cctv: 30,
   cms: 60,

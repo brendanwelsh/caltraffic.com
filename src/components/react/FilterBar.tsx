@@ -5,6 +5,7 @@ import {
   selectedDistrict,
   selectedRoute,
   selectedCity,
+  selectedCounty,
   searchQuery,
   viewMode,
   showVideoOnly,
@@ -13,7 +14,7 @@ import {
   showWithIncidents,
   showWithSigns,
 } from '@/stores/filters';
-import { DISTRICTS } from '@/lib/constants';
+import { DISTRICTS, getCountiesForDistrict } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
 interface FilterBarProps {
@@ -78,6 +79,8 @@ export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesO
   const district = useStore(selectedDistrict);
   const route = useStore(selectedRoute);
   const city = useStore(selectedCity);
+  const county = useStore(selectedCounty);
+  const availableCounties = useMemo(() => getCountiesForDistrict(district), [district]);
   const search = useStore(searchQuery);
   const view = useStore(viewMode);
   const videoOnly = useStore(showVideoOnly);
@@ -100,6 +103,7 @@ export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesO
     selectedDistrict.set(null);
     selectedRoute.set(null);
     selectedCity.set(null);
+    selectedCounty.set(null);
     searchQuery.set('');
     setSearchInput('');
     showVideoOnly.set(false);
@@ -111,8 +115,8 @@ export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesO
   }, [onToggleFavoritesOnly]);
 
   const hasAnyFilter = useMemo(() => {
-    return videoOnly || noStale || !noUnavailable || withIncidents || withSigns || showFavoritesOnly || !!route || !!city || district !== null || search !== '';
-  }, [videoOnly, noStale, noUnavailable, withIncidents, withSigns, showFavoritesOnly, route, city, district, search]);
+    return videoOnly || noStale || !noUnavailable || withIncidents || withSigns || showFavoritesOnly || !!route || !!city || !!county || district !== null || search !== '';
+  }, [videoOnly, noStale, noUnavailable, withIncidents, withSigns, showFavoritesOnly, route, city, county, district, search]);
 
   return (
     <div className="space-y-2">
@@ -126,6 +130,7 @@ export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesO
             selectedDistrict.set(val === '' ? null : parseInt(val, 10));
             selectedRoute.set(null);
             selectedCity.set(null);
+            selectedCounty.set(null);
           }}
           className="h-9 rounded-lg border border-input bg-background px-2 pr-6 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-ring appearance-none shrink-0 max-w-[140px] sm:max-w-[200px]"
           style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'10\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23888\' stroke-width=\'2\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 6px center' }}
@@ -135,6 +140,19 @@ export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesO
             <option key={id} value={id}>
               D{id} — {info.description}
             </option>
+          ))}
+        </select>
+
+        {/* County selector */}
+        <select
+          value={county ?? ''}
+          onChange={(e) => selectedCounty.set(e.target.value || null)}
+          className="h-9 rounded-lg border border-input bg-background px-2 pr-6 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-ring appearance-none shrink-0 max-w-[140px] sm:max-w-[160px]"
+          style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'10\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23888\' stroke-width=\'2\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 6px center' }}
+        >
+          <option value="">All Counties</option>
+          {availableCounties.map((c) => (
+            <option key={c} value={c}>{c}</option>
           ))}
         </select>
 
@@ -235,6 +253,12 @@ export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesO
         {city && (
           <button onClick={() => selectedCity.set(null)} className="inline-flex items-center gap-1 rounded-full bg-primary/10 border border-primary/20 px-2 py-1 text-[10px] font-medium text-primary whitespace-nowrap">
             {city}
+            <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        )}
+        {county && (
+          <button onClick={() => selectedCounty.set(null)} className="inline-flex items-center gap-1 rounded-full bg-primary/10 border border-primary/20 px-2 py-1 text-[10px] font-medium text-primary whitespace-nowrap">
+            {county} Co.
             <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>
         )}
