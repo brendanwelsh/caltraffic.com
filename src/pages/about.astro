@@ -1,4 +1,6 @@
 ---
+export const prerender = false;
+
 import Base from '../layouts/Base.astro';
 import Header from '../components/astro/Header.astro';
 import Footer from '../components/astro/Footer.astro';
@@ -15,14 +17,14 @@ import Footer from '../components/astro/Footer.astro';
 
       <h2 class="text-xl font-semibold mb-4">Data Sources</h2>
       <ul class="space-y-2 text-muted-foreground mb-8">
-        <li><strong class="text-foreground">CCTV Cameras</strong> — Caltrans CWWP2 live camera feeds</li>
-        <li><strong class="text-foreground">CMS Signs</strong> — Changeable Message Signs from Caltrans</li>
-        <li><strong class="text-foreground">CHP Incidents</strong> — California Highway Patrol live incident feed</li>
-        <li><strong class="text-foreground">Weather Alerts</strong> — National Weather Service active alerts</li>
-        <li><strong class="text-foreground">Chain Control</strong> — Caltrans chain requirement status</li>
+        <li><strong class="text-foreground">Traffic Cameras</strong> — Live photo &amp; video feeds from Caltrans</li>
+        <li><strong class="text-foreground">Highway Signs</strong> — Electronic message signs along highways (e.g. "ACCIDENT AHEAD")</li>
+        <li><strong class="text-foreground">Incidents</strong> — Live incident feed from California Highway Patrol</li>
+        <li><strong class="text-foreground">Weather Alerts</strong> — Active alerts from the National Weather Service</li>
+        <li><strong class="text-foreground">Chain Control</strong> — Tire chain requirements on mountain passes</li>
         <li><strong class="text-foreground">Lane Closures</strong> — Active lane and road closures</li>
-        <li><strong class="text-foreground">RWIS</strong> — Roadway Weather Information System sensors</li>
-        <li><strong class="text-foreground">Travel Times</strong> — Caltrans corridor travel time estimates</li>
+        <li><strong class="text-foreground">Road Weather Sensors</strong> — Temperature, wind, humidity, and visibility at roadside stations</li>
+        <li><strong class="text-foreground">Travel Times</strong> — Estimated drive times along major corridors</li>
       </ul>
 
       <h2 class="text-xl font-semibold mb-4">District Capability Matrix</h2>
@@ -34,13 +36,13 @@ import Footer from '../components/astro/Footer.astro';
           <thead>
             <tr class="border-b border-border bg-muted/50">
               <th class="px-3 py-2 text-left font-medium">District</th>
-              <th class="px-3 py-2 text-center font-medium">CCTV</th>
-              <th class="px-3 py-2 text-center font-medium">CMS</th>
-              <th class="px-3 py-2 text-center font-medium">CC</th>
-              <th class="px-3 py-2 text-center font-medium">LCS</th>
-              <th class="px-3 py-2 text-center font-medium">RWIS</th>
-              <th class="px-3 py-2 text-center font-medium">TT</th>
-              <th class="px-3 py-2 text-center font-medium">Video</th>
+              <th class="px-3 py-2 text-center font-medium">Cameras</th>
+              <th class="px-3 py-2 text-center font-medium">Signs</th>
+              <th class="px-3 py-2 text-center font-medium">Chains</th>
+              <th class="px-3 py-2 text-center font-medium">Closures</th>
+              <th class="px-3 py-2 text-center font-medium">Weather</th>
+              <th class="px-3 py-2 text-center font-medium">Travel</th>
+              <th class="px-3 py-2 text-center font-medium">Live Video</th>
             </tr>
           </thead>
           <tbody>

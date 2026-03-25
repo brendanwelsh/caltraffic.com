@@ -52,6 +52,38 @@ export function buildCwwp2Url(dataset: string, district: number): string {
   return `https://cwwp2.dot.ca.gov/data/d${district}/${dataset}/${dataset}StatusD${padded}.json`;
 }
 
+// Counties by Caltrans district (for filtering weather alerts to relevant area)
+export const DISTRICT_COUNTIES: Record<number, string[]> = {
+  1:  ['Del Norte', 'Humboldt', 'Lake', 'Mendocino'],
+  2:  ['Lassen', 'Modoc', 'Plumas', 'Shasta', 'Siskiyou', 'Tehama', 'Trinity'],
+  3:  ['Butte', 'Colusa', 'El Dorado', 'Glenn', 'Nevada', 'Placer', 'Sacramento', 'Sierra', 'Sutter', 'Yolo', 'Yuba'],
+  4:  ['Alameda', 'Contra Costa', 'Marin', 'Napa', 'San Francisco', 'San Mateo', 'Santa Clara', 'Solano', 'Sonoma'],
+  5:  ['Monterey', 'San Benito', 'San Luis Obispo', 'Santa Barbara', 'Santa Cruz'],
+  6:  ['Fresno', 'Kern', 'Kings', 'Madera', 'Tulare'],
+  7:  ['Los Angeles', 'Ventura'],
+  8:  ['Riverside', 'San Bernardino'],
+  9:  ['Inyo', 'Mono'],
+  10: ['Alpine', 'Amador', 'Calaveras', 'Mariposa', 'Merced', 'San Joaquin', 'Stanislaus', 'Tuolumne'],
+  11: ['Imperial', 'San Diego'],
+  12: ['Orange'],
+};
+
+// District center coordinates for geolocation matching
+export const DISTRICT_CENTERS: Record<number, { lat: number; lon: number }> = {
+  1:  { lat: 40.80, lon: -124.16 },
+  2:  { lat: 40.59, lon: -122.39 },
+  3:  { lat: 38.58, lon: -121.49 },
+  4:  { lat: 37.80, lon: -122.27 },
+  5:  { lat: 35.28, lon: -120.66 },
+  6:  { lat: 36.74, lon: -119.77 },
+  7:  { lat: 34.05, lon: -118.24 },
+  8:  { lat: 34.11, lon: -117.29 },
+  9:  { lat: 37.36, lon: -118.39 },
+  10: { lat: 37.95, lon: -121.29 },
+  11: { lat: 32.72, lon: -117.16 },
+  12: { lat: 33.68, lon: -117.79 },
+};
+
 export const CACHE_TTLS = {
   cctv: 30,
   cms: 60,

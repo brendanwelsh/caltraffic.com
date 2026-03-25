@@ -1,20 +1,41 @@
 import { useState } from 'react';
+import { useStore } from '@nanostores/react';
+import { selectedDistrict } from '@/stores/filters';
 import { useWeatherAlerts } from '@/hooks/use-weather';
+import { DISTRICT_COUNTIES } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
 export function WeatherAlertBanner() {
   const { data: alerts = [] } = useWeatherAlerts();
   const [dismissed, setDismissed] = useState<Set<string>>(new Set());
+  const district = useStore(selectedDistrict);
+
+  // Get counties for the selected district
+  const relevantCounties = district ? DISTRICT_COUNTIES[district] ?? [] : [];
 
   const activeAlerts = alerts
     .filter((a) => !dismissed.has(a.id))
-    .filter((a) => a.severity === 'Extreme' || a.severity === 'Severe');
+    .filter((a) => a.severity === 'Extreme' || a.severity === 'Severe')
+    .filter((a) => {
+      if (relevantCounties.length === 0) {
+        // No district selected — only show alerts that mention any California county
+        const allCounties = Object.values(DISTRICT_COUNTIES).flat();
+        return a.affectedAreas.some((area) =>
+          allCounties.some((county) => area.toLowerCase().includes(county.toLowerCase()))
+        );
+      }
+      return a.affectedAreas.some((area) =>
+        relevantCounties.some((county) => area.toLowerCase().includes(county.toLowerCase()))
+      );
+    });
 
   if (activeAlerts.length === 0) return null;
 
+  const maxAlerts = district ? 3 : 2;
+
   return (
     <div className="space-y-2 mb-4">
-      {activeAlerts.slice(0, 3).map((alert) => (
+      {activeAlerts.slice(0, maxAlerts).map((alert) => (
         <div
           key={alert.id}
           className={cn(

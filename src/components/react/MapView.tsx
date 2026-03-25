@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react';
 import type { EnrichedCamera } from '@/hooks/use-enriched-cameras';
+import type { CMS, Incident } from '@/lib/schemas';
 
-interface MapViewProps {
+export interface MapViewProps {
   cameras: EnrichedCamera[];
+  cmsSigns?: CMS[];
+  incidents?: Incident[];
   onCameraClick?: (camera: EnrichedCamera) => void;
 }
 
-// Leaflet must be dynamically imported (it requires window)
-export function MapView({ cameras, onCameraClick }: MapViewProps) {
+export function MapView({ cameras, cmsSigns = [], incidents = [], onCameraClick }: MapViewProps) {
   const [mapReady, setMapReady] = useState(false);
   const [MapComponent, setMapComponent] = useState<React.ComponentType<MapViewProps> | null>(null);
 
   useEffect(() => {
-    // Dynamic import to avoid SSR issues
     import('./MapViewInner').then((mod) => {
       setMapComponent(() => mod.MapViewInner);
       setMapReady(true);
@@ -27,5 +28,5 @@ export function MapView({ cameras, onCameraClick }: MapViewProps) {
     );
   }
 
-  return <MapComponent cameras={cameras} onCameraClick={onCameraClick} />;
+  return <MapComponent cameras={cameras} cmsSigns={cmsSigns} incidents={incidents} onCameraClick={onCameraClick} />;
 }
