@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useStore } from '@nanostores/react';
+import { GridDensityControl } from './GridDensityControl';
 import {
   selectedDistrict,
   selectedRoute,
@@ -172,6 +173,8 @@ export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesO
             </svg>
           </button>
         </div>
+
+        <GridDensityControl />
       </div>
 
       {/* Row 2: Filter toggles — always visible, scrollable on mobile */}
