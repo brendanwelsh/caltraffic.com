@@ -1,15 +1,17 @@
 import { useEffect, useState } from 'react';
 import type { EnrichedCamera } from '@/hooks/use-enriched-cameras';
-import type { CMS, Incident } from '@/lib/schemas';
+import type { CMS, Incident, ChainControl, LaneClosure } from '@/lib/schemas';
 
 export interface MapViewProps {
   cameras: EnrichedCamera[];
   cmsSigns?: CMS[];
   incidents?: Incident[];
+  chainControls?: ChainControl[];
+  closures?: LaneClosure[];
   onCameraClick?: (camera: EnrichedCamera) => void;
 }
 
-export function MapView({ cameras, cmsSigns = [], incidents = [], onCameraClick }: MapViewProps) {
+export function MapView({ cameras, cmsSigns = [], incidents = [], chainControls = [], closures = [], onCameraClick }: MapViewProps) {
   const [mapReady, setMapReady] = useState(false);
   const [MapComponent, setMapComponent] = useState<React.ComponentType<MapViewProps> | null>(null);
 
@@ -28,5 +30,5 @@ export function MapView({ cameras, cmsSigns = [], incidents = [], onCameraClick 
     );
   }
 
-  return <MapComponent cameras={cameras} cmsSigns={cmsSigns} incidents={incidents} onCameraClick={onCameraClick} />;
+  return <MapComponent cameras={cameras} cmsSigns={cmsSigns} incidents={incidents} chainControls={chainControls} closures={closures} onCameraClick={onCameraClick} />;
 }

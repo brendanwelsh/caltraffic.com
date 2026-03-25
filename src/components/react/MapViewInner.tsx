@@ -2,12 +2,14 @@ import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { EnrichedCamera } from '@/hooks/use-enriched-cameras';
-import type { CMS, Incident } from '@/lib/schemas';
+import type { CMS, Incident, ChainControl, LaneClosure } from '@/lib/schemas';
 
 interface MapViewProps {
   cameras: EnrichedCamera[];
   cmsSigns?: CMS[];
   incidents?: Incident[];
+  chainControls?: ChainControl[];
+  closures?: LaneClosure[];
   onCameraClick?: (camera: EnrichedCamera) => void;
 }
 
@@ -95,12 +97,44 @@ function createIncidentIcon(): L.DivIcon {
   });
 }
 
-export function MapViewInner({ cameras, cmsSigns = [], incidents = [], onCameraClick }: MapViewProps) {
+function createChainControlIcon(): L.DivIcon {
+  return L.divIcon({
+    className: 'custom-chain-marker',
+    html: `<div style="
+      width: 14px; height: 14px; border-radius: 3px;
+      background: #1e40af; border: 1.5px solid #3b82f6;
+      box-shadow: 0 0 6px rgba(59,130,246,0.5);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; color: white; font-weight: bold;
+    ">C</div>`,
+    iconSize: [14, 14],
+    iconAnchor: [7, 7],
+  });
+}
+
+function createClosureIcon(): L.DivIcon {
+  return L.divIcon({
+    className: 'custom-closure-marker',
+    html: `<div style="
+      width: 14px; height: 14px; border-radius: 3px;
+      background: #c2410c; border: 1.5px solid #f97316;
+      box-shadow: 0 0 6px rgba(249,115,22,0.5);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 9px; color: white; font-weight: bold;
+    ">X</div>`,
+    iconSize: [14, 14],
+    iconAnchor: [7, 7],
+  });
+}
+
+export function MapViewInner({ cameras, cmsSigns = [], incidents = [], chainControls = [], closures = [], onCameraClick }: MapViewProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
   const cameraLayerRef = useRef<L.LayerGroup | null>(null);
   const cmsLayerRef = useRef<L.LayerGroup | null>(null);
   const incidentLayerRef = useRef<L.LayerGroup | null>(null);
+  const chainControlLayerRef = useRef<L.LayerGroup | null>(null);
+  const closureLayerRef = useRef<L.LayerGroup | null>(null);
 
   useEffect(() => {
     if (!mapRef.current || mapInstance.current) return;
@@ -119,6 +153,8 @@ export function MapViewInner({ cameras, cmsSigns = [], incidents = [], onCameraC
     cameraLayerRef.current = L.layerGroup().addTo(map);
     cmsLayerRef.current = L.layerGroup().addTo(map);
     incidentLayerRef.current = L.layerGroup().addTo(map);
+    chainControlLayerRef.current = L.layerGroup().addTo(map);
+    closureLayerRef.current = L.layerGroup().addTo(map);
     mapInstance.current = map;
 
     return () => {
@@ -251,6 +287,51 @@ export function MapViewInner({ cameras, cmsSigns = [], incidents = [], onCameraC
       incidentLayerRef.current!.addLayer(marker);
     });
   }, [incidents]);
+
+  // Chain control markers
+  useEffect(() => {
+    if (!mapInstance.current || !chainControlLayerRef.current) return;
+    chainControlLayerRef.current.clearLayers();
+
+    chainControls.forEach((cc) => {
+      if (cc.latitude === 0 && cc.longitude === 0) return;
+      const marker = L.marker([cc.latitude, cc.longitude], {
+        icon: createChainControlIcon(),
+        title: `Chain Control: ${cc.location}`,
+      });
+      marker.bindPopup(`
+        <div style="min-width: 180px; font-family: system-ui, sans-serif;">
+          <div style="color: #3b82f6; font-weight: bold; font-size: 13px;">${cc.level} Chain Control</div>
+          <div style="font-size: 12px; margin-top: 4px;">${cc.location}</div>
+          <div style="color: #888; font-size: 11px; margin-top: 2px;">${cc.status}</div>
+        </div>
+      `, { maxWidth: 250 });
+      chainControlLayerRef.current!.addLayer(marker);
+    });
+  }, [chainControls]);
+
+  // Closure markers
+  useEffect(() => {
+    if (!mapInstance.current || !closureLayerRef.current) return;
+    closureLayerRef.current.clearLayers();
+
+    closures.forEach((cl) => {
+      if (cl.latitude === 0 && cl.longitude === 0) return;
+      const marker = L.marker([cl.latitude, cl.longitude], {
+        icon: createClosureIcon(),
+        title: `Closure: ${cl.location}`,
+      });
+      marker.bindPopup(`
+        <div style="min-width: 180px; font-family: system-ui, sans-serif;">
+          <div style="color: #f97316; font-weight: bold; font-size: 13px;">Lane Closure</div>
+          <div style="font-size: 12px; margin-top: 4px;">${cl.location}</div>
+          <div style="color: #888; font-size: 11px; margin-top: 2px;">${cl.closureType} — ${cl.lanesAffected}</div>
+          <div style="color: #888; font-size: 11px;">${cl.startTime} to ${cl.endTime}</div>
+        </div>
+      `, { maxWidth: 280 });
+      closureLayerRef.current!.addLayer(marker);
+    });
+  }, [closures]);
 
   return (
     <div

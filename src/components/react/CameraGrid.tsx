@@ -8,6 +8,8 @@ import { gridDensity } from '@/stores/preferences';
 import { useEnrichedCameras } from '@/hooks/use-enriched-cameras';
 import { useCMS } from '@/hooks/use-cms';
 import { useIncidents } from '@/hooks/use-incidents';
+import { useChainControl } from '@/hooks/use-chain-control';
+import { useClosures } from '@/hooks/use-closures';
 import { useFavorites } from '@/hooks/use-favorites';
 import { useUrlState } from '@/hooks/use-url-state';
 import { CameraCard } from './CameraCard';
@@ -62,6 +64,8 @@ export function CameraGrid({ showFavoritesOnly }: CameraGridProps) {
   const { cameras, isLoading, error, totalCount } = useEnrichedCameras(district);
   const { data: cmsList = [] } = useCMS(district);
   const { data: incidents = [] } = useIncidents();
+  const { data: chainControls = [] } = useChainControl(district);
+  const { data: closures = [] } = useClosures(district);
 
   // Filter cameras
   const filteredCameras = useMemo(() => {
@@ -209,7 +213,14 @@ export function CameraGrid({ showFavoritesOnly }: CameraGridProps) {
               {filteredCameras.length} cameras{filteredCMS.length > 0 ? ` + ${filteredCMS.length} signs` : ''} on map
             </p>
           </div>
-          <MapView cameras={filteredCameras} cmsSigns={filteredCMS} incidents={filteredIncidents} onCameraClick={handleCameraClick} />
+          <MapView
+            cameras={filteredCameras}
+            cmsSigns={filteredCMS}
+            incidents={filteredIncidents}
+            chainControls={chainControls}
+            closures={closures}
+            onCameraClick={handleCameraClick}
+          />
         </div>
       ) : (
         <div>
