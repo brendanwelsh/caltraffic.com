@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useStore } from '@nanostores/react';
 import { GridDensityControl } from './GridDensityControl';
+import { DistrictMapSelector } from './DistrictMapSelector';
 import {
   selectedDistrict,
   selectedRoute,
@@ -89,6 +90,7 @@ export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesO
   const withIncidents = useStore(showWithIncidents);
   const withSigns = useStore(showWithSigns);
   const [searchInput, setSearchInput] = useState(search);
+  const [showDistrictMap, setShowDistrictMap] = useState(false);
 
   useEffect(() => {
     if (search !== searchInput) setSearchInput(search);
@@ -142,6 +144,23 @@ export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesO
             </option>
           ))}
         </select>
+
+        {/* District map toggle */}
+        <div className="relative shrink-0">
+          <button
+            onClick={() => setShowDistrictMap((v) => !v)}
+            className={cn(
+              'inline-flex h-9 items-center px-2 rounded-lg border transition-colors',
+              showDistrictMap ? 'border-primary bg-primary/10 text-primary' : 'border-input hover:bg-accent text-muted-foreground'
+            )}
+            title="District map"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m3 3 7 7" /><path d="m14 21-7-7" /><path d="m3 21 18-18" /><path d="M21 14v7h-7" /><path d="M3 10V3h7" />
+            </svg>
+          </button>
+          {showDistrictMap && <DistrictMapSelector onClose={() => setShowDistrictMap(false)} />}
+        </div>
 
         {/* County selector */}
         <select
