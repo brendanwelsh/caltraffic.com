@@ -4,7 +4,7 @@ import {
   selectedDistrict, searchQuery, selectedRoute, selectedCity, viewMode,
   showVideoOnly, hideStale, hideUnavailable, unavailableCameras, showWithIncidents, showWithSigns,
 } from '@/stores/filters';
-import { gridDensity } from '@/stores/grid';
+import { gridDensity } from '@/stores/preferences';
 import { useEnrichedCameras } from '@/hooks/use-enriched-cameras';
 import { useCMS } from '@/hooks/use-cms';
 import { useIncidents } from '@/hooks/use-incidents';
@@ -21,6 +21,15 @@ import type { EnrichedCamera } from '@/hooks/use-enriched-cameras';
 import type { CMS, Incident } from '@/lib/schemas';
 
 const PAGE_SIZE = 20;
+
+const GRID_COLS_CLASS: Record<number, string> = {
+  1: 'grid-cols-1',
+  2: 'grid-cols-1 sm:grid-cols-2',
+  3: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
+  4: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
+  5: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5',
+  6: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6',
+};
 
 type GridItem =
   | { type: 'camera'; data: EnrichedCamera }
@@ -172,18 +181,9 @@ export function CameraGrid({ showFavoritesOnly }: CameraGridProps) {
     );
   }
 
-  const gridColsClass: Record<number, string> = {
-    1: 'grid-cols-1',
-    2: 'grid-cols-1 sm:grid-cols-2',
-    3: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
-    4: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
-    5: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5',
-    6: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6',
-  };
-
   if (isLoading && cameras.length === 0) {
     return (
-      <div className={`grid gap-4 ${gridColsClass[columns]}`}>
+      <div className={`grid gap-4 ${GRID_COLS_CLASS[columns]}`}>
         {Array.from({ length: 12 }).map((_, i) => (
           <div key={i} className="aspect-video animate-pulse rounded-lg bg-muted" />
         ))}
@@ -220,7 +220,7 @@ export function CameraGrid({ showFavoritesOnly }: CameraGridProps) {
             <DataFreshness count={cameras.length} isLoading={isLoading} />
           </div>
 
-          <div className={`grid gap-3 ${gridColsClass[columns]}`}>
+          <div className={`grid gap-3 ${GRID_COLS_CLASS[columns]}`}>
             {displayed.map((item) => {
               if (item.type === 'camera') {
                 return (

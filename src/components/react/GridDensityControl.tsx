@@ -1,5 +1,5 @@
 import { useStore } from '@nanostores/react';
-import { gridDensity, type GridDensity } from '@/stores/grid';
+import { gridDensity, type GridDensity } from '@/stores/preferences';
 
 const DENSITY_OPTIONS: { value: GridDensity; label: string }[] = [
   { value: 1, label: '1' },
