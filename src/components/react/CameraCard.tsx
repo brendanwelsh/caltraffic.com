@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { RouteShield } from './RouteShield';
+import { ConditionBadges } from './ConditionBadges';
 import { cn } from '@/lib/utils';
 import { markUnavailable } from '@/stores/filters';
 import type { EnrichedCamera } from '@/hooks/use-enriched-cameras';
@@ -191,6 +192,11 @@ export function CameraCard({ camera, onClick, isFavorite = false, onToggleFavori
             {camera.direction && camera.city && ' \u2022 '}
             {camera.city}
           </p>
+          <ConditionBadges
+            chainControls={camera.chainControls}
+            closures={camera.nearbyClosures}
+            travelTime={camera.travelTime}
+          />
         </div>
       </div>
     </div>

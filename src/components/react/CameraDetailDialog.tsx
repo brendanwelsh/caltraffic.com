@@ -3,6 +3,7 @@ import { VideoPlayer } from './VideoPlayer';
 import { CMSSign } from './CMSSign';
 import { HistoricalImages } from './HistoricalImages';
 import { RouteShield } from './RouteShield';
+import { ConditionBadges } from './ConditionBadges';
 import { cn } from '@/lib/utils';
 import type { EnrichedCamera } from '@/hooks/use-enriched-cameras';
 
@@ -150,6 +151,61 @@ export function CameraDetailDialog({ camera, onClose, isFavorite = false, onTogg
                     )}
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* Chain Control */}
+          {camera.chainControls.length > 0 && (
+            <div>
+              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-blue-400">Chain Control</h4>
+              <div className="space-y-1.5">
+                {camera.chainControls.map((cc) => (
+                  <div key={cc.id} className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-2.5 text-sm">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-blue-400">{cc.level}</span>
+                      <span className="text-muted-foreground">{cc.location}</span>
+                    </div>
+                    <p className="mt-1 text-xs text-muted-foreground">{cc.status}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Lane Closures */}
+          {camera.nearbyClosures.length > 0 && (
+            <div>
+              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-orange-400">Lane Closures</h4>
+              <div className="space-y-1.5">
+                {camera.nearbyClosures.map((cl) => (
+                  <div key={cl.id} className="rounded-lg border border-orange-500/20 bg-orange-500/5 p-2.5 text-sm">
+                    <div className="font-medium">{cl.location}</div>
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      {cl.closureType} — {cl.lanesAffected}
+                    </div>
+                    <div className="mt-1 text-xs text-muted-foreground">
+                      {cl.startTime} to {cl.endTime}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Travel Time */}
+          {camera.travelTime && (
+            <div>
+              <h4 className="mb-2 text-xs font-semibold uppercase tracking-wider text-emerald-400">Travel Time</h4>
+              <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-2.5 text-sm">
+                <div className="font-medium">{camera.travelTime.corridor}</div>
+                <div className="mt-1 flex gap-4 text-xs">
+                  <span>Current: <strong>{Math.round(camera.travelTime.currentTime)} min</strong></span>
+                  <span className="text-muted-foreground">Typical: {Math.round(camera.travelTime.typicalTime)} min</span>
+                  {camera.travelTime.delay > 0 && (
+                    <span className="text-red-400">+{Math.round(camera.travelTime.delay)} min delay</span>
+                  )}
+                </div>
               </div>
             </div>
           )}
