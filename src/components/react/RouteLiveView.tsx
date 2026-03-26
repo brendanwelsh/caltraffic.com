@@ -64,7 +64,7 @@ function FeedCard({ camera, routeDuration, isExpanded, onToggle, onMarkPassed }:
   const favorite = isFavorite(camera.id);
 
   return (
-    <div className={`flex-1 rounded-xl border overflow-hidden bg-card cursor-pointer transition-shadow ${
+    <div className={`rounded-xl border overflow-hidden bg-card cursor-pointer transition-shadow flex-1 min-w-0 ${
       isExpanded ? 'shadow-lg' : 'hover:shadow-md'
     } ${hasIssues ? 'border-red-500/30' : 'border-border/60'}`} onClick={onToggle}>
 
@@ -76,7 +76,7 @@ function FeedCard({ camera, routeDuration, isExpanded, onToggle, onMarkPassed }:
         </div>
 
         {/* Info panel — clean, modern layout */}
-        <div className="flex-1 p-2.5 flex flex-col min-w-0">
+        <div className="flex-1 p-2.5 min-w-0">
           {/* Top: Location name + ETA badge */}
           <div className="flex items-start gap-2">
             <div className="min-w-0 flex-1">
@@ -103,8 +103,8 @@ function FeedCard({ camera, routeDuration, isExpanded, onToggle, onMarkPassed }:
             </div>
           </div>
 
-          {/* Middle: Conditions — fills the space */}
-          <div className="mt-2 flex-1 space-y-1.5">
+          {/* Middle: Conditions */}
+          <div className="mt-2 space-y-1.5">
             <ConditionBadges chainControls={camera.chainControls} closures={camera.nearbyClosures} travelTime={camera.travelTime} />
 
             {camera.nearbyIncidents.length > 0 && (
@@ -305,34 +305,6 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLoc
   return (
     <div>
       <div className="mb-2 flex items-center gap-2 flex-wrap">
-        {/* Track My Location toggle */}
-        <button
-          onClick={tracking ? stopTracking : startTracking}
-          className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-colors ${
-            tracking
-              ? 'border-blue-500/50 bg-blue-500/10 text-blue-400'
-              : 'border-border text-muted-foreground hover:bg-accent'
-          }`}
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <circle cx="12" cy="12" r="3"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M2 12h4"/><path d="M18 12h4"/>
-          </svg>
-          {tracking ? 'Stop Tracking' : 'Track My Location'}
-        </button>
-
-        {tracking && userLocation && (
-          <span className="inline-flex items-center gap-1.5 text-[10px] text-blue-400">
-            <span className="h-2 w-2 rounded-full bg-blue-400 animate-pulse" />
-            Tracking your location...
-          </span>
-        )}
-
-        {trackingError && (
-          <span className="text-[10px] text-red-400">{trackingError}</span>
-        )}
-
-        <div className="flex-1" />
-
         {passedIds.size > 0 && (
           <p className="text-[10px] text-muted-foreground">{passedIds.size} passed</p>
         )}
@@ -344,6 +316,34 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLoc
             Reset
           </button>
         )}
+
+        <div className="flex-1" />
+
+        {trackingError && (
+          <span className="text-[10px] text-red-400">{trackingError}</span>
+        )}
+
+        {tracking && userLocation && (
+          <span className="inline-flex items-center gap-1.5 text-[10px] text-blue-400">
+            <span className="h-2 w-2 rounded-full bg-blue-400 animate-pulse" />
+            Tracking
+          </span>
+        )}
+
+        {/* Track My Location toggle */}
+        <button
+          onClick={tracking ? stopTracking : startTracking}
+          className={`inline-flex items-center gap-1.5 rounded-lg border px-2 py-0.5 text-[10px] font-medium transition-colors ${
+            tracking
+              ? 'border-blue-500/50 bg-blue-500/10 text-blue-400'
+              : 'border-border text-muted-foreground hover:bg-accent'
+          }`}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="3"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M2 12h4"/><path d="M18 12h4"/>
+          </svg>
+          {tracking ? 'Stop' : 'Track'}
+        </button>
       </div>
 
       <div className="space-y-0">

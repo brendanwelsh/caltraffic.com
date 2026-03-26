@@ -138,17 +138,17 @@ const PRESET_ROUTES = [
   { label: 'Fresno → SF', from: { lat: 36.738, lon: -119.784, label: 'Fresno' }, to: { lat: 37.775, lon: -122.419, label: 'San Francisco' } },
 ];
 
+const DEFAULT_PRESET = PRESET_ROUTES.find((r) => r.label === 'Folsom → Sacramento')!;
+
 export function RoutePlanner() {
   const {
     origin, destination, setOrigin, setDestination, clearRoute,
     routeLineCoords, routeLineLoading, hasRoute,
     routeCameras, routeLoading,
     routeDistance, routeDuration, routeSteps,
-  } = useRoutePlanner();
-
-  const defaultPreset = PRESET_ROUTES.find((r) => r.label === 'Folsom → Sacramento')!;
-  const originAC = useGeocodeAutocomplete(defaultPreset.from);
-  const destAC = useGeocodeAutocomplete(defaultPreset.to);
+  } = useRoutePlanner(DEFAULT_PRESET.from, DEFAULT_PRESET.to);
+  const originAC = useGeocodeAutocomplete(DEFAULT_PRESET.from);
+  const destAC = useGeocodeAutocomplete(DEFAULT_PRESET.to);
   const [geocodeError, setGeocodeError] = useState<string | null>(null);
   const [routeView, setRouteView] = useState<'list' | 'grid'>('list');
   const [showMap, setShowMap] = useState(true);
@@ -180,13 +180,6 @@ export function RoutePlanner() {
     destAC.clear();
     setGeocodeError(null);
   }, [clearRoute, originAC.clear, destAC.clear]);
-
-  // Auto-load default route on mount
-  useEffect(() => {
-    setOrigin(defaultPreset.from);
-    setDestination(defaultPreset.to);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const [dismissSampleBanner, setDismissSampleBanner] = useState(false);
   const isDefaultRoute = origin?.label === 'Folsom' && destination?.label === 'Sacramento';
@@ -244,14 +237,14 @@ export function RoutePlanner() {
 
         {/* Sample route banner */}
         {hasRoute && isDefaultRoute && !dismissSampleBanner && (
-          <div className="flex items-center justify-between rounded-lg border border-border/50 bg-muted/30 px-3 py-1.5 text-xs text-muted-foreground">
-            <span>Showing sample route: Folsom → Sacramento · Enter your own origin and destination above</span>
+          <div className="flex items-center gap-1.5 rounded border border-border/40 bg-muted/20 px-2 py-0.5 text-[10px] text-muted-foreground">
+            <span>Sample route: Folsom → Sacramento · Enter your own above</span>
             <button
               onClick={() => setDismissSampleBanner(true)}
-              className="ml-2 shrink-0 rounded p-0.5 hover:bg-accent transition-colors"
+              className="shrink-0 rounded p-0.5 hover:bg-accent transition-colors"
               aria-label="Dismiss"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             </button>
           </div>
         )}

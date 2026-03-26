@@ -101,9 +101,9 @@ function enrichAndSort(
   return enriched;
 }
 
-export function useRoutePlanner() {
-  const [origin, setOrigin] = useState<Location | null>(null);
-  const [destination, setDestination] = useState<Location | null>(null);
+export function useRoutePlanner(initialOrigin?: Location | null, initialDestination?: Location | null) {
+  const [origin, setOrigin] = useState<Location | null>(initialOrigin ?? null);
+  const [destination, setDestination] = useState<Location | null>(initialDestination ?? null);
 
   // Background OSRM route fetch — for accurate matching + map polyline
   const routeKey = origin && destination
@@ -138,7 +138,16 @@ export function useRoutePlanner() {
       dist: m.distanceFromRoute,
       progress: m.progressAlongRoute,
     }));
-    return enrichAndSort(matches, allCMS, allIncidents, allChainControls, allClosures, allTravelTimes);
+    // Deduplicate: if consecutive cameras share the same postmile and route, keep only the first
+    const deduped: typeof matches = [];
+    for (const m of matches) {
+      const prev = deduped[deduped.length - 1];
+      if (prev && prev.camera.postmile === m.camera.postmile && prev.camera.route === m.camera.route) {
+        continue; // skip duplicate at same postmile on same route
+      }
+      deduped.push(m);
+    }
+    return enrichAndSort(deduped, allCMS, allIncidents, allChainControls, allClosures, allTravelTimes);
   }, [origin, destination, allCameras, osrmRoute, allCMS, allIncidents, allChainControls, allClosures, allTravelTimes]);
 
   const straightLineDistance = origin && destination
