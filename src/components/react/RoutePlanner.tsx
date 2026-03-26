@@ -1,7 +1,10 @@
 import { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react';
 import { useRoutePlanner } from '@/hooks/use-route-planner';
 import { RouteLiveView } from './RouteLiveView';
+import { CameraCard } from './CameraCard';
+import { CameraDetailDialog } from './CameraDetailDialog';
 import { ErrorBoundary } from './ErrorBoundary';
+import type { EnrichedCamera } from '@/hooks/use-enriched-cameras';
 
 const RouteMapView = lazy(() => import('./RouteMapView').then((m) => ({ default: m.RouteMapView })));
 
@@ -145,6 +148,9 @@ export function RoutePlanner() {
   const originAC = useGeocodeAutocomplete();
   const destAC = useGeocodeAutocomplete();
   const [geocodeError, setGeocodeError] = useState<string | null>(null);
+  const [routeView, setRouteView] = useState<'list' | 'grid'>('list');
+  const [showMap, setShowMap] = useState(true);
+  const [selectedCamera, setSelectedCamera] = useState<EnrichedCamera | null>(null);
 
   const handlePlanRoute = useCallback(() => {
     setGeocodeError(null);
@@ -170,6 +176,21 @@ export function RoutePlanner() {
     destAC.clear();
     setGeocodeError(null);
   }, [clearRoute, originAC.clear, destAC.clear]);
+
+  // Auto-load Folsom → Sacramento preset on mount if no route is set
+  const hasAutoLoaded = useRef(false);
+  useEffect(() => {
+    if (hasAutoLoaded.current) return;
+    if (origin || destination) return;
+    hasAutoLoaded.current = true;
+    const preset = PRESET_ROUTES.find((r) => r.label === 'Folsom → Sacramento');
+    if (preset) {
+      originAC.select(preset.from);
+      destAC.select(preset.to);
+      setOrigin(preset.from);
+      setDestination(preset.to);
+    }
+  }, [origin, destination, originAC, destAC, setOrigin, setDestination]);
 
   const totalIncidents = routeCameras.reduce((sum, c) => sum + c.nearbyIncidents.length, 0);
   const totalClosures = routeCameras.reduce((sum, c) => sum + c.nearbyClosures.length, 0);
@@ -229,7 +250,7 @@ export function RoutePlanner() {
               {(routeDistance / 1609.34).toFixed(0)} mi
             </span>
             <span className="rounded-full border border-border px-2.5 py-1">
-              ~{Math.round(routeDuration / 60)} min
+              {routeDuration > 0 && !isNaN(routeDuration) ? `~${Math.round(routeDuration / 60)} min` : '\u2014'}
             </span>
             <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-primary">
               {routeCameras.length} cameras
@@ -249,6 +270,41 @@ export function RoutePlanner() {
                 {totalChainControls} chain control{totalChainControls > 1 ? 's' : ''}
               </span>
             )}
+
+            {/* Spacer to push toggles right */}
+            <div className="flex-1" />
+
+            {/* View toggle: List / Grid */}
+            <div className="flex items-center rounded-lg border border-border overflow-hidden">
+              <button
+                onClick={() => setRouteView('list')}
+                className={`px-2.5 py-1 text-[11px] font-medium transition-colors ${
+                  routeView === 'list'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-accent'
+                }`}
+              >
+                List
+              </button>
+              <button
+                onClick={() => setRouteView('grid')}
+                className={`px-2.5 py-1 text-[11px] font-medium transition-colors ${
+                  routeView === 'grid'
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-accent'
+                }`}
+              >
+                Grid
+              </button>
+            </div>
+
+            {/* Hide/Show map toggle */}
+            <button
+              onClick={() => setShowMap((v) => !v)}
+              className="hidden lg:inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1 text-[11px] text-muted-foreground hover:bg-accent transition-colors"
+            >
+              {showMap ? 'Hide map' : 'Show map'}
+            </button>
           </div>
         )}
 
@@ -261,29 +317,51 @@ export function RoutePlanner() {
           </div>
         )}
 
-        {/* Main content: Feed (left) + Map (right) */}
+        {/* Main content: Feed/Grid (left) + Map (right) */}
         {hasRoute && !routeLoading && routeCameras.length > 0 && (
           <div className="flex gap-4" style={{ height: 'calc(100vh - 180px)' }}>
-            {/* Left: scrollable feed timeline */}
+            {/* Left: scrollable feed timeline or camera grid */}
             <div className="flex-1 overflow-y-auto pr-1">
-              <RouteLiveView cameras={routeCameras} routeDuration={routeDuration} />
+              {routeView === 'list' ? (
+                <RouteLiveView cameras={routeCameras} routeDuration={routeDuration} />
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pb-4">
+                  {routeCameras.map((camera) => (
+                    <CameraCard
+                      key={camera.id}
+                      camera={camera}
+                      onClick={() => setSelectedCamera(camera)}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
 
-            {/* Right: sticky map */}
-            <div className="hidden lg:block w-[45%] shrink-0">
-              <Suspense fallback={<div className="h-full animate-pulse rounded-lg bg-muted" />}>
-                <div className="sticky top-0 h-full">
-                  <RouteMapView
-                    routeCoords={routeLineCoords}
-                    routeLineLoading={routeLineLoading}
-                    cameras={routeCameras}
-                    origin={origin}
-                    destination={destination}
-                  />
-                </div>
-              </Suspense>
-            </div>
+            {/* Right: sticky map (hideable) */}
+            {showMap && (
+              <div className="hidden lg:block w-[45%] shrink-0">
+                <Suspense fallback={<div className="h-full animate-pulse rounded-lg bg-muted" />}>
+                  <div className="sticky top-0 h-full">
+                    <RouteMapView
+                      routeCoords={routeLineCoords}
+                      routeLineLoading={routeLineLoading}
+                      cameras={routeCameras}
+                      origin={origin}
+                      destination={destination}
+                    />
+                  </div>
+                </Suspense>
+              </div>
+            )}
           </div>
+        )}
+
+        {/* Camera detail dialog for grid view */}
+        {selectedCamera && (
+          <CameraDetailDialog
+            camera={selectedCamera}
+            onClose={() => setSelectedCamera(null)}
+          />
         )}
 
         {/* Empty / no cameras state */}

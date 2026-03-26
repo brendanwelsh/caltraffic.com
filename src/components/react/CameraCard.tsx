@@ -88,7 +88,6 @@ export function CameraCard({ camera, onClick, isFavorite = false, onToggleFavori
   }, [camera.id]);
 
   const hasIncidents = camera.nearbyIncidents.length > 0;
-  const hasCMS = camera.nearbyCMS.length > 0;
 
   return (
     <div
@@ -163,11 +162,6 @@ export function CameraCard({ camera, onClick, isFavorite = false, onToggleFavori
           {hasIncidents && (
             <span className="inline-flex items-center justify-center h-4 w-4 rounded bg-red-500/30 backdrop-blur-sm" title={`${camera.nearbyIncidents.length} incident(s)`}>
               <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="3"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/></svg>
-            </span>
-          )}
-          {hasCMS && (
-            <span className="inline-flex items-center justify-center h-4 w-4 rounded bg-amber-500/30 backdrop-blur-sm" title="Highway sign">
-              <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#fbbf24" strokeWidth="3"><rect width="16" height="10" x="4" y="6" rx="1"/></svg>
             </span>
           )}
         </div>

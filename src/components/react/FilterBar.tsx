@@ -241,16 +241,6 @@ export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesO
             count={stats?.incidents}
           />
         )}
-        {(stats?.signs ?? 0) > 0 && (
-          <IconToggle
-            icon={<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect width="18" height="12" x="3" y="5" rx="1"/><path d="M3 10h18"/></svg>}
-            label="Signs"
-            active={withSigns}
-            onChange={(v) => showWithSigns.set(v)}
-            color="amber"
-            count={stats?.signs}
-          />
-        )}
         {onToggleFavoritesOnly && (stats?.favorites ?? 0) > 0 && (
           <IconToggle
             icon={<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill={showFavoritesOnly ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>}

@@ -14,10 +14,10 @@ import { useFavorites } from '@/hooks/use-favorites';
 import { useUrlState } from '@/hooks/use-url-state';
 import { CameraCard } from './CameraCard';
 import { CameraDetailDialog } from './CameraDetailDialog';
-import { DataFreshness } from './DataFreshness';
 import { MapView } from './MapView';
 import { DISTRICT_COUNTIES } from '@/lib/constants';
 import type { EnrichedCamera } from '@/hooks/use-enriched-cameras';
+import { mutate } from 'swr';
 import type { CMS, Incident } from '@/lib/schemas';
 
 const PAGE_SIZE = 20;
@@ -186,7 +186,17 @@ export function CameraGrid({ showFavoritesOnly }: CameraGridProps) {
             <p className="text-sm text-muted-foreground">
               {filteredCameras.length} cameras
             </p>
-            <DataFreshness count={cameras.length} isLoading={isLoading} />
+            <button
+              onClick={() => mutate((key) => typeof key === 'string' && key.startsWith('/api/'), undefined, { revalidate: true })}
+              className="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-border text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+              title="Refresh data"
+              aria-label="Refresh data"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                <path d="M21 3v5h-5" />
+              </svg>
+            </button>
           </div>
 
           <div className={`grid gap-3 ${GRID_COLS_CLASS[columns]}`}>

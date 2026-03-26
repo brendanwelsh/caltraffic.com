@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { useStore } from '@nanostores/react';
 import { selectedDistrict, selectedCounty, selectedRoute, selectedCity } from '@/stores/filters';
 import { DISTRICTS, DISTRICT_CENTERS } from '@/lib/constants';
@@ -17,6 +18,27 @@ function latLonToSvg(lat: number, lon: number): { x: number; y: number } {
 
 export function DistrictMapSelector({ onClose }: { onClose: () => void }) {
   const current = useStore(selectedDistrict);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // Close on click outside
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (panelRef.current && !panelRef.current.contains(e.target as Node)) {
+        onClose();
+      }
+    }
+    function handleEscape(e: KeyboardEvent) {
+      if (e.key === 'Escape') onClose();
+    }
+    // Delay click listener attachment to avoid closing on the same click that opened it
+    const timer = setTimeout(() => document.addEventListener('mousedown', handleClickOutside), 0);
+    document.addEventListener('keydown', handleEscape);
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [onClose]);
 
   const handleSelect = (d: number) => {
     selectedDistrict.set(d === current ? null : d);
@@ -27,7 +49,7 @@ export function DistrictMapSelector({ onClose }: { onClose: () => void }) {
   };
 
   return (
-    <div className="absolute top-full left-0 mt-1 z-50 rounded-lg border border-border bg-card shadow-xl p-3" style={{ width: 280 }}>
+    <div ref={panelRef} className="absolute top-full left-0 mt-1 z-50 rounded-lg border border-border bg-card shadow-xl p-3" style={{ width: 280 }}>
       <div className="flex items-center justify-between mb-2">
         <span className="text-xs font-semibold text-foreground">Select District</span>
         <button onClick={onClose} className="text-muted-foreground hover:text-foreground">

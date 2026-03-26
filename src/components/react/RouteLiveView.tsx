@@ -44,7 +44,7 @@ function FeedCard({ camera, routeDuration, isExpanded, onToggle }: {
   onToggle: () => void;
 }) {
   const { isFavorite, toggle: toggleFavorite } = useFavorites();
-  const etaMinutes = routeDuration > 0 ? Math.round(camera.progressAlongRoute * (routeDuration / 60)) : '?';
+  const etaMinutes = routeDuration > 0 && !isNaN(routeDuration) ? Math.round(camera.progressAlongRoute * (routeDuration / 60)) : null;
   const hasIssues = camera.nearbyIncidents.length > 0 || camera.chainControls.length > 0 || camera.nearbyClosures.length > 0;
   const favorite = isFavorite(camera.id);
 
@@ -90,7 +90,7 @@ function FeedCard({ camera, routeDuration, isExpanded, onToggle }: {
           <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
             <div><span className="text-muted-foreground">District:</span> <span className="font-medium">D{String(camera.district).padStart(2, '0')}</span></div>
             <div><span className="text-muted-foreground">Postmile:</span> <span className="font-medium">{camera.postmile.toFixed(1)}</span></div>
-            <div><span className="text-muted-foreground">ETA:</span> <span className="font-medium">~{etaMinutes} min</span></div>
+            <div><span className="text-muted-foreground">ETA:</span> <span className="font-medium">{etaMinutes != null ? `~${etaMinutes} min` : '\u2014'}</span></div>
             <div><span className="text-muted-foreground">Coords:</span> <span className="font-medium">{camera.latitude.toFixed(4)}, {camera.longitude.toFixed(4)}</span></div>
           </div>
 
@@ -171,12 +171,12 @@ function FeedCard({ camera, routeDuration, isExpanded, onToggle }: {
 
 /** Collapsed mini row for unavailable cameras */
 function MiniCard({ camera, routeDuration }: { camera: RouteCamera; routeDuration: number }) {
-  const etaMinutes = routeDuration > 0 ? Math.round(camera.progressAlongRoute * (routeDuration / 60)) : '?';
+  const etaMinutes = routeDuration > 0 && !isNaN(routeDuration) ? Math.round(camera.progressAlongRoute * (routeDuration / 60)) : null;
   return (
     <div className="flex items-center gap-2 rounded-lg border border-border/30 bg-card/40 px-2.5 py-1 opacity-50">
       <RouteShield route={camera.route} size="sm" />
       <span className="text-[10px] text-muted-foreground truncate">{camera.direction} — {camera.location || camera.city}</span>
-      <span className="ml-auto text-[9px] text-muted-foreground shrink-0">{etaMinutes}m</span>
+      <span className="ml-auto text-[9px] text-muted-foreground shrink-0">{etaMinutes != null ? `${etaMinutes}m` : '\u2014'}</span>
       <span className="text-[8px] text-muted-foreground/40 italic">unavailable</span>
     </div>
   );
@@ -228,7 +228,7 @@ export function RouteLiveView({ cameras, routeDuration }: RouteLiveViewProps) {
                       'border-muted-foreground bg-muted'
                     }`} />
                     <span className="mt-1 text-[10px] font-medium text-muted-foreground">
-                      {routeDuration > 0 ? Math.round(camera.progressAlongRoute * (routeDuration / 60)) : '?'}m
+                      {routeDuration > 0 && !isNaN(routeDuration) ? `${Math.round(camera.progressAlongRoute * (routeDuration / 60))}m` : '\u2014'}
                     </span>
                   </div>
                   <FeedCard
