@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { VideoPlayer } from './VideoPlayer';
 import { RouteShield } from './RouteShield';
 import { ConditionBadges } from './ConditionBadges';
@@ -11,58 +11,16 @@ interface RouteLiveViewProps {
   routeDuration: number;
 }
 
-/** Only renders VideoPlayer when scrolled into view */
-function LazyFeed({ camera, isVisible }: { camera: RouteCamera; isVisible: boolean }) {
-  if (!isVisible) {
-    return (
-      <div className="relative aspect-video bg-black/40">
-        <img
-          src={camera.imageUrl}
-          alt={camera.location}
-          className="w-full h-full object-cover opacity-40"
-          loading="lazy"
-        />
-        <div className="absolute inset-0 flex items-center justify-center">
-          <span className="rounded-full bg-black/60 px-3 py-1.5 text-[11px] text-white/70">
-            Scroll to load feed
-          </span>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <VideoPlayer
-      streamUrl={camera.streamUrl}
-      imageUrl={camera.imageUrl}
-      cameraName={camera.location}
-    />
-  );
-}
-
-function LazyFeedCard({ camera, routeDuration, onSelect }: {
+function FeedCard({ camera, routeDuration, onSelect }: {
   camera: RouteCamera;
   routeDuration: number;
   onSelect: (c: RouteCamera) => void;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    if (!ref.current) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsVisible(entry.isIntersecting),
-      { rootMargin: '100px' },
-    );
-    observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
-
   const etaMinutes = Math.round(camera.progressAlongRoute * (routeDuration / 60));
   const hasIssues = camera.nearbyIncidents.length > 0 || camera.chainControls.length > 0 || camera.nearbyClosures.length > 0;
 
   return (
-    <div ref={ref} className="relative">
+    <div className="relative">
       {/* Timeline connector */}
       <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-border" />
 
@@ -99,8 +57,12 @@ function LazyFeedCard({ camera, routeDuration, onSelect }: {
             )}
           </div>
 
-          {/* Feed — full size, no crop */}
-          <LazyFeed camera={camera} isVisible={isVisible} />
+          {/* Feed — full size, all play */}
+          <VideoPlayer
+            streamUrl={camera.streamUrl}
+            imageUrl={camera.imageUrl}
+            cameraName={camera.location}
+          />
 
           {/* Conditions bar */}
           {(hasIssues || camera.nearbyCMS.length > 0 || camera.travelTime) && (
@@ -149,7 +111,7 @@ export function RouteLiveView({ cameras, routeDuration }: RouteLiveViewProps) {
 
       <div className="space-y-0">
         {displayCameras.map((camera) => (
-          <LazyFeedCard
+          <FeedCard
             key={camera.id}
             camera={camera}
             routeDuration={routeDuration}
