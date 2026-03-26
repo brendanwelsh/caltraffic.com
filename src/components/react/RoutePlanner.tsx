@@ -269,10 +269,6 @@ export function RoutePlanner() {
         {/* Controls bar */}
         {hasRoute && routeCameras.length > 0 && (
           <div className="flex items-center gap-2">
-            <p className="text-[11px] text-muted-foreground">
-              {routeCameras.length} cameras · {routeCameras.filter(c => c.hasVideo && c.streamUrl).length} live
-            </p>
-
             <div className="flex-1" />
 
             {/* View toggle */}
