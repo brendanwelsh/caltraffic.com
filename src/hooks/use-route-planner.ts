@@ -34,7 +34,15 @@ interface RouteGeometry {
   duration: number;
 }
 
-const CORRIDOR_WIDTH_KM = 5;
+// Corridor width scales with route distance:
+// Short routes (<50km): 1.5km — tight, only cameras right on the road
+// Medium routes (50-200km): 2.5km
+// Long routes (>200km): 4km — wider to catch highways that curve away
+function getCorridorWidth(distanceKm: number): number {
+  if (distanceKm < 50) return 1.5;
+  if (distanceKm < 200) return 2.5;
+  return 4;
+}
 
 const routeFetcher = (url: string) => fetch(url).then((r) => {
   if (!r.ok) throw new Error('Route fetch failed');
@@ -50,6 +58,7 @@ function matchCamerasToCorridorLine(
   const totalDist = haversineDistance(from.lat, from.lon, to.lat, to.lon);
   if (totalDist === 0) return [];
 
+  const corridorWidth = getCorridorWidth(totalDist);
   const matches: { camera: Camera; dist: number; progress: number }[] = [];
 
   for (const cam of cameras) {
@@ -66,7 +75,7 @@ function matchCamerasToCorridorLine(
     const nearestLon = from.lon + t * dx;
     const dist = haversineDistance(cam.latitude, cam.longitude, nearestLat, nearestLon);
 
-    if (dist <= CORRIDOR_WIDTH_KM) {
+    if (dist <= corridorWidth) {
       matches.push({ camera: cam, dist, progress: t });
     }
   }
