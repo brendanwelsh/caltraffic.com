@@ -424,7 +424,7 @@ export function RoutePlanner() {
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">Drive Time</span>
-                      <span className="font-medium">~{routeDuration > 0 ? Math.round(routeDuration / 60) : '—'} min</span>
+                      <span className="font-medium">~{routeDuration > 0 ? (() => { const mins = Math.round(routeDuration / 60); const hrs = Math.floor(mins / 60); const remainder = mins % 60; return hrs > 0 ? `${hrs}h ${remainder}m` : `${mins}m`; })() : '—'}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-muted-foreground">Cameras</span>

@@ -12,38 +12,34 @@ export function CMSSign({ phase1Lines, phase2Lines, location, compact = false }:
   if (compact) {
     const text = [...phase1Lines, ...(phase2Lines ?? [])].filter((l) => l.trim()).join(' / ');
     return (
-      <div className="rounded border border-amber-500/30 bg-amber-500/5 px-2 py-1">
-        <p className="text-[10px] font-mono font-bold text-amber-400 truncate">{text}</p>
-        <p className="text-[9px] text-muted-foreground truncate">{location}</p>
+      <div className="max-w-[280px] mx-auto rounded border-2 border-amber-600/40 bg-black px-3 py-1.5">
+        <p className="text-[10px] font-mono font-bold text-amber-400 text-center truncate">{text}</p>
+        <p className="text-[9px] text-amber-600/60 text-center truncate mt-0.5">{location}</p>
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border border-zinc-700 bg-zinc-900 overflow-hidden">
-      <div className="px-3 py-1.5 bg-zinc-800 border-b border-zinc-700 flex items-center gap-2">
-        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-400">
-          <rect width="18" height="18" x="3" y="3" rx="2"/>
-          <path d="M3 9h18"/>
-        </svg>
-        <span className="text-[10px] text-muted-foreground truncate">{location}</span>
-      </div>
-      <div className="px-4 py-3 bg-[#0a1a0a]">
+    <div className="max-w-[280px] mx-auto rounded-md border-2 border-amber-700/50 bg-black overflow-hidden shadow-md">
+      <div className="px-3 py-2">
         {phase1Lines.map((line, i) => (
-          <div key={i} className="text-center text-sm font-mono font-bold tracking-wider text-amber-300 leading-relaxed">
+          <div key={i} className="text-center text-xs font-mono font-bold tracking-widest text-amber-400 leading-relaxed uppercase">
             {line || '\u00A0'}
           </div>
         ))}
         {phase2Lines && phase2Lines.length > 0 && phase2Lines.some((l) => l.trim()) && (
           <>
-            <div className="my-2 border-t border-green-900/50" />
+            <div className="my-1.5 border-t border-amber-700/30" />
             {phase2Lines.map((line, i) => (
-              <div key={i} className="text-center text-sm font-mono font-bold tracking-wider text-amber-300 leading-relaxed">
+              <div key={i} className="text-center text-xs font-mono font-bold tracking-widest text-amber-400 leading-relaxed uppercase">
                 {line || '\u00A0'}
               </div>
             ))}
           </>
         )}
+      </div>
+      <div className="px-2 py-0.5 border-t border-amber-700/20">
+        <p className="text-[8px] text-amber-700/60 text-center truncate font-mono">{location}</p>
       </div>
     </div>
   );
