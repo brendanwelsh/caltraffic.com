@@ -11,46 +11,31 @@ import Footer from '../components/astro/Footer.astro';
     <Header />
     <main class="flex-1 px-4 py-8 md:px-6 max-w-4xl mx-auto w-full">
 
-      <!-- What is California Traffic Lens -->
       <h1 class="text-3xl font-bold mb-4">About California Traffic Lens</h1>
-      <p class="text-muted-foreground text-lg mb-4">
-        A real-time traffic camera viewer and route planner for California highways. View live camera feeds, check road conditions, and plan your route with cameras along the way.
-      </p>
-      <p class="text-muted-foreground mb-10">
-        California Traffic Lens aggregates data from multiple public agencies into a single, fast interface. Browse over 3,000 traffic cameras across all 12 Caltrans districts, see active CHP incidents on the map, check weather alerts, chain controls, lane closures, and more — all updating in near real-time.
-      </p>
-
-      <!-- Why This Exists -->
-      <h2 class="text-2xl font-semibold mb-4">Why This Exists</h2>
-      <p class="text-muted-foreground mb-4">
-        No other tool lets you plan a route and see cameras along it. We built this to fix that. California Traffic Lens combines all public traffic data into one fast, modern, ad-free interface.
+      <p class="text-muted-foreground text-lg mb-6">
+        A real-time traffic camera viewer and route planner for California highways. Plan your route, see cameras along it, and check road conditions — all in one place, ad-free.
       </p>
 
       <!-- Data Sources -->
-      <h2 class="text-2xl font-semibold mb-4">Data Sources</h2>
-      <ul class="space-y-1.5 text-sm text-muted-foreground mb-10">
-        <li><a href="https://cwwp2.dot.ca.gov/" class="font-semibold text-foreground underline hover:text-primary transition-colors" target="_blank" rel="noopener">Caltrans CWWP2</a> — cameras, signs, chain controls, closures, weather stations, travel times</li>
-        <li><a href="https://media.chp.ca.gov/sa_xml/sa.xml" class="font-semibold text-foreground underline hover:text-primary transition-colors" target="_blank" rel="noopener">California Highway Patrol</a> — real-time traffic incidents statewide</li>
-        <li><a href="https://api.weather.gov/" class="font-semibold text-foreground underline hover:text-primary transition-colors" target="_blank" rel="noopener">National Weather Service</a> — active weather alerts for California zones</li>
-        <li><a href="https://router.project-osrm.org/" class="font-semibold text-foreground underline hover:text-primary transition-colors" target="_blank" rel="noopener">OSRM</a> — route calculation, directions, and travel times</li>
-        <li><span class="font-semibold text-foreground">Photon / Nominatim</span> — address geocoding for the route planner</li>
-      </ul>
-
-      <!-- How It's Made -->
-      <h2 class="text-2xl font-semibold mb-4">How It's Made</h2>
-      <div class="space-y-3 text-muted-foreground mb-10">
-        <p>
-          Built with <strong class="text-foreground">Astro</strong>, <strong class="text-foreground">React</strong>, <strong class="text-foreground">Tailwind CSS</strong>, and <strong class="text-foreground">Leaflet</strong>. Hosted on <strong class="text-foreground">Cloudflare Workers</strong>.
-        </p>
-        <ul class="list-disc list-inside space-y-1.5 ml-2">
-          <li>Camera data refreshes every <strong class="text-foreground">30 seconds</strong>, incidents every <strong class="text-foreground">60 seconds</strong></li>
-          <li>Cameras near active incidents refresh every <strong class="text-foreground">15 seconds</strong></li>
-          <li><strong class="text-foreground">12 Caltrans districts</strong> covering all of California</li>
-          <li>Over <strong class="text-foreground">3,000 cameras</strong> statewide</li>
-        </ul>
-        <p>
-          The CWWP2 data format provides JSON feeds per district containing camera snapshot images, HLS video streams (where available), GPS coordinates, route/postmile data, and metadata such as camera direction and nearby landmarks. This app fetches each district's feed, enriches it with CHP incident data and weather alerts, and presents everything on an interactive map and grid.
-        </p>
+      <h2 class="text-2xl font-semibold mb-3">Data Sources</h2>
+      <p class="text-sm text-muted-foreground mb-3">All data is public domain, sourced from California state agencies and open services.</p>
+      <div class="overflow-x-auto mb-10">
+        <table class="w-full text-sm border border-border rounded-lg">
+          <thead>
+            <tr class="border-b border-border bg-muted/50">
+              <th class="px-3 py-2 text-left font-medium">Source</th>
+              <th class="px-3 py-2 text-left font-medium">Provides</th>
+              <th class="px-3 py-2 text-left font-medium">Refresh</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-border"><td class="px-3 py-2"><a href="https://cwwp2.dot.ca.gov/" class="text-foreground underline hover:text-primary" target="_blank" rel="noopener">Caltrans CWWP2</a></td><td class="px-3 py-2 text-muted-foreground">3,000+ cameras, CMS signs, chain controls, lane closures, RWIS weather, travel times</td><td class="px-3 py-2 text-muted-foreground">30-120s</td></tr>
+            <tr class="border-b border-border"><td class="px-3 py-2"><a href="https://media.chp.ca.gov/sa_xml/sa.xml" class="text-foreground underline hover:text-primary" target="_blank" rel="noopener">CHP Incidents</a></td><td class="px-3 py-2 text-muted-foreground">Real-time traffic incidents statewide</td><td class="px-3 py-2 text-muted-foreground">60s</td></tr>
+            <tr class="border-b border-border"><td class="px-3 py-2"><a href="https://api.weather.gov/" class="text-foreground underline hover:text-primary" target="_blank" rel="noopener">National Weather Service</a></td><td class="px-3 py-2 text-muted-foreground">Active weather alerts for California</td><td class="px-3 py-2 text-muted-foreground">5 min</td></tr>
+            <tr class="border-b border-border"><td class="px-3 py-2"><a href="https://router.project-osrm.org/" class="text-foreground underline hover:text-primary" target="_blank" rel="noopener">OSRM</a></td><td class="px-3 py-2 text-muted-foreground">Route geometry and turn-by-turn directions</td><td class="px-3 py-2 text-muted-foreground">On demand</td></tr>
+            <tr><td class="px-3 py-2 text-foreground">Photon / Nominatim</td><td class="px-3 py-2 text-muted-foreground">Address and city geocoding</td><td class="px-3 py-2 text-muted-foreground">On demand</td></tr>
+          </tbody>
+        </table>
       </div>
 
       <!-- District Map -->
@@ -113,14 +98,6 @@ import Footer from '../components/astro/Footer.astro';
           </tbody>
         </table>
       </div>
-
-      <!-- Refresh Rates -->
-      <h2 class="text-2xl font-semibold mb-4">Refresh Rates</h2>
-      <ul class="space-y-1 text-muted-foreground mb-10">
-        <li>Cameras near incidents: every <strong class="text-foreground">15 seconds</strong></li>
-        <li>Video cameras: every <strong class="text-foreground">30 seconds</strong></li>
-        <li>Default: every <strong class="text-foreground">60 seconds</strong></li>
-      </ul>
 
       <!-- Support -->
       <h2 class="text-2xl font-semibold mb-4">Support This Project</h2>
