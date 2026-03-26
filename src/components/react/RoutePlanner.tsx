@@ -1,8 +1,9 @@
 import { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react';
 import { useRoutePlanner } from '@/hooks/use-route-planner';
 import { RouteLiveView } from './RouteLiveView';
-import { CameraCard } from './CameraCard';
 import { CameraDetailDialog } from './CameraDetailDialog';
+import { VideoPlayer } from './VideoPlayer';
+import { RouteShield } from './RouteShield';
 import { ErrorBoundary } from './ErrorBoundary';
 import type { EnrichedCamera } from '@/hooks/use-enriched-cameras';
 
@@ -344,11 +345,26 @@ export function RoutePlanner() {
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pb-4">
                   {routeCameras.map((camera) => (
-                    <CameraCard
+                    <div
                       key={camera.id}
-                      camera={camera}
+                      className="rounded-xl border border-border/60 overflow-hidden bg-card cursor-pointer hover:shadow-md transition-shadow"
                       onClick={() => setSelectedCamera(camera)}
-                    />
+                    >
+                      <VideoPlayer streamUrl={camera.streamUrl} imageUrl={camera.imageUrl} cameraName={camera.location} />
+                      <div className="px-2.5 py-1.5">
+                        <div className="flex items-center gap-1.5">
+                          <RouteShield route={camera.route} size="sm" />
+                          <span className="text-xs font-medium truncate">{camera.direction}</span>
+                          {camera.hasVideo && camera.streamUrl && (
+                            <span className="inline-flex items-center gap-0.5 text-[8px] font-bold uppercase text-green-400">
+                              <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
+                              live
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-[11px] text-muted-foreground truncate mt-0.5">{camera.location || camera.city}</p>
+                      </div>
+                    </div>
                   ))}
                 </div>
               )}

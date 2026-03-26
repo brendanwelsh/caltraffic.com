@@ -19,6 +19,7 @@ import { DISTRICTS, getCountiesForDistrict } from '@/lib/constants';
 import { cn } from '@/lib/utils';
 
 interface FilterBarProps {
+  availableCities?: string[];
   stats?: {
     total: number;
     video: number;
@@ -78,7 +79,7 @@ function IconToggle({
   );
 }
 
-export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesOnly }: FilterBarProps) {
+export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesOnly, availableCities = [] }: FilterBarProps) {
   const district = useStore(selectedDistrict);
   const route = useStore(selectedRoute);
   const city = useStore(selectedCity);
@@ -176,6 +177,21 @@ export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesO
             <option key={c} value={c}>{c}</option>
           ))}
         </select>
+
+        {/* City dropdown */}
+        {availableCities.length > 0 && (
+          <select
+            value={city ?? ''}
+            onChange={(e) => selectedCity.set(e.target.value || null)}
+            className="h-9 rounded-lg border border-input bg-background px-2 pr-6 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-ring appearance-none shrink-0 max-w-[130px] sm:max-w-[160px]"
+            style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'10\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23888\' stroke-width=\'2\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 6px center' }}
+          >
+            <option value="">All Cities</option>
+            {availableCities.map((c) => (
+              <option key={c} value={c}>{c}</option>
+            ))}
+          </select>
+        )}
 
         {/* Search */}
         <div className="relative flex-1 min-w-0">

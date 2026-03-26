@@ -24,6 +24,11 @@ export function MainContent() {
     favorites: favorites.size,
   }), [cameras, favorites]);
 
+  const availableCities = useMemo(() => {
+    const cities = new Set(cameras.map((c) => c.city).filter(Boolean));
+    return [...cities].sort();
+  }, [cameras]);
+
   return (
     <ErrorBoundary>
       <WeatherAlertBanner />
@@ -31,6 +36,7 @@ export function MainContent() {
         stats={stats}
         showFavoritesOnly={showFavoritesOnly}
         onToggleFavoritesOnly={setShowFavoritesOnly}
+        availableCities={availableCities}
       />
       <div className="mt-4">
         <CameraGrid showFavoritesOnly={showFavoritesOnly} />
