@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { VideoPlayer } from './VideoPlayer';
 import { CMSSign } from './CMSSign';
 import { RouteShield } from './RouteShield';
@@ -11,10 +11,7 @@ interface RouteLiveViewProps {
   routeDuration: number;
 }
 
-/**
- * Once a feed has been scrolled into view, keep it mounted (no flicker).
- * Static images always show. Video mounts once seen and stays.
- */
+/** Mount video once seen, keep mounted. Static images always show. */
 function StableFeed({ camera }: { camera: RouteCamera }) {
   const ref = useRef<HTMLDivElement>(null);
   const [hasBeenSeen, setHasBeenSeen] = useState(false);
@@ -22,12 +19,7 @@ function StableFeed({ camera }: { camera: RouteCamera }) {
   useEffect(() => {
     if (!ref.current || !camera.streamUrl || hasBeenSeen) return;
     const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setHasBeenSeen(true);
-          observer.disconnect();
-        }
-      },
+      ([entry]) => { if (entry.isIntersecting) { setHasBeenSeen(true); observer.disconnect(); } },
       { rootMargin: '300px' },
     );
     observer.observe(ref.current);
@@ -45,7 +37,6 @@ function StableFeed({ camera }: { camera: RouteCamera }) {
   );
 }
 
-/** Full-size feed card with info panel */
 function FeedCard({ camera, routeDuration, isExpanded, onToggle }: {
   camera: RouteCamera;
   routeDuration: number;
@@ -53,7 +44,7 @@ function FeedCard({ camera, routeDuration, isExpanded, onToggle }: {
   onToggle: () => void;
 }) {
   const { isFavorite, toggle: toggleFavorite } = useFavorites();
-  const etaMinutes = Math.round(camera.progressAlongRoute * (routeDuration / 60));
+  const etaMinutes = routeDuration > 0 ? Math.round(camera.progressAlongRoute * (routeDuration / 60)) : '?';
   const hasIssues = camera.nearbyIncidents.length > 0 || camera.chainControls.length > 0 || camera.nearbyClosures.length > 0;
   const favorite = isFavorite(camera.id);
 
@@ -61,23 +52,26 @@ function FeedCard({ camera, routeDuration, isExpanded, onToggle }: {
     <div className={`flex-1 rounded-xl border overflow-hidden bg-card cursor-pointer transition-shadow ${
       isExpanded ? 'shadow-lg' : 'hover:shadow-md'
     } ${hasIssues ? 'border-red-500/30' : 'border-border/60'}`} onClick={onToggle}>
-      <div className="flex">
-        <div className="w-[45%] shrink-0">
+
+      {/* Mobile: stacked. Desktop: side by side */}
+      <div className="flex flex-col md:flex-row">
+        {/* Feed */}
+        <div className="md:w-[45%] shrink-0">
           <StableFeed camera={camera} />
         </div>
+
+        {/* Info panel — fills remaining space */}
         <div className="flex-1 p-3 flex flex-col min-w-0">
-          {/* Header */}
+          {/* Row 1: Route + direction + live + favorite */}
           <div className="flex items-center gap-2">
             <RouteShield route={camera.route} size="lg" />
-            <div>
-              <span className="text-base font-bold">{camera.direction}</span>
-              {camera.hasVideo && camera.streamUrl && (
-                <span className="ml-2 inline-flex items-center gap-1 text-[10px] font-bold uppercase text-green-400">
-                  <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
-                  live
-                </span>
-              )}
-            </div>
+            <span className="text-base font-bold">{camera.direction}</span>
+            {camera.hasVideo && camera.streamUrl && (
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase text-green-400">
+                <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
+                live
+              </span>
+            )}
             <button
               onClick={(e) => { e.stopPropagation(); toggleFavorite(camera.id); }}
               className={`ml-auto p-1.5 rounded-md transition-colors ${favorite ? 'text-yellow-400' : 'text-muted-foreground/30 hover:text-muted-foreground'}`}
@@ -88,22 +82,20 @@ function FeedCard({ camera, routeDuration, isExpanded, onToggle }: {
             </button>
           </div>
 
-          {/* Location — bigger */}
-          <p className="text-base font-semibold mt-2 leading-snug">{camera.location || 'Unknown'}</p>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            {camera.city}{camera.county ? `, ${camera.county}` : ''}
-          </p>
+          {/* Row 2: Location */}
+          <p className="text-base font-semibold mt-1.5 leading-snug">{camera.location || 'Unknown'}</p>
+          <p className="text-xs text-muted-foreground">{camera.city}{camera.county ? `, ${camera.county}` : ''}</p>
 
-          {/* Details grid */}
-          <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
-            <div><span className="text-muted-foreground">District:</span> <span className="font-medium">{camera.district}</span></div>
+          {/* Row 3: Details */}
+          <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
+            <div><span className="text-muted-foreground">District:</span> <span className="font-medium">D{String(camera.district).padStart(2, '0')}</span></div>
             <div><span className="text-muted-foreground">Postmile:</span> <span className="font-medium">{camera.postmile.toFixed(1)}</span></div>
             <div><span className="text-muted-foreground">ETA:</span> <span className="font-medium">~{etaMinutes} min</span></div>
             <div><span className="text-muted-foreground">Coords:</span> <span className="font-medium">{camera.latitude.toFixed(4)}, {camera.longitude.toFixed(4)}</span></div>
           </div>
 
-          {/* Links */}
-          <div className="mt-2 flex gap-3">
+          {/* Row 4: Links */}
+          <div className="mt-2 flex flex-wrap gap-2">
             <a href={`https://www.google.com/maps?q=${camera.latitude},${camera.longitude}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1.5 rounded-md border border-input px-2.5 py-1 text-[11px] hover:bg-accent transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
               Google Maps
@@ -114,29 +106,37 @@ function FeedCard({ camera, routeDuration, isExpanded, onToggle }: {
             </a>
           </div>
 
-          {/* Conditions */}
-          <div className="mt-auto pt-2 space-y-1.5">
+          {/* Row 5: Conditions + signs — always visible, fills bottom */}
+          <div className="mt-2 space-y-1.5">
             <ConditionBadges chainControls={camera.chainControls} closures={camera.nearbyClosures} travelTime={camera.travelTime} />
+
             {camera.nearbyIncidents.length > 0 && (
-              <div className="flex items-start gap-1.5">
-                <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" className="shrink-0 mt-0.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/></svg>
-                <span className="text-[11px] text-red-400 font-medium">{camera.nearbyIncidents.map((inc) => inc.type).join(', ')}</span>
+              <div className="flex items-start gap-1.5 rounded-md bg-red-500/5 border border-red-500/20 p-1.5">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" className="shrink-0 mt-0.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/></svg>
+                <div>
+                  <span className="text-xs text-red-400 font-semibold">{camera.nearbyIncidents.map((inc) => inc.type).join(', ')}</span>
+                  {camera.nearbyIncidents[0]?.description && (
+                    <p className="text-[10px] text-red-400/70 mt-0.5">{camera.nearbyIncidents[0].description}</p>
+                  )}
+                </div>
               </div>
             )}
-            {camera.nearbyCMS.slice(0, 1).map((cms) => (
+
+            {/* CMS signs always shown */}
+            {camera.nearbyCMS.slice(0, 2).map((cms) => (
               <CMSSign key={cms.id} phase1Lines={cms.phase1Lines} phase2Lines={cms.phase2Lines} location={cms.location} />
             ))}
           </div>
         </div>
       </div>
 
-      {/* Expanded details */}
-      {isExpanded && (camera.nearbyIncidents.length > 0 || camera.chainControls.length > 0 || camera.nearbyClosures.length > 0 || camera.nearbyCMS.length > 1) && (
+      {/* Expanded: full incident logs, all signs, closures */}
+      {isExpanded && (
         <div className="border-t border-border p-3 space-y-3">
-          {camera.nearbyCMS.length > 1 && (
+          {camera.nearbyCMS.length > 2 && (
             <div>
               <h4 className="mb-1.5 text-[11px] font-semibold text-amber-400">All Signs ({camera.nearbyCMS.length})</h4>
-              <div className="space-y-1.5">{camera.nearbyCMS.map((cms) => <CMSSign key={cms.id} phase1Lines={cms.phase1Lines} phase2Lines={cms.phase2Lines} location={cms.location} />)}</div>
+              <div className="space-y-1.5">{camera.nearbyCMS.slice(2).map((cms) => <CMSSign key={cms.id} phase1Lines={cms.phase1Lines} phase2Lines={cms.phase2Lines} location={cms.location} />)}</div>
             </div>
           )}
           {camera.nearbyIncidents.map((inc) => (
@@ -169,57 +169,45 @@ function FeedCard({ camera, routeDuration, isExpanded, onToggle }: {
   );
 }
 
-/** Collapsed mini card for unavailable/broken cameras */
+/** Collapsed mini row for unavailable cameras */
 function MiniCard({ camera, routeDuration }: { camera: RouteCamera; routeDuration: number }) {
-  const etaMinutes = Math.round(camera.progressAlongRoute * (routeDuration / 60));
-
+  const etaMinutes = routeDuration > 0 ? Math.round(camera.progressAlongRoute * (routeDuration / 60)) : '?';
   return (
-    <div className="flex items-center gap-2 rounded-lg border border-border/40 bg-card/50 px-2.5 py-1.5 opacity-60">
+    <div className="flex items-center gap-2 rounded-lg border border-border/30 bg-card/40 px-2.5 py-1 opacity-50">
       <RouteShield route={camera.route} size="sm" />
       <span className="text-[10px] text-muted-foreground truncate">{camera.direction} — {camera.location || camera.city}</span>
       <span className="ml-auto text-[9px] text-muted-foreground shrink-0">{etaMinutes}m</span>
-      <span className="text-[9px] text-muted-foreground/50">unavailable</span>
+      <span className="text-[8px] text-muted-foreground/40 italic">unavailable</span>
     </div>
   );
 }
 
 export function RouteLiveView({ cameras, routeDuration }: RouteLiveViewProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
-  const [hideUnavailable, setHideUnavailable] = useState(false);
 
-  const displayCameras = [...cameras].sort((a, b) => a.progressAlongRoute - b.progressAlongRoute);
-  const liveCount = displayCameras.filter(c => c.hasVideo && c.streamUrl).length;
-  const unavailableCount = displayCameras.filter(c => !c.imageUrl || c.isStale).length;
+  const sorted = [...cameras].sort((a, b) => a.progressAlongRoute - b.progressAlongRoute);
+  const available = sorted.filter(c => c.imageUrl && !c.isStale);
+  const unavailable = sorted.filter(c => !c.imageUrl || c.isStale);
+  const liveCount = available.filter(c => c.hasVideo && c.streamUrl).length;
 
   return (
     <div>
-      <div className="mb-2 flex items-center gap-3">
-        <p className="text-[10px] text-muted-foreground">
-          {displayCameras.length} cameras · {liveCount} live
-        </p>
-        {unavailableCount > 0 && (
-          <button
-            onClick={() => setHideUnavailable(!hideUnavailable)}
-            className={`text-[10px] rounded-full border px-2 py-0.5 transition-colors ${
-              hideUnavailable ? 'border-primary/40 bg-primary/10 text-primary' : 'border-border text-muted-foreground hover:bg-accent'
-            }`}
-          >
-            {hideUnavailable ? `Showing ${displayCameras.length - unavailableCount}` : `Hide ${unavailableCount} unavailable`}
-          </button>
-        )}
-      </div>
+      <p className="mb-2 text-[10px] text-muted-foreground">
+        {available.length} cameras · {liveCount} live
+        {unavailable.length > 0 && ` · ${unavailable.length} unavailable`}
+      </p>
 
       <div className="space-y-0">
-        {displayCameras.map((camera, i) => {
+        {sorted.map((camera, i) => {
           const isUnavailable = !camera.imageUrl || camera.isStale;
 
-          if (hideUnavailable && isUnavailable) {
-            // Show tiny collapsed row so it's clear something is hidden
+          // Unavailable: always show collapsed
+          if (isUnavailable) {
             return (
               <div key={camera.id} className="relative">
                 <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-border" />
                 <div className="relative flex gap-3 py-0.5">
-                  <div className="flex flex-col items-center shrink-0 z-10">
+                  <div className="flex items-center shrink-0 z-10">
                     <div className="w-2 h-2 rounded-full bg-muted-foreground/20" />
                   </div>
                   <MiniCard camera={camera} routeDuration={routeDuration} />
@@ -240,7 +228,7 @@ export function RouteLiveView({ cameras, routeDuration }: RouteLiveViewProps) {
                       'border-muted-foreground bg-muted'
                     }`} />
                     <span className="mt-1 text-[10px] font-medium text-muted-foreground">
-                      {Math.round(camera.progressAlongRoute * (routeDuration / 60))}m
+                      {routeDuration > 0 ? Math.round(camera.progressAlongRoute * (routeDuration / 60)) : '?'}m
                     </span>
                   </div>
                   <FeedCard
@@ -252,8 +240,8 @@ export function RouteLiveView({ cameras, routeDuration }: RouteLiveViewProps) {
                 </div>
               </div>
 
-              {/* Distance to next */}
-              {camera.distanceToNext != null && i < displayCameras.length - 1 && (
+              {/* Distance to next available camera */}
+              {camera.distanceToNext != null && i < sorted.length - 1 && (
                 <div className="relative flex items-center py-0.5 pl-[15px]">
                   <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-border" />
                   <div className="ml-6 text-[9px] text-muted-foreground/40">
@@ -266,7 +254,7 @@ export function RouteLiveView({ cameras, routeDuration }: RouteLiveViewProps) {
         })}
       </div>
 
-      {displayCameras.length === 0 && (
+      {available.length === 0 && (
         <div className="py-12 text-center">
           <p className="text-sm text-muted-foreground">No cameras found along this route</p>
         </div>
