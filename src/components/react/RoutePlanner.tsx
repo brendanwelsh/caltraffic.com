@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react';
 import { useRoutePlanner } from '@/hooks/use-route-planner';
 import { RouteCameraList } from './RouteCameraList';
+import { RouteLiveView } from './RouteLiveView';
 import { ErrorBoundary } from './ErrorBoundary';
 
 const RouteMapView = lazy(() => import('./RouteMapView').then((m) => ({ default: m.RouteMapView })));
@@ -77,6 +78,7 @@ export function RoutePlanner() {
   const originAC = useGeocodeAutocomplete();
   const destAC = useGeocodeAutocomplete();
   const [geocodeError, setGeocodeError] = useState<string | null>(null);
+  const [routeViewMode, setRouteViewMode] = useState<'list' | 'live'>('list');
 
   const handlePlanRoute = useCallback(() => {
     setGeocodeError(null);
@@ -232,9 +234,9 @@ export function RoutePlanner() {
           {routeError && <p className="mt-2 text-xs text-red-400">Failed to calculate route. Try different locations.</p>}
         </div>
 
-        {/* Route summary */}
+        {/* Route summary + view toggle */}
         {routeData && (
-          <div className="flex flex-wrap gap-3 text-xs">
+          <div className="flex flex-wrap items-center gap-3 text-xs">
             <span className="rounded-full border border-border px-2.5 py-1">
               {(routeDistance / 1609.34).toFixed(0)} miles
             </span>
@@ -259,11 +261,34 @@ export function RoutePlanner() {
                 {totalChainControls} chain control{totalChainControls > 1 ? 's' : ''}
               </span>
             )}
+
+            {/* View mode toggle */}
+            <div className="ml-auto flex rounded-lg border border-input overflow-hidden shrink-0">
+              <button
+                onClick={() => setRouteViewMode('list')}
+                className={`px-2.5 py-1 text-[11px] font-medium transition-colors ${
+                  routeViewMode === 'list' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent text-muted-foreground'
+                }`}
+              >
+                List + Map
+              </button>
+              <button
+                onClick={() => setRouteViewMode('live')}
+                className={`px-2.5 py-1 text-[11px] font-medium transition-colors border-l border-input ${
+                  routeViewMode === 'live' ? 'bg-green-600 text-white' : 'hover:bg-accent text-muted-foreground'
+                }`}
+              >
+                <span className="inline-flex items-center gap-1">
+                  <span className="h-1.5 w-1.5 rounded-full bg-current animate-pulse" />
+                  Watch Live
+                </span>
+              </button>
+            </div>
           </div>
         )}
 
-        {/* Camera list + Route map */}
-        {routeData && (
+        {/* List + Map view */}
+        {routeData && routeViewMode === 'list' && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <div className="max-h-[50vh] overflow-y-auto rounded-lg border border-border bg-card">
               <div className="sticky top-0 bg-card/95 backdrop-blur-sm border-b border-border px-3 py-2">
@@ -283,6 +308,11 @@ export function RoutePlanner() {
               />
             </Suspense>
           </div>
+        )}
+
+        {/* Live feed view */}
+        {routeData && routeViewMode === 'live' && (
+          <RouteLiveView cameras={routeCameras} routeDuration={routeDuration} />
         )}
 
         {/* Empty state */}
