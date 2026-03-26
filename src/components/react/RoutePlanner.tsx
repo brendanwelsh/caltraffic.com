@@ -187,6 +187,23 @@ export function RoutePlanner() {
   const totalIncidents = routeCameras.reduce((sum, c) => sum + c.nearbyIncidents.length, 0);
   const totalClosures = routeCameras.reduce((sum, c) => sum + c.nearbyClosures.length, 0);
   const totalChainControls = routeCameras.reduce((sum, c) => sum + c.chainControls.length, 0);
+  const routeHasChainControl = routeCameras.some(c => c.chainControls.length > 0);
+  const routeHasWeatherAlert = routeCameras.some(c => c.weatherAlerts.length > 0);
+
+  // Collect unique weather alert headlines and chain control details for banners
+  const weatherAlertHeadlines = routeHasWeatherAlert
+    ? [...new Set(routeCameras.flatMap(c => c.weatherAlerts.map((a: any) => a.headline || a.event || 'Weather Alert')))]
+    : [];
+  const chainControlDetails = routeHasChainControl
+    ? (() => {
+        const seen = new Set<string>();
+        return routeCameras
+          .filter(c => c.chainControls.length > 0)
+          .flatMap(c => c.chainControls.map((cc: any) => ({ level: cc.level || 'R1', route: cc.route || c.route, location: cc.location || c.location || c.city })))
+          .filter(cc => { const key = `${cc.level}-${cc.route}`; if (seen.has(key)) return false; seen.add(key); return true; })
+          .slice(0, 3);
+      })()
+    : [];
 
   return (
     <ErrorBoundary>
@@ -301,6 +318,28 @@ export function RoutePlanner() {
           <div className="flex gap-4" style={{ height: 'calc(100vh - 180px)' }}>
             {/* Left: scrollable feed timeline or camera grid */}
             <div className="flex-1 overflow-y-auto pr-1">
+              {/* Route alert banners */}
+              {routeHasWeatherAlert && (
+                <div className="mb-2 flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-300">
+                  <span className="shrink-0 mt-0.5">&#x26A0;&#xFE0F;</span>
+                  <div>
+                    <span className="font-semibold">Weather Alert:</span>{' '}
+                    {weatherAlertHeadlines.join('; ')} affecting your route
+                  </div>
+                </div>
+              )}
+              {routeHasChainControl && (
+                <div className="mb-2 flex items-start gap-2 rounded-lg border border-blue-500/30 bg-blue-500/10 px-3 py-2 text-xs text-blue-300">
+                  <span className="shrink-0 mt-0.5">&#x1F517;</span>
+                  <div>
+                    <span className="font-semibold">Chain Control:</span>{' '}
+                    {chainControlDetails.map((cc, i) => (
+                      <span key={i}>{i > 0 && ' · '}{cc.level} active on {cc.route} near {cc.location}</span>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {routeView === 'list' ? (
                 <RouteLiveView cameras={routeCameras} routeDuration={routeDuration} onCameraFocus={setFocusedCameraId} onUserLocationChange={setUserLocation} />
               ) : (
@@ -363,25 +402,37 @@ export function RoutePlanner() {
 
                 {/* Route summary */}
                 <div className="rounded-lg border border-border bg-card p-3">
-                  <div className="flex flex-wrap gap-2 text-xs">
-                    <span className="rounded-full border border-border px-2.5 py-1 font-medium">
-                      {(routeDistance / 1609.34).toFixed(0)} mi
-                    </span>
-                    <span className="rounded-full border border-border px-2.5 py-1 font-medium">
-                      ~{routeDuration > 0 ? Math.round(routeDuration / 60) : '—'} min
-                    </span>
-                    <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-primary font-medium">
-                      {routeCameras.length} cameras
-                    </span>
+                  <h3 className="text-xs font-semibold mb-2">Route Overview</h3>
+                  <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Distance</span>
+                      <span className="font-medium">{(routeDistance / 1609.34).toFixed(0)} mi</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Drive Time</span>
+                      <span className="font-medium">~{routeDuration > 0 ? Math.round(routeDuration / 60) : '—'} min</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-muted-foreground">Cameras</span>
+                      <span className="font-medium text-primary">{routeCameras.length}</span>
+                    </div>
                     {totalIncidents > 0 && (
-                      <span className="rounded-full border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-red-400">
-                        {totalIncidents} incident{totalIncidents > 1 ? 's' : ''}
-                      </span>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Incidents</span>
+                        <span className="font-medium text-red-400">{totalIncidents}</span>
+                      </div>
                     )}
                     {totalClosures > 0 && (
-                      <span className="rounded-full border border-orange-500/30 bg-orange-500/10 px-2.5 py-1 text-orange-400">
-                        {totalClosures} closure{totalClosures > 1 ? 's' : ''}
-                      </span>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Closures</span>
+                        <span className="font-medium text-orange-400">{totalClosures}</span>
+                      </div>
+                    )}
+                    {totalChainControls > 0 && (
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Chain Control</span>
+                        <span className="font-medium text-blue-400">{totalChainControls}</span>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -403,7 +454,12 @@ export function RoutePlanner() {
                           <div
                             key={i}
                             className={`flex items-start gap-2 py-1.5 border-b border-border/30 last:border-0 ${matchingCamera ? 'cursor-pointer hover:bg-accent/50 rounded-md -mx-1 px-1' : ''} transition-colors`}
-                            onClick={() => matchingCamera && setFocusedCameraId(matchingCamera.id)}
+                            onClick={() => {
+                              if (matchingCamera) {
+                                setFocusedCameraId(matchingCamera.id);
+                                document.getElementById(`feed-${matchingCamera.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                              }
+                            }}
                           >
                             <span className="shrink-0 w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[9px] font-bold text-muted-foreground mt-0.5">
                               {i + 1}

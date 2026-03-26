@@ -6,6 +6,7 @@ import { useIncidents } from './use-incidents';
 import { useChainControl } from './use-chain-control';
 import { useClosures } from './use-closures';
 import { useTravelTimes } from './use-travel-times';
+import { useWeatherAlerts } from './use-weather';
 import { haversineDistance } from '@/lib/utils';
 import { matchCamerasToRoute } from '@/lib/route-matching';
 import {
@@ -75,13 +76,16 @@ function corridorMatch(
 
 function enrichAndSort(
   matches: { camera: Camera; dist: number; progress: number }[],
-  allCMS: any[], allIncidents: any[], allChainControls: any[], allClosures: any[], allTravelTimes: any[],
+  allCMS: any[], allIncidents: any[], allChainControls: any[], allClosures: any[], allTravelTimes: any[], allWeatherAlerts: any[],
 ): RouteCamera[] {
   const enriched = matches.map((match): RouteCamera => ({
     ...match.camera,
     nearbyCMS: matchCMSToCamera(match.camera, allCMS),
     nearbyIncidents: matchIncidentsToCamera(match.camera, allIncidents),
-    weatherAlerts: [],
+    weatherAlerts: allWeatherAlerts.filter((alert: any) => {
+      if (!alert.affectedAreas || !match.camera.county) return false;
+      return alert.affectedAreas.some((area: string) => area.toLowerCase().includes(match.camera.county.toLowerCase()));
+    }),
     chainControls: matchChainControlToCamera(match.camera, allChainControls),
     nearbyClosures: matchClosuresToCamera(match.camera, allClosures),
     travelTime: matchTravelTimeToCamera(match.camera, allTravelTimes),
@@ -122,6 +126,7 @@ export function useRoutePlanner(initialOrigin?: Location | null, initialDestinat
   const { data: allChainControls = [] } = useChainControl(null);
   const { data: allClosures = [] } = useClosures(null);
   const { data: allTravelTimes = [] } = useTravelTimes(null);
+  const { data: allWeatherAlerts = [] } = useWeatherAlerts();
 
   // Wait for OSRM route before matching — no corridor fallback (avoids showing wrong cameras)
   const routeCameras: RouteCamera[] = useMemo(() => {
@@ -147,8 +152,8 @@ export function useRoutePlanner(initialOrigin?: Location | null, initialDestinat
       }
       deduped.push(m);
     }
-    return enrichAndSort(deduped, allCMS, allIncidents, allChainControls, allClosures, allTravelTimes);
-  }, [origin, destination, allCameras, osrmRoute, allCMS, allIncidents, allChainControls, allClosures, allTravelTimes]);
+    return enrichAndSort(deduped, allCMS, allIncidents, allChainControls, allClosures, allTravelTimes, allWeatherAlerts);
+  }, [origin, destination, allCameras, osrmRoute, allCMS, allIncidents, allChainControls, allClosures, allTravelTimes, allWeatherAlerts]);
 
   const straightLineDistance = origin && destination
     ? haversineDistance(origin.lat, origin.lon, destination.lat, destination.lon) * 1000

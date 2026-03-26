@@ -15,114 +15,177 @@ function StatCard({ value, label }: { value: string | number; label: string }) {
   );
 }
 
-function CameraNetworkStats({ cameras }: { cameras: Camera[] }) {
-  const byDistrict = useMemo(() => {
-    const map = new Map<number, number>();
-    for (const cam of cameras) {
-      map.set(cam.district, (map.get(cam.district) ?? 0) + 1);
-    }
-    return [...map.entries()].sort((a, b) => a[0] - b[0]);
-  }, [cameras]);
+// ─── Hero Section ───
 
-  const videoCount = cameras.filter((c) => c.hasVideo).length;
-  const photoCount = cameras.length - videoCount;
+function HeroSection({ cameras, coverageArea }: { cameras: Camera[]; coverageArea: string }) {
+  return (
+    <section className="rounded-2xl border border-border bg-gradient-to-br from-amber-500/10 via-card to-blue-500/10 p-8 text-center">
+      <h1 className="text-4xl font-bold mb-3">
+        {cameras.length.toLocaleString()} cameras monitoring {coverageArea} sq mi of California highways
+      </h1>
+      <p className="text-muted-foreground text-lg">
+        Real-time coverage across all 12 Caltrans districts.
+      </p>
+    </section>
+  );
+}
 
-  const byRoute = useMemo(() => {
-    const map = new Map<string, number>();
-    for (const cam of cameras) {
-      const key = `${cam.routeType}-${cam.route}`;
-      map.set(key, (map.get(key) ?? 0) + 1);
-    }
-    return [...map.entries()].sort((a, b) => b[1] - a[1]).slice(0, 20);
-  }, [cameras]);
+// ─── Right Now Section ───
 
-  const byCity = useMemo(() => {
-    const map = new Map<string, number>();
+function RightNowSection({
+  incidents,
+  cameras,
+  signs,
+}: {
+  incidents: Incident[];
+  cameras: Camera[];
+  signs: CMS[];
+}) {
+  const liveFeeds = cameras.filter((c) => c.inService && !c.isStale).length;
+  const activeSigns = signs.filter(
+    (s) => s.inService && s.phase1Lines.some((l) => l.trim().length > 0),
+  ).length;
+
+  return (
+    <section>
+      <h2 className="text-2xl font-semibold mb-4">Right Now</h2>
+      <p className="text-lg text-muted-foreground mb-4">
+        {incidents.length} active incidents &middot; {liveFeeds.toLocaleString()} live feeds &middot; {activeSigns} active highway signs
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <StatCard value={incidents.length} label="Active Incidents" />
+        <StatCard value={liveFeeds.toLocaleString()} label="Live Camera Feeds" />
+        <StatCard value={activeSigns} label="Active CMS Signs" />
+      </div>
+    </section>
+  );
+}
+
+// ─── Camera Health Section ───
+
+function CameraHealthSection({ cameras }: { cameras: Camera[] }) {
+  const health = useMemo(() => {
+    const reporting = cameras.filter((c) => c.inService && !c.isStale);
+    const down = cameras.filter((c) => !c.inService || c.isStale);
+
+    const downByDistrict = new Map<number, { down: number; total: number }>();
     for (const cam of cameras) {
-      const city = cam.city || 'Unknown';
-      map.set(city, (map.get(city) ?? 0) + 1);
+      const entry = downByDistrict.get(cam.district) ?? { down: 0, total: 0 };
+      entry.total++;
+      if (!cam.inService || cam.isStale) {
+        entry.down++;
+      }
+      downByDistrict.set(cam.district, entry);
     }
-    return [...map.entries()].sort((a, b) => b[1] - a[1]).slice(0, 20);
+
+    const districtRows = [...downByDistrict.entries()]
+      .sort((a, b) => a[0] - b[0])
+      .map(([district, { down: d, total }]) => ({
+        district,
+        name: DISTRICTS[district]?.description ?? `District ${district}`,
+        down: d,
+        total,
+        uptime: total > 0 ? ((total - d) / total * 100).toFixed(1) : '100.0',
+      }));
+
+    return { reporting: reporting.length, down: down.length, districtRows };
   }, [cameras]);
 
   return (
     <section>
-      <h2 className="text-2xl font-semibold mb-4">Camera Network</h2>
-
-      {/* Overview cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
-        <StatCard value={cameras.length} label="Total Cameras" />
-        <StatCard value={videoCount} label="Live Video" />
-        <StatCard value={photoCount} label="Photo Only" />
-        <StatCard value={byRoute.length > 0 ? byRoute.length + '+' : '0'} label="Routes Covered" />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-        {/* By District */}
-        <div className="rounded-xl border border-border bg-card p-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-            Cameras by District
-          </h3>
-          <div className="space-y-2">
-            {byDistrict.map(([district, count]) => {
-              const info = DISTRICTS[district];
-              const maxCount = Math.max(...byDistrict.map(([, c]) => c));
-              return (
-                <div key={district} className="flex items-center gap-2">
-                  <span className="text-xs font-medium w-16 flex-shrink-0">
-                    D{district.toString().padStart(2, '0')}
-                  </span>
-                  <div className="flex-1 h-5 rounded bg-muted overflow-hidden">
-                    <div
-                      className="h-full rounded bg-amber-500/70"
-                      style={{ width: `${(count / maxCount) * 100}%` }}
-                    />
-                  </div>
-                  <span className="text-xs text-muted-foreground w-10 text-right">{count}</span>
-                </div>
-              );
-            })}
-          </div>
+      <h2 className="text-2xl font-semibold mb-4">Camera Health</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <div className="rounded-xl border border-green-500/30 bg-green-500/10 p-4 text-center">
+          <p className="text-3xl font-bold text-green-400">{health.reporting.toLocaleString()}</p>
+          <p className="text-sm text-muted-foreground mt-1">Cameras currently reporting</p>
         </div>
-
-        {/* Top Routes */}
-        <div className="rounded-xl border border-border bg-card p-4">
-          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-            Top 20 Routes by Camera Count
-          </h3>
-          <div className="space-y-2 max-h-80 overflow-y-auto">
-            {byRoute.map(([route, count]) => {
-              const maxCount = byRoute[0]?.[1] ?? 1;
-              return (
-                <div key={route} className="flex items-center gap-2">
-                  <span className="text-xs font-medium w-14 flex-shrink-0">{route}</span>
-                  <div className="flex-1 h-4 rounded bg-muted overflow-hidden">
-                    <div
-                      className="h-full rounded bg-blue-500/70"
-                      style={{ width: `${(count / maxCount) * 100}%` }}
-                    />
-                  </div>
-                  <span className="text-xs text-muted-foreground w-8 text-right">{count}</span>
-                </div>
-              );
-            })}
-          </div>
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-center">
+          <p className="text-3xl font-bold text-red-400">{health.down.toLocaleString()}</p>
+          <p className="text-sm text-muted-foreground mt-1">Cameras down or stale</p>
         </div>
       </div>
 
-      {/* Top Cities */}
       <div className="rounded-xl border border-border bg-card p-4">
         <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-          Top 20 Cities by Camera Count
+          Per-District Health
         </h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-1">
-          {byCity.map(([city, count], i) => (
-            <div key={city} className="flex items-center justify-between py-1 border-b border-border/50 last:border-0">
-              <span className="text-sm">
-                <span className="text-muted-foreground mr-2">{i + 1}.</span>
-                {city}
-              </span>
-              <span className="text-sm text-muted-foreground">{count}</span>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border">
+                <th className="px-3 py-2 text-left font-medium">District</th>
+                <th className="px-3 py-2 text-right font-medium">Total</th>
+                <th className="px-3 py-2 text-right font-medium">Down/Stale</th>
+                <th className="px-3 py-2 text-right font-medium">Uptime</th>
+              </tr>
+            </thead>
+            <tbody>
+              {health.districtRows.map((row) => (
+                <tr key={row.district} className="border-b border-border/50">
+                  <td className="px-3 py-2 font-medium">
+                    D{row.district.toString().padStart(2, '0')} — {row.name}
+                  </td>
+                  <td className="px-3 py-2 text-right">{row.total}</td>
+                  <td className="px-3 py-2 text-right">
+                    {row.down > 0 ? (
+                      <span className="text-red-400">{row.down}</span>
+                    ) : (
+                      <span className="text-green-400">0</span>
+                    )}
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    <span className={Number(row.uptime) < 90 ? 'text-red-400' : Number(row.uptime) < 98 ? 'text-yellow-400' : 'text-green-400'}>
+                      {row.uptime}%
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Busiest Routes Section ───
+
+function BusiestRoutesSection({ incidents }: { incidents: Incident[] }) {
+  const byRoute = useMemo(() => {
+    const map = new Map<string, number>();
+    for (const inc of incidents) {
+      // Extract route from location text, e.g. "I-5 NB" or "SR-99 SB"
+      const match = inc.location.match(/\b(I-?\d+|US-?\d+|SR-?\d+|CA-?\d+|Hwy\s*\d+)\b/i);
+      const route = match ? match[1].replace(/^(I|US|SR|CA|Hwy)\s*-?\s*/i, (_, prefix) => prefix.toUpperCase() + '-') : 'Other';
+      map.set(route, (map.get(route) ?? 0) + 1);
+    }
+    return [...map.entries()]
+      .filter(([route]) => route !== 'Other')
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 5);
+  }, [incidents]);
+
+  if (byRoute.length === 0) return null;
+
+  const maxCount = byRoute[0]?.[1] ?? 1;
+
+  return (
+    <section>
+      <h2 className="text-2xl font-semibold mb-4">Busiest Routes</h2>
+      <p className="text-sm text-muted-foreground mb-4">Top 5 routes with the most active incidents right now.</p>
+      <div className="rounded-xl border border-border bg-card p-4">
+        <div className="space-y-3">
+          {byRoute.map(([route, count]) => (
+            <div key={route} className="flex items-center gap-3">
+              <span className="text-sm font-bold w-16 flex-shrink-0">{route}</span>
+              <div className="flex-1 h-6 rounded bg-muted overflow-hidden">
+                <div
+                  className="h-full rounded bg-red-500/70 flex items-center justify-end pr-2"
+                  style={{ width: `${Math.max((count / maxCount) * 100, 15)}%` }}
+                >
+                  <span className="text-xs font-semibold text-white">{count}</span>
+                </div>
+              </div>
             </div>
           ))}
         </div>
@@ -131,30 +194,77 @@ function CameraNetworkStats({ cameras }: { cameras: Camera[] }) {
   );
 }
 
-function CurrentConditions({
-  incidents,
-  signs,
-  alertCount,
-}: {
-  incidents: Incident[];
-  signs: CMS[];
-  alertCount: number;
-}) {
-  const activeSigns = signs.filter(
-    (s) => s.inService && s.phase1Lines.some((l) => l.trim().length > 0),
-  );
+// ─── Camera Density Section ───
+
+function CameraDensitySection({ cameras }: { cameras: Camera[] }) {
+  // Rough route mileage estimates for major CA highways
+  const routeMiles: Record<string, number> = {
+    'I-5': 797, 'I-10': 243, 'I-15': 287, 'I-40': 155, 'I-80': 208,
+    'I-405': 73, 'I-580': 77, 'I-680': 71, 'I-880': 46, 'I-280': 57,
+    'I-210': 86, 'I-110': 26, 'I-105': 18, 'US-101': 808, 'US-50': 328,
+    'US-395': 557, 'SR-99': 425, 'SR-1': 656, 'SR-152': 78, 'SR-58': 183,
+  };
+
+  const density = useMemo(() => {
+    const byRoute = new Map<string, number>();
+    for (const cam of cameras) {
+      const key = `${cam.routeType}-${cam.route}`;
+      byRoute.set(key, (byRoute.get(key) ?? 0) + 1);
+    }
+
+    return Object.entries(routeMiles)
+      .map(([route, miles]) => {
+        const count = byRoute.get(route) ?? 0;
+        if (count === 0) return null;
+        return {
+          route,
+          cameras: count,
+          miles,
+          perMile: (count / miles).toFixed(2),
+        };
+      })
+      .filter(Boolean)
+      .sort((a, b) => Number(b!.perMile) - Number(a!.perMile))
+      .slice(0, 10) as { route: string; cameras: number; miles: number; perMile: string }[];
+  }, [cameras]);
+
+  if (density.length === 0) return null;
 
   return (
     <section>
-      <h2 className="text-2xl font-semibold mb-4">Current Conditions</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <StatCard value={incidents.length} label="Active Incidents" />
-        <StatCard value={activeSigns.length} label="Active CMS Signs" />
-        <StatCard value={alertCount} label="Weather Alerts" />
+      <h2 className="text-2xl font-semibold mb-4">Camera Density</h2>
+      <p className="text-sm text-muted-foreground mb-4">Cameras per mile for major highways (estimated route lengths).</p>
+      <div className="rounded-xl border border-border bg-card p-4">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border">
+                <th className="px-3 py-2 text-left font-medium">Route</th>
+                <th className="px-3 py-2 text-right font-medium">Cameras</th>
+                <th className="px-3 py-2 text-right font-medium">Est. Miles</th>
+                <th className="px-3 py-2 text-right font-medium">Cameras/Mile</th>
+              </tr>
+            </thead>
+            <tbody>
+              {density.map((row) => (
+                <tr key={row.route} className="border-b border-border/50">
+                  <td className="px-3 py-2 font-medium">{row.route}</td>
+                  <td className="px-3 py-2 text-right">{row.cameras}</td>
+                  <td className="px-3 py-2 text-right text-muted-foreground">{row.miles}</td>
+                  <td className="px-3 py-2 text-right">
+                    <span className="font-semibold">{row.perMile}</span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
     </section>
   );
 }
+
+// ─── District Breakdown (kept from before) ───
 
 function DistrictBreakdown({
   cameras,
@@ -175,8 +285,6 @@ function DistrictBreakdown({
       const liveCount = dCameras.filter((c) => c.hasVideo).length;
       const photoCount = dCameras.length - liveCount;
 
-      // Incidents don't have a district field, so we skip per-district incident counts
-      // unless we match by dispatch center (which is a string, not district number)
       return {
         district: d,
         name: DISTRICTS[d]?.description ?? `District ${d}`,
@@ -227,6 +335,8 @@ function DistrictBreakdown({
     </section>
   );
 }
+
+// ─── Coverage Stats (kept from before) ───
 
 function CoverageStats({ cameras }: { cameras: Camera[] }) {
   const coverage = useMemo(() => {
@@ -286,6 +396,8 @@ function CoverageStats({ cameras }: { cameras: Camera[] }) {
   );
 }
 
+// ─── Main StatsPage ───
+
 export function StatsPage() {
   const { data: cameras = [], isLoading: camLoading } = useCameras(null);
   const { data: signs = [], isLoading: cmsLoading } = useCMS(null);
@@ -294,6 +406,18 @@ export function StatsPage() {
 
   const isLoading = camLoading || cmsLoading || incLoading || alertsLoading;
   const hasData = cameras.length > 0;
+
+  // Compute coverage area for the hero section
+  const coverageArea = useMemo(() => {
+    if (cameras.length === 0) return '0';
+    const lats = cameras.map((c) => c.latitude).filter((l) => l !== 0);
+    const lons = cameras.map((c) => c.longitude).filter((l) => l !== 0);
+    if (lats.length === 0 || lons.length === 0) return '0';
+
+    const latMiles = (Math.max(...lats) - Math.min(...lats)) * 69;
+    const lonMiles = (Math.max(...lons) - Math.min(...lons)) * 69 * Math.cos((37 * Math.PI) / 180);
+    return Math.round(latMiles * lonMiles).toLocaleString();
+  }, [cameras]);
 
   if (isLoading && !hasData) {
     return (
@@ -312,16 +436,25 @@ export function StatsPage() {
 
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Network Stats</h1>
-        <p className="text-muted-foreground text-lg">
-          Comprehensive statistics about California's traffic camera network and current conditions.
-        </p>
-      </div>
+      {/* Hero */}
+      <HeroSection cameras={cameras} coverageArea={coverageArea} />
 
-      <CameraNetworkStats cameras={cameras} />
-      <CurrentConditions incidents={incidents} signs={signs} alertCount={alerts.length} />
+      {/* Right Now */}
+      <RightNowSection incidents={incidents} cameras={cameras} signs={signs} />
+
+      {/* Camera Health */}
+      <CameraHealthSection cameras={cameras} />
+
+      {/* Busiest Routes */}
+      <BusiestRoutesSection incidents={incidents} />
+
+      {/* Camera Density */}
+      <CameraDensitySection cameras={cameras} />
+
+      {/* District Breakdown */}
       <DistrictBreakdown cameras={cameras} signs={signs} incidents={incidents} />
+
+      {/* Coverage */}
       <CoverageStats cameras={cameras} />
 
       <p className="text-xs text-muted-foreground pt-4 border-t border-border">

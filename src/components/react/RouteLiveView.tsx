@@ -67,7 +67,7 @@ function FeedCard({ camera, routeDuration, onCameraFocus, onMarkPassed }: {
   const favorite = isFavorite(camera.id);
 
   return (
-    <div className={`rounded-xl border overflow-hidden bg-card cursor-pointer transition-shadow flex-1 min-w-0 hover:shadow-md ${hasIssues ? 'border-red-500/30' : 'border-border/60'}`} onClick={onCameraFocus}>
+    <div id={`feed-${camera.id}`} className={`rounded-xl border overflow-hidden bg-card cursor-pointer transition-shadow flex-1 min-w-0 hover:shadow-md ${hasIssues ? 'border-red-500/30' : 'border-border/60'}`} onClick={onCameraFocus}>
 
       {/* Mobile: stacked. Desktop: side by side */}
       <div className="flex flex-col md:flex-row">

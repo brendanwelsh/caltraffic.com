@@ -1,8 +1,10 @@
-import { useMemo } from 'react';
+import { useMemo, lazy, Suspense } from 'react';
 import { useIncidents } from '@/hooks/use-incidents';
 import { useWeatherAlerts } from '@/hooks/use-weather';
 import { cn } from '@/lib/utils';
 import type { Incident, WeatherAlert } from '@/lib/schemas';
+
+const IncidentMap = lazy(() => import('./IncidentMap').then((m) => ({ default: m.IncidentMap })));
 
 const severityColors: Record<string, { bg: string; border: string; text: string }> = {
   Extreme: { bg: 'bg-red-500/10', border: 'border-red-500/30', text: 'text-red-400' },
@@ -38,9 +40,53 @@ function IncidentSummary({ incidents }: { incidents: Incident[] }) {
     return [...map.entries()].sort((a, b) => b[1] - a[1]);
   }, [incidents]);
 
+  const byArea = useMemo(() => {
+    const areaMap: Record<string, string> = {
+      SACC: 'Sacramento',
+      SLAC: 'Sacramento',
+      LACC: 'Los Angeles',
+      LA: 'Los Angeles',
+      OAKC: 'Bay Area',
+      OAK: 'Bay Area',
+      SJCC: 'Bay Area',
+      SFCC: 'Bay Area',
+      FRCC: 'Fresno',
+      SDCC: 'San Diego',
+      SD: 'San Diego',
+      SBCC: 'San Bernardino',
+      INCC: 'Inland Empire',
+      STCC: 'Stockton',
+      RDCC: 'Redding',
+      EUCC: 'Eureka',
+      SLCC: 'San Luis Obispo',
+      BICC: 'Bishop',
+    };
+
+    const map = new Map<string, number>();
+    for (const inc of incidents) {
+      const dc = inc.dispatchCenter || '';
+      const area = areaMap[dc] || dc || 'Other';
+      map.set(area, (map.get(area) ?? 0) + 1);
+    }
+    return [...map.entries()].sort((a, b) => b[1] - a[1]);
+  }, [incidents]);
+
+  const areaSummaryText = byArea
+    .slice(0, 8)
+    .map(([area, count]) => `${area}: ${count}`)
+    .join(', ');
+
   return (
     <section>
       <h2 className="text-2xl font-semibold mb-4">Active Incidents Summary</h2>
+
+      {/* Area summary line */}
+      {areaSummaryText && (
+        <p className="text-sm text-muted-foreground mb-4">
+          {areaSummaryText}
+        </p>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
         {/* By Type */}
         <div className="rounded-xl border border-border bg-card p-4">
@@ -216,6 +262,16 @@ export function TrafficReports() {
           Live statewide traffic conditions for California highways.
         </p>
       </div>
+
+      {/* Incident Map */}
+      {incidents.length > 0 && (
+        <section>
+          <h2 className="text-2xl font-semibold mb-4">Incident Map</h2>
+          <Suspense fallback={<div className="h-[400px] animate-pulse rounded-xl bg-muted" />}>
+            <IncidentMap incidents={incidents} />
+          </Suspense>
+        </section>
+      )}
 
       {/* Statewide Overview */}
       <section>
