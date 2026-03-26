@@ -385,22 +385,36 @@ export function RoutePlanner() {
                   <div className="rounded-lg border border-border bg-card p-3">
                     <h3 className="text-xs font-semibold mb-2">Directions</h3>
                     <div className="space-y-0">
-                      {routeSteps.map((step: any, i: number) => (
-                        <div key={i} className="flex items-start gap-2 py-1.5 border-b border-border/30 last:border-0">
-                          <span className="shrink-0 w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[9px] font-bold text-muted-foreground mt-0.5">
-                            {i + 1}
-                          </span>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-xs">
-                              <span className="text-muted-foreground capitalize">{step.type === 'depart' ? 'Start on' : step.type === 'arrive' ? 'Arrive at' : step.modifier || step.type}</span>
-                              {' '}<span className="font-medium">{step.name}</span>
-                            </p>
-                            <p className="text-[10px] text-muted-foreground">
-                              {(step.distance / 1609.34).toFixed(1)} mi · ~{Math.max(1, Math.round(step.duration / 60))} min
-                            </p>
+                      {routeSteps.map((step: any, i: number) => {
+                        // Find a camera on this road segment to focus when clicked
+                        const matchingCamera = routeCameras.find((c) =>
+                          c.route && step.name && (
+                            c.location?.toLowerCase().includes(step.name.toLowerCase()) ||
+                            step.name.toLowerCase().includes(c.route.toLowerCase())
+                          )
+                        );
+                        return (
+                          <div
+                            key={i}
+                            className={`flex items-start gap-2 py-1.5 border-b border-border/30 last:border-0 ${matchingCamera ? 'cursor-pointer hover:bg-accent/50 rounded-md -mx-1 px-1' : ''} transition-colors`}
+                            onClick={() => matchingCamera && setFocusedCameraId(matchingCamera.id)}
+                          >
+                            <span className="shrink-0 w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[9px] font-bold text-muted-foreground mt-0.5">
+                              {i + 1}
+                            </span>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-xs">
+                                <span className="text-muted-foreground capitalize">{step.type === 'depart' ? 'Start on' : step.type === 'arrive' ? 'Arrive at' : step.modifier || step.type}</span>
+                                {' '}<span className="font-medium">{step.name}</span>
+                                {matchingCamera && <span className="text-[9px] text-primary ml-1">({routeCameras.filter(c => c.location?.toLowerCase().includes(step.name.toLowerCase()) || step.name.toLowerCase().includes(c.route.toLowerCase())).length} cam)</span>}
+                              </p>
+                              <p className="text-[10px] text-muted-foreground">
+                                {(step.distance / 1609.34).toFixed(1)} mi · ~{Math.max(1, Math.round(step.duration / 60))} min
+                              </p>
+                            </div>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   </div>
                 )}

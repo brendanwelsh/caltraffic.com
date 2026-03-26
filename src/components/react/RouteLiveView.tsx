@@ -75,65 +75,36 @@ function FeedCard({ camera, routeDuration, isExpanded, onToggle, onMarkPassed }:
           <StableFeed camera={camera} />
         </div>
 
-        {/* Info panel — fills remaining space */}
-        <div className="flex-1 p-3 flex flex-col min-w-0">
-          {/* Row 1: Route + direction + live + favorite */}
-          <div className="flex items-center gap-2">
-            <RouteShield route={camera.route} size="lg" />
-            <span className="text-base font-bold">{camera.direction}</span>
-            {camera.hasVideo && camera.streamUrl && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase text-green-400">
-                <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
-                live
-              </span>
-            )}
-            <div className="ml-auto flex items-center gap-0.5">
-              {onMarkPassed && (
-                <button
-                  onClick={(e) => { e.stopPropagation(); onMarkPassed(); }}
-                  className="p-1.5 rounded-md text-muted-foreground/30 hover:text-green-400 transition-colors"
-                  title="Mark as passed"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6 9 17l-5-5"/></svg>
-                </button>
+        {/* Info panel — clean, modern layout */}
+        <div className="flex-1 p-2.5 flex flex-col min-w-0">
+          {/* Top: Location name + ETA badge */}
+          <div className="flex items-start gap-2">
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-bold leading-tight truncate">{camera.location || camera.city}</p>
+              <div className="flex items-center gap-1.5 mt-0.5">
+                <RouteShield route={camera.route} size="sm" />
+                <span className="text-[11px] text-muted-foreground">{camera.direction}</span>
+                <span className="text-[10px] text-muted-foreground">· {camera.city}</span>
+              </div>
+            </div>
+            {/* ETA + live badge */}
+            <div className="flex flex-col items-end gap-1 shrink-0">
+              {etaMinutes != null && (
+                <span className="rounded-md bg-primary/10 border border-primary/20 px-2 py-0.5 text-[11px] font-semibold text-primary">
+                  {etaMinutes}m
+                </span>
               )}
-              <button
-                onClick={(e) => { e.stopPropagation(); toggleFavorite(camera.id); }}
-                className={`p-1.5 rounded-md transition-colors ${favorite ? 'text-yellow-400' : 'text-muted-foreground/30 hover:text-muted-foreground'}`}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill={favorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
-                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
-                </svg>
-              </button>
+              {camera.hasVideo && camera.streamUrl && (
+                <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase text-green-400">
+                  <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
+                  live
+                </span>
+              )}
             </div>
           </div>
 
-          {/* Row 2: Location */}
-          <p className="text-base font-semibold mt-1.5 leading-snug">{camera.location || 'Unknown'}</p>
-          <p className="text-xs text-muted-foreground">{camera.city}{camera.county ? `, ${camera.county}` : ''}</p>
-
-          {/* Row 3: Details — compact inline */}
-          <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
-            <span>D{String(camera.district).padStart(2, '0')}</span>
-            <span>PM {camera.postmile.toFixed(1)}</span>
-            <span>{etaMinutes != null ? `~${etaMinutes} min` : '\u2014'}</span>
-            <span>{camera.latitude.toFixed(4)}, {camera.longitude.toFixed(4)}</span>
-          </div>
-
-          {/* Row 4: Links — side by side row */}
-          <div className="mt-1.5 flex items-center gap-1.5">
-            <a href={`https://www.google.com/maps?q=${camera.latitude},${camera.longitude}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 rounded-md border border-input px-2 py-0.5 text-[11px] hover:bg-accent transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
-              Maps
-            </a>
-            <a href={`/camera/${camera.id}`} onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 rounded-md border border-input px-2 py-0.5 text-[11px] hover:bg-accent transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
-              Camera
-            </a>
-          </div>
-
-          {/* Row 5: Conditions + signs — always visible, fills bottom */}
-          <div className="mt-2 space-y-1.5">
+          {/* Middle: Conditions — fills the space */}
+          <div className="mt-2 flex-1 space-y-1.5">
             <ConditionBadges chainControls={camera.chainControls} closures={camera.nearbyClosures} travelTime={camera.travelTime} />
 
             {camera.nearbyIncidents.length > 0 && (
@@ -152,6 +123,31 @@ function FeedCard({ camera, routeDuration, isExpanded, onToggle, onMarkPassed }:
             {camera.nearbyCMS.slice(0, 2).map((cms) => (
               <CMSSign key={cms.id} phase1Lines={cms.phase1Lines} phase2Lines={cms.phase2Lines} location={cms.location} />
             ))}
+          </div>
+
+          {/* Bottom: Actions bar */}
+          <div className="mt-2 pt-1.5 border-t border-border/30 flex items-center gap-1">
+            <a href={`https://www.google.com/maps?q=${camera.latitude},${camera.longitude}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+              Maps
+            </a>
+            <a href={`/camera/${camera.id}`} onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+              Details
+            </a>
+            <span className="text-[9px] text-muted-foreground/40 ml-auto">D{String(camera.district).padStart(2, '0')} · PM {camera.postmile.toFixed(1)}</span>
+            <div className="flex items-center gap-0">
+              {onMarkPassed && (
+                <button onClick={(e) => { e.stopPropagation(); onMarkPassed(); }} className="p-1 rounded-md text-muted-foreground/30 hover:text-green-400 transition-colors" title="Mark as passed">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+                </button>
+              )}
+              <button onClick={(e) => { e.stopPropagation(); toggleFavorite(camera.id); }} className={`p-1 rounded-md transition-colors ${favorite ? 'text-yellow-400' : 'text-muted-foreground/30 hover:text-muted-foreground'}`} title="Favorite">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill={favorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
