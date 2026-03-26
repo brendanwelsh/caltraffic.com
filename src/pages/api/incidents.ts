@@ -42,10 +42,26 @@ function parseElement(xml: string): Record<string, unknown> {
   return result;
 }
 
+function stripQuotes(s: unknown): string {
+  return String(s ?? '').replace(/^"|"$/g, '').trim();
+}
+
+function parseLatLon(latlon: unknown): { lat: number; lon: number } {
+  const s = stripQuotes(latlon);
+  const parts = s.split(':');
+  if (parts.length !== 2) return { lat: 0, lon: 0 };
+  // CHP format: "38872075:121127759" → 38.872075, -121.127759
+  const lat = parseFloat(parts[0]) / 1000000;
+  const lon = -parseFloat(parts[1]) / 1000000; // West longitude is negative
+  return { lat: isNaN(lat) ? 0 : lat, lon: isNaN(lon) ? 0 : lon };
+}
+
 function transformIncidents(xmlText: string) {
   const parsed = parseXML(xmlText);
-  const chp = parsed as Record<string, unknown>;
-  const centers = (chp.CHP as Record<string, unknown>)?.Center;
+  const root = parsed as Record<string, unknown>;
+  // Try both <State><Center> and <CHP><Center> structures
+  const state = (root.State ?? root.CHP ?? root) as Record<string, unknown>;
+  const centers = state.Center;
   if (!centers) return [];
 
   const centerArray = Array.isArray(centers) ? centers : [centers];
@@ -66,30 +82,31 @@ function transformIncidents(xmlText: string) {
       for (const log of logArray) {
         try {
           const logObj = log as Record<string, unknown>;
-          const lat = parseFloat(String(logObj.Latitude ?? '0'));
-          const lon = parseFloat(String(logObj.Longitude ?? '0'));
+          const { lat, lon } = parseLatLon(logObj.LATLON);
           if (lat === 0 && lon === 0) continue;
 
-          const logDetails = (logObj.LogDetails as Record<string, unknown>)?.LogDetail;
-          const detailArray = logDetails ? (Array.isArray(logDetails) ? logDetails : [logDetails]) : [];
+          // Parse log details — CHP uses <details> and <units> inside <LogDetails>
+          const logDetailsObj = logObj.LogDetails as Record<string, unknown> | undefined;
+          const details = logDetailsObj?.details;
+          const detailArray = details ? (Array.isArray(details) ? details : [details]) : [];
 
           incidents.push({
-            id: logObj.ID ?? `INC-${incidents.length}`,
-            type: logObj.LogType ?? 'Unknown',
-            location: logObj.Location ?? '',
-            description: logObj.LogTypeDesc ?? logObj.LogType ?? '',
+            id: stripQuotes(logObj.ID) || `INC-${incidents.length}`,
+            type: stripQuotes(logObj.LogType).replace(/^"\d+-/, '').replace(/"$/, '') || 'Unknown',
+            location: stripQuotes(logObj.Location),
+            description: stripQuotes(logObj.LocationDesc || logObj.LogType),
             latitude: lat,
             longitude: lon,
-            severity: logObj.Severity ?? 'Unknown',
-            dispatchCenter: centerObj.ID ?? dispatchObj.ID ?? '',
+            severity: stripQuotes(logObj.Severity) || 'Unknown',
+            dispatchCenter: stripQuotes(centerObj.ID) || stripQuotes(dispatchObj.ID) || '',
             logEntries: detailArray.map((d: unknown) => {
               const detail = d as Record<string, unknown>;
               return {
-                time: detail.LogTime ?? '',
-                text: detail.LogDetail ?? detail.DetailMessage ?? '',
+                time: stripQuotes(detail.DetailTime),
+                text: stripQuotes(detail.IncidentDetail),
               };
-            }),
-            timestamp: logObj.LogTime ?? new Date().toISOString(),
+            }).filter((e: any) => e.text),
+            timestamp: stripQuotes(logObj.LogTime) || new Date().toISOString(),
           });
         } catch {
           continue;

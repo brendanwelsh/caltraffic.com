@@ -17,19 +17,53 @@ let error: string | null = null;
 
 if (districtNum && id) {
   try {
-    const apiBase = Astro.url.origin;
-    const response = await fetch(`${apiBase}/api/cameras/${districtNum}`);
+    // Fetch directly from CWWP2 (can't self-reference on Cloudflare Workers)
+    const { buildCwwp2Url } = await import('../../lib/constants');
+    const url = buildCwwp2Url('cctv', districtNum);
+    const response = await fetch(url);
     if (response.ok) {
-      const cameras = await response.json();
-      camera = cameras.find((c: any) => c.id === id);
-      if (!camera) {
-        error = 'Camera not found';
+      const rawData = await response.json() as any;
+      const items = rawData?.data ?? (Array.isArray(rawData) ? rawData : []);
+      const { extractRoute, extractRouteNumber, extractDirection, extractPostmile, parseInService, cleanLocationName } = await import('../../lib/utils');
+      const { getRouteType, formatRoute, PHOTO_ONLY_DISTRICTS } = await import('../../lib/constants');
+
+      for (let idx = 0; idx < items.length; idx++) {
+        const item = items[idx];
+        const cctv = item?.cctv ?? item;
+        const loc = cctv?.location ?? {};
+        // Match the ID format from the API: D03-1, D03-2, etc.
+        const camId = `D${String(districtNum).padStart(2, '0')}-${idx + 1}`;
+        // Also try the URL format which might be D03-001
+        const urlId = id;
+        if (camId === urlId || camId === urlId?.replace(/-0+/, '-')) {
+          const routeNum = extractRouteNumber(loc.route);
+          camera = {
+            id: urlId!,
+            district: districtNum,
+            route: formatRoute(routeNum),
+            routeType: getRouteType(routeNum),
+            direction: extractDirection(loc.direction),
+            county: String(loc.county ?? ''),
+            city: String(loc.nearbyPlace ?? ''),
+            location: cleanLocationName(String(loc.locationName ?? '')),
+            latitude: parseFloat(String(loc.latitude ?? '0')),
+            longitude: parseFloat(String(loc.longitude ?? '0')),
+            postmile: extractPostmile(loc.postmile),
+            imageUrl: cctv?.imageData?.static?.currentImageURL ?? '',
+            streamUrl: cctv?.imageData?.streamingVideoURL ?? null,
+            hasVideo: !PHOTO_ONLY_DISTRICTS.has(districtNum) && !!cctv?.imageData?.streamingVideoURL,
+            inService: parseInService(cctv?.inService),
+            isStale: false,
+          };
+          break;
+        }
       }
+      if (!camera) error = 'Camera not found in district data';
     } else {
-      error = 'Failed to fetch camera data';
+      error = 'Failed to fetch camera data from Caltrans';
     }
   } catch (e) {
-    error = 'Failed to load camera';
+    error = `Failed to load camera: ${e}`;
   }
 }
 

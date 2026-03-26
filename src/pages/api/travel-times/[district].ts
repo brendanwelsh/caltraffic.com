@@ -15,16 +15,23 @@ function transformTravelTimes(data: unknown, districtNum: number) {
         const record = item as Record<string, unknown>;
         const tt = (record.tt ?? record) as Record<string, unknown>;
         const loc = (tt.location ?? {}) as Record<string, unknown>;
-        const routeNum = extractRouteNumber(loc.route as { '@_value': string } | string | undefined);
+        const begin = (loc.begin ?? {}) as Record<string, unknown>;
+        const end = (loc.end ?? {}) as Record<string, unknown>;
+        const traveltime = (tt.traveltime ?? {}) as Record<string, unknown>;
+
+        const routeNum = extractRouteNumber(begin.beginRoute as { '@_value': string } | string | undefined);
+        const currentTime = parseFloat(String(traveltime.calculatedTraveltime ?? '0'));
+        // No typical time in this feed — estimate from route
+        const corridor = `${String(begin.beginLocationName ?? '')} to ${String(end.endLocationName ?? '')}`;
 
         return {
           id: `TT-D${String(districtNum).padStart(2, '0')}-${tt.index ?? Math.random()}`,
           district: districtNum,
           route: formatRoute(routeNum),
-          corridor: String(tt.corridorName ?? loc.locationName ?? ''),
-          currentTime: parseFloat(String(tt.currentTravelTime ?? '0')),
-          typicalTime: parseFloat(String(tt.typicalTravelTime ?? '0')),
-          delay: parseFloat(String(tt.delay ?? '0')),
+          corridor: corridor || String(tt.index ?? ''),
+          currentTime,
+          typicalTime: currentTime, // No typical time available in this feed
+          delay: 0,
         };
       } catch {
         return null;
