@@ -20,6 +20,49 @@ import Footer from '../components/astro/Footer.astro';
         California Traffic Lens aggregates data from multiple public agencies into a single, fast interface. Browse over 3,000 traffic cameras across all 12 Caltrans districts, see active CHP incidents on the map, check weather alerts, chain controls, lane closures, and more — all updating in near real-time.
       </p>
 
+      <!-- Why This Exists -->
+      <h2 class="text-2xl font-semibold mb-4">Why This Exists</h2>
+      <p class="text-muted-foreground mb-4">
+        California has over 3,000 traffic cameras, real-time incident feeds, highway message signs, chain controls, lane closures, and travel times — all publicly available. But the tools to access this data are fragmented, outdated, and frustrating to use.
+      </p>
+      <p class="text-muted-foreground mb-4">
+        <strong class="text-foreground">Caltrans QuickMap</strong> has the data but flickers on every refresh, can't plan a route, and looks like it was built in 2005. <strong class="text-foreground">Sigalert</strong> charges $20/year and still shows ads. <strong class="text-foreground">WeatherBug</strong> shows cameras in an ad-heavy grid with zero traffic context. Mobile apps like <strong class="text-foreground">CACams</strong> and <strong class="text-foreground">"Live Traffic Cameras in CA"</strong> charge $2-$9 to remove ads and still can't show cameras along a route.
+      </p>
+      <p class="text-muted-foreground mb-4">
+        <strong class="text-foreground">No existing tool lets you enter an origin and destination and see every traffic camera along your drive.</strong> Not QuickMap (which explicitly says "not a navigation app"), not Sigalert, not any mobile app. Users have been requesting this feature in app reviews for years.
+      </p>
+      <p class="text-muted-foreground mb-6">
+        California Traffic Lens was built to fix this. It combines all the public data sources into one fast, modern, ad-free interface — with the route planner that nobody else offers.
+      </p>
+
+      <!-- Feature Comparison -->
+      <h3 class="text-lg font-semibold mb-3">How We Compare</h3>
+      <div class="overflow-x-auto mb-10">
+        <table class="w-full text-xs border border-border rounded-lg">
+          <thead>
+            <tr class="border-b border-border bg-muted/50">
+              <th class="px-2 py-2 text-left font-medium">Feature</th>
+              <th class="px-2 py-2 text-center font-medium">Caltrans QuickMap</th>
+              <th class="px-2 py-2 text-center font-medium">Sigalert</th>
+              <th class="px-2 py-2 text-center font-medium">WeatherBug</th>
+              <th class="px-2 py-2 text-center font-medium text-primary">CA Traffic Lens</th>
+            </tr>
+          </thead>
+          <tbody class="text-muted-foreground">
+            <tr class="border-b border-border"><td class="px-2 py-1.5">Traffic Cameras</td><td class="px-2 py-1.5 text-center text-green-500">Y</td><td class="px-2 py-1.5 text-center text-green-500">Y</td><td class="px-2 py-1.5 text-center text-green-500">Y</td><td class="px-2 py-1.5 text-center text-green-500 font-bold">Y</td></tr>
+            <tr class="border-b border-border"><td class="px-2 py-1.5">CHP Incidents</td><td class="px-2 py-1.5 text-center text-green-500">Y</td><td class="px-2 py-1.5 text-center text-green-500">Y</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center text-green-500 font-bold">Y</td></tr>
+            <tr class="border-b border-border"><td class="px-2 py-1.5">Highway Signs (CMS)</td><td class="px-2 py-1.5 text-center text-green-500">Y</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center text-green-500 font-bold">Y</td></tr>
+            <tr class="border-b border-border"><td class="px-2 py-1.5">Chain Control</td><td class="px-2 py-1.5 text-center text-green-500">Y</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center text-green-500 font-bold">Y</td></tr>
+            <tr class="border-b border-border"><td class="px-2 py-1.5">Lane Closures</td><td class="px-2 py-1.5 text-center text-green-500">Y</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center text-green-500 font-bold">Y</td></tr>
+            <tr class="border-b border-border"><td class="px-2 py-1.5">Travel Times</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center text-green-500 font-bold">Y</td></tr>
+            <tr class="border-b border-border"><td class="px-2 py-1.5 font-semibold text-foreground">Route Planner + Cameras</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center text-green-500 font-bold">Y</td></tr>
+            <tr class="border-b border-border"><td class="px-2 py-1.5">Dark Mode</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center text-green-500 font-bold">Y</td></tr>
+            <tr class="border-b border-border"><td class="px-2 py-1.5">Ad-Free</td><td class="px-2 py-1.5 text-center text-green-500">Y</td><td class="px-2 py-1.5 text-center text-amber-500">$20/yr</td><td class="px-2 py-1.5 text-center text-red-400">Ads</td><td class="px-2 py-1.5 text-center text-green-500 font-bold">Y</td></tr>
+            <tr><td class="px-2 py-1.5">Modern UI</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center text-amber-500">Partial</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center text-green-500 font-bold">Y</td></tr>
+          </tbody>
+        </table>
+      </div>
+
       <!-- Data Sources -->
       <h2 class="text-2xl font-semibold mb-4">Data Sources</h2>
       <div class="space-y-4 mb-10">
