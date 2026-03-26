@@ -4,14 +4,19 @@ import 'leaflet/dist/leaflet.css';
 import type { RouteCamera } from '@/hooks/use-route-planner';
 
 interface RouteMapViewProps {
-  routeCoords: [number, number][];
+  routeCoords: [number, number][] | null; // null = still loading
+  routeLineLoading: boolean;
   cameras: RouteCamera[];
+  origin?: { lat: number; lon: number } | null;
+  destination?: { lat: number; lon: number } | null;
   onCameraClick?: (camera: RouteCamera) => void;
 }
 
-export function RouteMapView({ routeCoords, cameras, onCameraClick }: RouteMapViewProps) {
+export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, destination, onCameraClick }: RouteMapViewProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
+  const routeLayerRef = useRef<L.LayerGroup | null>(null);
+  const cameraLayerRef = useRef<L.LayerGroup | null>(null);
 
   useEffect(() => {
     if (!mapRef.current || mapInstance.current) return;
@@ -26,6 +31,8 @@ export function RouteMapView({ routeCoords, cameras, onCameraClick }: RouteMapVi
       maxZoom: 19,
     }).addTo(map);
 
+    routeLayerRef.current = L.layerGroup().addTo(map);
+    cameraLayerRef.current = L.layerGroup().addTo(map);
     mapInstance.current = map;
 
     return () => {
@@ -34,48 +41,67 @@ export function RouteMapView({ routeCoords, cameras, onCameraClick }: RouteMapVi
     };
   }, []);
 
-  // Draw route polyline
-  useEffect(() => {
-    if (!mapInstance.current || routeCoords.length < 2) return;
-
-    const latLngs: [number, number][] = routeCoords.map(([lon, lat]) => [lat, lon]);
-
-    const polyline = L.polyline(latLngs, {
-      color: '#3b82f6',
-      weight: 4,
-      opacity: 0.8,
-    }).addTo(mapInstance.current);
-
-    mapInstance.current.fitBounds(polyline.getBounds(), { padding: [40, 40] });
-
-    const startIcon = L.divIcon({
-      className: 'route-start',
-      html: '<div style="width:14px;height:14px;border-radius:50%;background:#22c55e;border:3px solid white;box-shadow:0 0 6px rgba(0,0,0,0.3);"></div>',
-      iconSize: [14, 14],
-      iconAnchor: [7, 7],
-    });
-    const endIcon = L.divIcon({
-      className: 'route-end',
-      html: '<div style="width:14px;height:14px;border-radius:50%;background:#ef4444;border:3px solid white;box-shadow:0 0 6px rgba(0,0,0,0.3);"></div>',
-      iconSize: [14, 14],
-      iconAnchor: [7, 7],
-    });
-
-    const startMarker = L.marker(latLngs[0], { icon: startIcon }).addTo(mapInstance.current);
-    const endMarker = L.marker(latLngs[latLngs.length - 1], { icon: endIcon }).addTo(mapInstance.current);
-
-    return () => {
-      polyline.remove();
-      startMarker.remove();
-      endMarker.remove();
-    };
-  }, [routeCoords]);
-
-  // Camera markers along route
+  // Fit map to cameras + origin/destination
   useEffect(() => {
     if (!mapInstance.current) return;
 
-    const markers: L.Marker[] = [];
+    const points: [number, number][] = [];
+    if (origin) points.push([origin.lat, origin.lon]);
+    if (destination) points.push([destination.lat, destination.lon]);
+    cameras.forEach((c) => {
+      if (c.latitude !== 0 && c.longitude !== 0) points.push([c.latitude, c.longitude]);
+    });
+
+    if (points.length >= 2) {
+      const bounds = L.latLngBounds(points);
+      if (bounds.isValid()) {
+        mapInstance.current.fitBounds(bounds, { padding: [40, 40], maxZoom: 13 });
+      }
+    }
+  }, [cameras, origin, destination]);
+
+  // Draw route polyline (arrives from OSRM in background)
+  useEffect(() => {
+    if (!mapInstance.current || !routeLayerRef.current) return;
+
+    routeLayerRef.current.clearLayers();
+
+    if (routeCoords && routeCoords.length >= 2) {
+      const latLngs: [number, number][] = routeCoords.map(([lon, lat]) => [lat, lon]);
+
+      L.polyline(latLngs, {
+        color: '#3b82f6',
+        weight: 4,
+        opacity: 0.8,
+      }).addTo(routeLayerRef.current);
+    }
+
+    // Start/end markers
+    if (origin) {
+      const startIcon = L.divIcon({
+        className: 'route-start',
+        html: '<div style="width:14px;height:14px;border-radius:50%;background:#22c55e;border:3px solid white;box-shadow:0 0 6px rgba(0,0,0,0.3);"></div>',
+        iconSize: [14, 14],
+        iconAnchor: [7, 7],
+      });
+      L.marker([origin.lat, origin.lon], { icon: startIcon }).addTo(routeLayerRef.current);
+    }
+    if (destination) {
+      const endIcon = L.divIcon({
+        className: 'route-end',
+        html: '<div style="width:14px;height:14px;border-radius:50%;background:#ef4444;border:3px solid white;box-shadow:0 0 6px rgba(0,0,0,0.3);"></div>',
+        iconSize: [14, 14],
+        iconAnchor: [7, 7],
+      });
+      L.marker([destination.lat, destination.lon], { icon: endIcon }).addTo(routeLayerRef.current);
+    }
+  }, [routeCoords, origin, destination]);
+
+  // Camera markers
+  useEffect(() => {
+    if (!mapInstance.current || !cameraLayerRef.current) return;
+
+    cameraLayerRef.current.clearLayers();
 
     cameras.forEach((camera, i) => {
       if (camera.latitude === 0 && camera.longitude === 0) return;
@@ -109,20 +135,24 @@ export function RouteMapView({ routeCoords, cameras, onCameraClick }: RouteMapVi
         marker.on('click', () => setTimeout(() => onCameraClick(camera), 100));
       }
 
-      marker.addTo(mapInstance.current!);
-      markers.push(marker);
+      cameraLayerRef.current!.addLayer(marker);
     });
-
-    return () => {
-      markers.forEach((m) => m.remove());
-    };
   }, [cameras, onCameraClick]);
 
   return (
-    <div
-      ref={mapRef}
-      className="h-[50vh] w-full rounded-lg border border-border"
-      style={{ zIndex: 0 }}
-    />
+    <div className="relative">
+      <div
+        ref={mapRef}
+        className="h-full w-full rounded-lg border border-border"
+        style={{ zIndex: 0, minHeight: '400px' }}
+      />
+      {/* Route line loading indicator */}
+      {routeLineLoading && (
+        <div className="absolute top-2 left-1/2 -translate-x-1/2 z-[1000] rounded-full bg-card/90 backdrop-blur-sm border border-border px-3 py-1 flex items-center gap-2">
+          <div className="h-2.5 w-2.5 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+          <span className="text-[10px] text-muted-foreground">Route line loading...</span>
+        </div>
+      )}
+    </div>
   );
 }

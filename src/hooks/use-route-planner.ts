@@ -1,4 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
+import useSWR from 'swr';
 import { useCameras } from './use-cameras';
 import { useCMS } from './use-cms';
 import { useIncidents } from './use-incidents';
@@ -27,17 +28,25 @@ interface Location {
   label: string;
 }
 
-const CORRIDOR_WIDTH_KM = 5; // cameras within 5km of the line
+interface RouteGeometry {
+  geometry: { type: string; coordinates: [number, number][] };
+  distance: number;
+  duration: number;
+}
 
-/**
- * Find cameras near a straight-line corridor between two points.
- * Uses point-to-line-segment distance. No routing API needed — instant.
- */
+const CORRIDOR_WIDTH_KM = 5;
+
+const routeFetcher = (url: string) => fetch(url).then((r) => {
+  if (!r.ok) throw new Error('Route fetch failed');
+  return r.json();
+});
+
+/** Instant corridor matching — finds cameras near a straight line between two points */
 function matchCamerasToCorridorLine(
   from: { lat: number; lon: number },
   to: { lat: number; lon: number },
   cameras: Camera[],
-): RouteCamera[] {
+): { camera: Camera; dist: number; progress: number }[] {
   const totalDist = haversineDistance(from.lat, from.lon, to.lat, to.lon);
   if (totalDist === 0) return [];
 
@@ -46,7 +55,6 @@ function matchCamerasToCorridorLine(
   for (const cam of cameras) {
     if (cam.latitude === 0 && cam.longitude === 0) continue;
 
-    // Project camera onto the line segment from→to
     const dx = to.lon - from.lon;
     const dy = to.lat - from.lat;
     const lenSq = dx * dx + dy * dy;
@@ -56,7 +64,6 @@ function matchCamerasToCorridorLine(
 
     const nearestLat = from.lat + t * dy;
     const nearestLon = from.lon + t * dx;
-
     const dist = haversineDistance(cam.latitude, cam.longitude, nearestLat, nearestLon);
 
     if (dist <= CORRIDOR_WIDTH_KM) {
@@ -65,12 +72,23 @@ function matchCamerasToCorridorLine(
   }
 
   matches.sort((a, b) => a.progress - b.progress);
-  return matches as any; // enriched below
+  return matches;
 }
 
 export function useRoutePlanner() {
   const [origin, setOrigin] = useState<Location | null>(null);
   const [destination, setDestination] = useState<Location | null>(null);
+
+  // Background OSRM route fetch — for the map polyline only, not blocking cameras
+  const routeKey = origin && destination
+    ? `/api/route?from=${origin.lat},${origin.lon}&to=${destination.lat},${destination.lon}`
+    : null;
+
+  const { data: osrmRoute, isLoading: routeLineLoading } = useSWR<RouteGeometry>(
+    routeKey,
+    routeFetcher,
+    { revalidateOnFocus: false, dedupingInterval: 120_000 },
+  );
 
   // Fetch all cameras statewide (cached by SWR after first load)
   const { data: allCameras = [], isLoading: camerasLoading } = useCameras(null);
@@ -80,7 +98,7 @@ export function useRoutePlanner() {
   const { data: allClosures = [] } = useClosures(null);
   const { data: allTravelTimes = [] } = useTravelTimes(null);
 
-  // Match cameras to corridor — instant, no API call
+  // Instant corridor matching — no API call needed
   const routeCameras: RouteCamera[] = useMemo(() => {
     if (!origin || !destination || allCameras.length === 0) return [];
 
@@ -99,14 +117,13 @@ export function useRoutePlanner() {
     }));
   }, [origin, destination, allCameras, allCMS, allIncidents, allChainControls, allClosures, allTravelTimes]);
 
-  const routeDistance = origin && destination
-    ? haversineDistance(origin.lat, origin.lon, destination.lat, destination.lon) * 1000 // meters
+  const straightLineDistance = origin && destination
+    ? haversineDistance(origin.lat, origin.lon, destination.lat, destination.lon) * 1000
     : 0;
 
-  // Rough driving time estimate: ~1.3x straight-line distance at 65mph avg
-  const routeDuration = routeDistance > 0
-    ? (routeDistance * 1.3) / (105 * 1000 / 3600) // seconds (105 km/h ~= 65 mph)
-    : 0;
+  // Use OSRM distance/duration if available, otherwise estimate from straight line
+  const routeDistance = osrmRoute?.distance ?? straightLineDistance * 1.3;
+  const routeDuration = osrmRoute?.duration ?? (straightLineDistance > 0 ? (straightLineDistance * 1.3) / (105 * 1000 / 3600) : 0);
 
   const clearRoute = useCallback(() => {
     setOrigin(null);
@@ -119,9 +136,11 @@ export function useRoutePlanner() {
     setOrigin,
     setDestination,
     clearRoute,
-    routeData: origin && destination ? { geometry: { type: 'LineString', coordinates: [[origin.lon, origin.lat], [destination.lon, destination.lat]] }, distance: routeDistance, duration: routeDuration } : null,
+    // Route polyline coords — OSRM when available, null while loading
+    routeLineCoords: osrmRoute?.geometry?.coordinates ?? null,
+    routeLineLoading,
+    hasRoute: !!(origin && destination),
     routeCameras,
-    routeError: null,
     routeLoading: camerasLoading,
     routeDistance,
     routeDuration,
