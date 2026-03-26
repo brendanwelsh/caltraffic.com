@@ -43,9 +43,13 @@ function StableFeed({ camera }: { camera: RouteCamera }) {
   return (
     <div ref={ref}>
       {hasBeenSeen && camera.streamUrl ? (
-        <VideoPlayer streamUrl={camera.streamUrl} imageUrl={camera.imageUrl} cameraName={camera.location} hideControls />
+        <div className="aspect-video overflow-hidden bg-black">
+          <VideoPlayer streamUrl={camera.streamUrl} imageUrl={camera.imageUrl} cameraName={camera.location} hideControls />
+        </div>
       ) : (
-        <img src={camera.imageUrl} alt={camera.location} className="w-full aspect-video object-cover" loading="lazy" />
+        <div className="aspect-video overflow-hidden bg-black">
+          <img src={camera.imageUrl} alt={camera.location} className="w-full h-full object-cover" loading="lazy" />
+        </div>
       )}
     </div>
   );
@@ -87,17 +91,11 @@ function FeedCard({ camera, routeDuration, isExpanded, onToggle, onMarkPassed }:
                 <span className="text-[9px] md:text-[10px] text-muted-foreground">· {camera.city}</span>
               </div>
             </div>
-            {/* ETA + live badge */}
+            {/* ETA badge */}
             <div className="flex flex-col items-end gap-1 shrink-0">
               {etaMinutes != null && (
                 <span className="rounded-md bg-primary/10 border border-primary/20 px-2 py-0.5 text-[11px] font-semibold text-primary">
                   {etaMinutes}m
-                </span>
-              )}
-              {camera.hasVideo && camera.streamUrl && (
-                <span className="inline-flex items-center gap-1 text-[9px] font-bold uppercase text-green-400">
-                  <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
-                  live
                 </span>
               )}
             </div>

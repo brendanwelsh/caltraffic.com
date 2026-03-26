@@ -123,10 +123,18 @@ export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesO
     return videoOnly || noStale || !noUnavailable || withIncidents || withSigns || showFavoritesOnly || !!route || !!city || !!county || district !== null || search !== '';
   }, [videoOnly, noStale, noUnavailable, withIncidents, withSigns, showFavoritesOnly, route, city, county, district, search]);
 
+  const selectStyle = {
+    backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'10\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23888\' stroke-width=\'2\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E")',
+    backgroundRepeat: 'no-repeat',
+    backgroundPosition: 'right 6px center',
+  } as const;
+
+  const selectClass = 'h-8 rounded-lg border border-input bg-background px-2 pr-6 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-ring appearance-none';
+
   return (
     <div className="space-y-2">
-      {/* Row 1: District + Search + View toggle — all inline */}
-      <div className="flex gap-1.5">
+      {/* Row 1: Location filters + Search */}
+      <div className="flex flex-wrap gap-1.5">
         {/* District selector */}
         <select
           value={district ?? ''}
@@ -137,8 +145,8 @@ export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesO
             selectedCity.set(null);
             selectedCounty.set(null);
           }}
-          className="h-9 rounded-lg border border-input bg-background px-2 pr-6 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-ring appearance-none shrink-0 max-w-[140px] sm:max-w-[200px]"
-          style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'10\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23888\' stroke-width=\'2\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 6px center' }}
+          className={cn(selectClass, 'shrink-0 w-[130px] sm:w-[180px]')}
+          style={selectStyle}
         >
           <option value="">All Districts</option>
           {Object.entries(DISTRICTS).map(([id, info]) => (
@@ -153,7 +161,7 @@ export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesO
           <button
             onClick={() => setShowDistrictMap((v) => !v)}
             className={cn(
-              'inline-flex h-9 items-center px-2 rounded-lg border transition-colors',
+              'inline-flex h-8 items-center px-2 rounded-lg border transition-colors',
               showDistrictMap ? 'border-primary bg-primary/10 text-primary' : 'border-input hover:bg-accent text-muted-foreground'
             )}
             title="District map"
@@ -169,8 +177,8 @@ export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesO
         <select
           value={county ?? ''}
           onChange={(e) => selectedCounty.set(e.target.value || null)}
-          className="h-9 rounded-lg border border-input bg-background px-2 pr-6 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-ring appearance-none shrink-0 max-w-[140px] sm:max-w-[160px]"
-          style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'10\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23888\' stroke-width=\'2\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 6px center' }}
+          className={cn(selectClass, 'shrink-0 w-[120px] sm:w-[150px]')}
+          style={selectStyle}
         >
           <option value="">All Counties</option>
           {availableCounties.map((c) => (
@@ -183,8 +191,8 @@ export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesO
           <select
             value={city ?? ''}
             onChange={(e) => selectedCity.set(e.target.value || null)}
-            className="h-9 rounded-lg border border-input bg-background px-2 pr-6 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-ring appearance-none shrink-0 max-w-[130px] sm:max-w-[160px]"
-            style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'10\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23888\' stroke-width=\'2\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E")', backgroundRepeat: 'no-repeat', backgroundPosition: 'right 6px center' }}
+            className={cn(selectClass, 'shrink-0 w-[110px] sm:w-[150px]')}
+            style={selectStyle}
           >
             <option value="">All Cities</option>
             {availableCities.map((c) => (
@@ -194,7 +202,7 @@ export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesO
         )}
 
         {/* Search */}
-        <div className="relative flex-1 min-w-0">
+        <div className="relative flex-1 min-w-[120px]">
           <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
           </svg>
@@ -203,37 +211,14 @@ export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesO
             placeholder="Search..."
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="h-9 w-full rounded-lg border border-input bg-background pl-8 pr-2 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            className="h-8 w-full rounded-lg border border-input bg-background pl-8 pr-2 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
           />
         </div>
-
-        {/* View toggle */}
-        <div className="flex rounded-lg border border-input overflow-hidden shrink-0">
-          <button
-            onClick={() => viewMode.set('grid')}
-            className={cn('inline-flex h-9 items-center px-2.5 transition-colors', view === 'grid' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent')}
-            aria-label="Grid view"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect width="7" height="7" x="3" y="3" rx="1" /><rect width="7" height="7" x="14" y="3" rx="1" /><rect width="7" height="7" x="14" y="14" rx="1" /><rect width="7" height="7" x="3" y="14" rx="1" />
-            </svg>
-          </button>
-          <button
-            onClick={() => viewMode.set('map')}
-            className={cn('inline-flex h-9 items-center px-2.5 transition-colors border-l border-input', view === 'map' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent')}
-            aria-label="Map view"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m3 3 7 7" /><path d="m14 21-7-7" /><path d="m3 21 18-18" /><path d="M21 14v7h-7" /><path d="M3 10V3h7" />
-            </svg>
-          </button>
-        </div>
-
-        <GridDensityControl />
       </div>
 
-      {/* Row 2: Filter toggles — always visible, scrollable on mobile */}
+      {/* Row 2: Filter chips + Grid density + View toggle */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none">
+        {/* Filter toggle chips */}
         <IconToggle
           icon={<span className="h-1.5 w-1.5 rounded-full bg-green-400" />}
           label="Live"
@@ -274,7 +259,7 @@ export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesO
           />
         )}
 
-        {/* Active route/city chips */}
+        {/* Active route/city/county chips */}
         {route && (
           <button onClick={() => selectedRoute.set(null)} className="inline-flex items-center gap-1 rounded-full bg-primary/10 border border-primary/20 px-2 py-1 text-[10px] font-medium text-primary whitespace-nowrap">
             {route}
@@ -294,11 +279,41 @@ export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesO
           </button>
         )}
 
+        {/* Clear button — prominent when filters active */}
         {hasAnyFilter && (
-          <button onClick={clearAllFilters} className="inline-flex items-center gap-1 rounded-full border border-border px-2 py-1 text-[10px] font-medium text-muted-foreground hover:bg-accent transition-colors whitespace-nowrap shrink-0">
+          <button onClick={clearAllFilters} className="inline-flex items-center gap-1 rounded-full border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-[11px] font-semibold text-red-400 hover:bg-red-500/20 transition-colors whitespace-nowrap shrink-0">
+            <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             Clear
           </button>
         )}
+
+        {/* Spacer pushes density + view toggle to the right */}
+        <div className="flex-1" />
+
+        {/* Grid density */}
+        <GridDensityControl />
+
+        {/* View toggle (grid/map) */}
+        <div className="flex rounded-lg border border-input overflow-hidden shrink-0 h-8">
+          <button
+            onClick={() => viewMode.set('grid')}
+            className={cn('inline-flex items-center px-2.5 transition-colors', view === 'grid' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent')}
+            aria-label="Grid view"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect width="7" height="7" x="3" y="3" rx="1" /><rect width="7" height="7" x="14" y="3" rx="1" /><rect width="7" height="7" x="14" y="14" rx="1" /><rect width="7" height="7" x="3" y="14" rx="1" />
+            </svg>
+          </button>
+          <button
+            onClick={() => viewMode.set('map')}
+            className={cn('inline-flex items-center px-2.5 transition-colors border-l border-input', view === 'map' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent')}
+            aria-label="Map view"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="m3 3 7 7" /><path d="m14 21-7-7" /><path d="m3 21 18-18" /><path d="M21 14v7h-7" /><path d="M3 10V3h7" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   );

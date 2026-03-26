@@ -23,88 +23,18 @@ import Footer from '../components/astro/Footer.astro';
       <!-- Why This Exists -->
       <h2 class="text-2xl font-semibold mb-4">Why This Exists</h2>
       <p class="text-muted-foreground mb-4">
-        California has over 3,000 traffic cameras, real-time incident feeds, highway message signs, chain controls, lane closures, and travel times — all publicly available. But the tools to access this data are fragmented, outdated, and frustrating to use.
+        No other tool lets you plan a route and see cameras along it. We built this to fix that. California Traffic Lens combines all public traffic data into one fast, modern, ad-free interface.
       </p>
-      <p class="text-muted-foreground mb-4">
-        <strong class="text-foreground">Caltrans QuickMap</strong> has the data but flickers on every refresh, can't plan a route, and looks like it was built in 2005. <strong class="text-foreground">Sigalert</strong> charges $20/year and still shows ads. <strong class="text-foreground">WeatherBug</strong> shows cameras in an ad-heavy grid with zero traffic context. Mobile apps like <strong class="text-foreground">CACams</strong> and <strong class="text-foreground">"Live Traffic Cameras in CA"</strong> charge $2-$9 to remove ads and still can't show cameras along a route.
-      </p>
-      <p class="text-muted-foreground mb-4">
-        <strong class="text-foreground">No existing tool lets you enter an origin and destination and see every traffic camera along your drive.</strong> Not QuickMap (which explicitly says "not a navigation app"), not Sigalert, not any mobile app. Users have been requesting this feature in app reviews for years.
-      </p>
-      <p class="text-muted-foreground mb-6">
-        California Traffic Lens was built to fix this. It combines all the public data sources into one fast, modern, ad-free interface — with the route planner that nobody else offers.
-      </p>
-
-      <!-- Feature Comparison -->
-      <h3 class="text-lg font-semibold mb-3">How We Compare</h3>
-      <div class="overflow-x-auto mb-10">
-        <table class="w-full text-xs border border-border rounded-lg">
-          <thead>
-            <tr class="border-b border-border bg-muted/50">
-              <th class="px-2 py-2 text-left font-medium">Feature</th>
-              <th class="px-2 py-2 text-center font-medium">Caltrans QuickMap</th>
-              <th class="px-2 py-2 text-center font-medium">Sigalert</th>
-              <th class="px-2 py-2 text-center font-medium">WeatherBug</th>
-              <th class="px-2 py-2 text-center font-medium text-primary">CA Traffic Lens</th>
-            </tr>
-          </thead>
-          <tbody class="text-muted-foreground">
-            <tr class="border-b border-border"><td class="px-2 py-1.5">Traffic Cameras</td><td class="px-2 py-1.5 text-center text-green-500">Y</td><td class="px-2 py-1.5 text-center text-green-500">Y</td><td class="px-2 py-1.5 text-center text-green-500">Y</td><td class="px-2 py-1.5 text-center text-green-500 font-bold">Y</td></tr>
-            <tr class="border-b border-border"><td class="px-2 py-1.5">CHP Incidents</td><td class="px-2 py-1.5 text-center text-green-500">Y</td><td class="px-2 py-1.5 text-center text-green-500">Y</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center text-green-500 font-bold">Y</td></tr>
-            <tr class="border-b border-border"><td class="px-2 py-1.5">Highway Signs (CMS)</td><td class="px-2 py-1.5 text-center text-green-500">Y</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center text-green-500 font-bold">Y</td></tr>
-            <tr class="border-b border-border"><td class="px-2 py-1.5">Chain Control</td><td class="px-2 py-1.5 text-center text-green-500">Y</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center text-green-500 font-bold">Y</td></tr>
-            <tr class="border-b border-border"><td class="px-2 py-1.5">Lane Closures</td><td class="px-2 py-1.5 text-center text-green-500">Y</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center text-green-500 font-bold">Y</td></tr>
-            <tr class="border-b border-border"><td class="px-2 py-1.5">Travel Times</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center text-green-500 font-bold">Y</td></tr>
-            <tr class="border-b border-border"><td class="px-2 py-1.5 font-semibold text-foreground">Route Planner + Cameras</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center text-green-500 font-bold">Y</td></tr>
-            <tr class="border-b border-border"><td class="px-2 py-1.5">Dark Mode</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center text-green-500 font-bold">Y</td></tr>
-            <tr class="border-b border-border"><td class="px-2 py-1.5">Ad-Free</td><td class="px-2 py-1.5 text-center text-green-500">Y</td><td class="px-2 py-1.5 text-center text-amber-500">$20/yr</td><td class="px-2 py-1.5 text-center text-red-400">Ads</td><td class="px-2 py-1.5 text-center text-green-500 font-bold">Y</td></tr>
-            <tr><td class="px-2 py-1.5">Modern UI</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center text-amber-500">Partial</td><td class="px-2 py-1.5 text-center">-</td><td class="px-2 py-1.5 text-center text-green-500 font-bold">Y</td></tr>
-          </tbody>
-        </table>
-      </div>
 
       <!-- Data Sources -->
       <h2 class="text-2xl font-semibold mb-4">Data Sources</h2>
-      <div class="space-y-4 mb-10">
-        <div class="rounded-lg border border-border p-4">
-          <h3 class="font-semibold text-foreground mb-1">
-            <a href="https://cwwp2.dot.ca.gov/" class="underline hover:text-primary transition-colors" target="_blank" rel="noopener">Caltrans CWWP2</a>
-          </h3>
-          <p class="text-sm text-muted-foreground">
-            The Commercial Wholesale Web Portal — Caltrans' programmatic data access point. Provides traffic camera feeds (CCTV), Changeable Message Signs (CMS), Chain Controls, Lane Closures, Road Weather stations (RWIS), and Travel Times. Data is served as JSON feeds organized by district.
-          </p>
-        </div>
-        <div class="rounded-lg border border-border p-4">
-          <h3 class="font-semibold text-foreground mb-1">
-            <a href="https://media.chp.ca.gov/sa_xml/sa.xml" class="underline hover:text-primary transition-colors" target="_blank" rel="noopener">California Highway Patrol</a>
-          </h3>
-          <p class="text-sm text-muted-foreground">
-            Real-time traffic incidents from CHP's public incident feed. Includes accidents, road hazards, closures, and other events across the state.
-          </p>
-        </div>
-        <div class="rounded-lg border border-border p-4">
-          <h3 class="font-semibold text-foreground mb-1">
-            <a href="https://api.weather.gov/" class="underline hover:text-primary transition-colors" target="_blank" rel="noopener">National Weather Service</a>
-          </h3>
-          <p class="text-sm text-muted-foreground">
-            Active weather alerts for California zones — winter storms, high winds, flooding, heat advisories, and more.
-          </p>
-        </div>
-        <div class="rounded-lg border border-border p-4">
-          <h3 class="font-semibold text-foreground mb-1">
-            <a href="https://router.project-osrm.org/" class="underline hover:text-primary transition-colors" target="_blank" rel="noopener">OSRM</a>
-          </h3>
-          <p class="text-sm text-muted-foreground">
-            Open Source Routing Machine — used for route calculation in the route planner. Provides driving directions, distances, and estimated travel times.
-          </p>
-        </div>
-        <div class="rounded-lg border border-border p-4">
-          <h3 class="font-semibold text-foreground mb-1">Photon / Nominatim</h3>
-          <p class="text-sm text-muted-foreground">
-            Address geocoding — converts city names, addresses, and landmarks into geographic coordinates for the route planner.
-          </p>
-        </div>
-      </div>
+      <ul class="space-y-1.5 text-sm text-muted-foreground mb-10">
+        <li><a href="https://cwwp2.dot.ca.gov/" class="font-semibold text-foreground underline hover:text-primary transition-colors" target="_blank" rel="noopener">Caltrans CWWP2</a> — cameras, signs, chain controls, closures, weather stations, travel times</li>
+        <li><a href="https://media.chp.ca.gov/sa_xml/sa.xml" class="font-semibold text-foreground underline hover:text-primary transition-colors" target="_blank" rel="noopener">California Highway Patrol</a> — real-time traffic incidents statewide</li>
+        <li><a href="https://api.weather.gov/" class="font-semibold text-foreground underline hover:text-primary transition-colors" target="_blank" rel="noopener">National Weather Service</a> — active weather alerts for California zones</li>
+        <li><a href="https://router.project-osrm.org/" class="font-semibold text-foreground underline hover:text-primary transition-colors" target="_blank" rel="noopener">OSRM</a> — route calculation, directions, and travel times</li>
+        <li><span class="font-semibold text-foreground">Photon / Nominatim</span> — address geocoding for the route planner</li>
+      </ul>
 
       <!-- How It's Made -->
       <h2 class="text-2xl font-semibold mb-4">How It's Made</h2>
@@ -123,12 +53,37 @@ import Footer from '../components/astro/Footer.astro';
         </p>
       </div>
 
+      <!-- District Map -->
+      <h2 class="text-2xl font-semibold mb-4">Caltrans District Map</h2>
+      <div class="mb-4">
+        <img
+          src="https://cwwp2.dot.ca.gov/documentation/district-map-edited-2019.png"
+          alt="Map of the 12 Caltrans districts covering California, showing district boundaries and headquarters cities"
+          class="rounded-lg border border-border max-w-md mx-auto w-full"
+          loading="lazy"
+        />
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1 text-sm text-muted-foreground mb-10">
+        <p><strong class="text-foreground">D01</strong> — Eureka / North Coast</p>
+        <p><strong class="text-foreground">D02</strong> — Redding / Northeastern CA</p>
+        <p><strong class="text-foreground">D03</strong> — Sacramento / North Central</p>
+        <p><strong class="text-foreground">D04</strong> — Oakland / Bay Area</p>
+        <p><strong class="text-foreground">D05</strong> — San Luis Obispo / Central Coast</p>
+        <p><strong class="text-foreground">D06</strong> — Fresno / Central Valley South</p>
+        <p><strong class="text-foreground">D07</strong> — Los Angeles / LA Metro</p>
+        <p><strong class="text-foreground">D08</strong> — San Bernardino / Inland Empire</p>
+        <p><strong class="text-foreground">D09</strong> — Bishop / Eastern Sierra</p>
+        <p><strong class="text-foreground">D10</strong> — Stockton / Central Valley North</p>
+        <p><strong class="text-foreground">D11</strong> — San Diego / Border Region</p>
+        <p><strong class="text-foreground">D12</strong> — Irvine / Orange County</p>
+      </div>
+
       <!-- District Capability Matrix -->
       <h2 class="text-2xl font-semibold mb-4">District Capability Matrix</h2>
       <p class="text-muted-foreground mb-4">
         Not all data sources are available in every district. This is a Caltrans limitation, not an app limitation.
       </p>
-      <div class="overflow-x-auto mb-6">
+      <div class="overflow-x-auto mb-10">
         <table class="w-full text-sm border border-border rounded-lg">
           <thead>
             <tr class="border-b border-border bg-muted/50">
@@ -157,31 +112,6 @@ import Footer from '../components/astro/Footer.astro';
             <tr><td class="px-3 py-2">D12 — Orange County</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-muted-foreground">-</td><td class="px-3 py-2 text-center text-green-500">Y</td><td class="px-3 py-2 text-center text-amber-500">Photo</td></tr>
           </tbody>
         </table>
-      </div>
-
-      <!-- District Map -->
-      <h2 class="text-2xl font-semibold mb-4">Caltrans District Map</h2>
-      <div class="mb-4">
-        <img
-          src="https://cwwp2.dot.ca.gov/documentation/district-map-edited-2019.png"
-          alt="Map of the 12 Caltrans districts covering California, showing district boundaries and headquarters cities"
-          class="rounded-lg border border-border max-w-md mx-auto w-full"
-          loading="lazy"
-        />
-      </div>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1 text-sm text-muted-foreground mb-10">
-        <p><strong class="text-foreground">D01</strong> — Eureka / North Coast</p>
-        <p><strong class="text-foreground">D02</strong> — Redding / Northeastern CA</p>
-        <p><strong class="text-foreground">D03</strong> — Sacramento / North Central</p>
-        <p><strong class="text-foreground">D04</strong> — Oakland / Bay Area</p>
-        <p><strong class="text-foreground">D05</strong> — San Luis Obispo / Central Coast</p>
-        <p><strong class="text-foreground">D06</strong> — Fresno / Central Valley South</p>
-        <p><strong class="text-foreground">D07</strong> — Los Angeles / LA Metro</p>
-        <p><strong class="text-foreground">D08</strong> — San Bernardino / Inland Empire</p>
-        <p><strong class="text-foreground">D09</strong> — Bishop / Eastern Sierra</p>
-        <p><strong class="text-foreground">D10</strong> — Stockton / Central Valley North</p>
-        <p><strong class="text-foreground">D11</strong> — San Diego / Border Region</p>
-        <p><strong class="text-foreground">D12</strong> — Irvine / Orange County</p>
       </div>
 
       <!-- Refresh Rates -->

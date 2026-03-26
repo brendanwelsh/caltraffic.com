@@ -70,15 +70,15 @@ export function DistrictMapSelector({ onClose }: { onClose: () => void }) {
                 cx={x} cy={y}
                 r={isSelected ? 28 : 22}
                 fill={color}
-                fillOpacity={isSelected ? 0.5 : 0.2}
+                fillOpacity={isSelected ? 0.5 : 0.25}
                 stroke={color}
                 strokeWidth={isSelected ? 3 : 1.5}
                 className="transition-all hover:fill-opacity-40"
               />
-              <text x={x} y={y - 4} textAnchor="middle" fill={isSelected ? 'white' : color} fontSize="11" fontWeight="bold">
+              <text x={x} y={y - 4} textAnchor="middle" fill={color} fontSize="11" fontWeight="bold" style={isSelected ? { filter: 'brightness(1.5)' } : undefined}>
                 D{d}
               </text>
-              <text x={x} y={y + 9} textAnchor="middle" fill={isSelected ? 'rgba(255,255,255,0.8)' : 'rgba(255,255,255,0.5)'} fontSize="7">
+              <text x={x} y={y + 9} textAnchor="middle" fill={color} fontSize="7" opacity={isSelected ? 0.9 : 0.7}>
                 {DISTRICTS[d].description.split('(')[0].trim().split('/')[0].trim()}
               </text>
             </g>

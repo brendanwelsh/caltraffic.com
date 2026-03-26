@@ -334,12 +334,6 @@ export function RoutePlanner() {
                         <div className="flex items-center gap-1.5">
                           <RouteShield route={camera.route} size="sm" />
                           <span className="text-xs font-medium truncate">{camera.direction}</span>
-                          {camera.hasVideo && camera.streamUrl && (
-                            <span className="inline-flex items-center gap-0.5 text-[8px] font-bold uppercase text-green-400">
-                              <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
-                              live
-                            </span>
-                          )}
                         </div>
                         <p className="text-[11px] text-muted-foreground truncate mt-0.5">{camera.location || camera.city}</p>
                       </div>
