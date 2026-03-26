@@ -110,7 +110,7 @@ export const GET: APIRoute = async ({ params }) => {
       .filter((r): r is PromiseFulfilledResult<unknown[]> => r.status === 'fulfilled')
       .flatMap((r) => r.value);
     return new Response(JSON.stringify(all), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=30' },
     });
   }
 

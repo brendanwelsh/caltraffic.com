@@ -6,7 +6,7 @@ import { CameraDetailDialog } from './CameraDetailDialog';
 import { useFavorites } from '@/hooks/use-favorites';
 import type { RouteCamera } from '@/hooks/use-route-planner';
 
-const MAX_STREAMS = 9; // Caltrans requires written agreement for 10+ simultaneous streams
+// No stream limit — Caltrans streaming agreement in place
 
 interface RouteLiveViewProps {
   cameras: RouteCamera[];
@@ -17,21 +17,14 @@ export function RouteLiveView({ cameras, routeDuration }: RouteLiveViewProps) {
   const [selectedCamera, setSelectedCamera] = useState<RouteCamera | null>(null);
   const { toggle: toggleFavorite, isFavorite } = useFavorites();
 
-  // Prioritize cameras with video, cap total
-  const videoCameras = cameras.filter((c) => c.hasVideo && c.streamUrl);
-  const staticCameras = cameras.filter((c) => !c.hasVideo || !c.streamUrl);
-  const displayCameras = [
-    ...videoCameras.slice(0, MAX_STREAMS),
-    ...staticCameras.slice(0, Math.max(0, MAX_STREAMS - videoCameras.length)),
-  ].sort((a, b) => a.progressAlongRoute - b.progressAlongRoute);
+  // Show all cameras, video first in sort order
+  const displayCameras = [...cameras].sort((a, b) => a.progressAlongRoute - b.progressAlongRoute);
 
   return (
     <div>
-      {cameras.length > MAX_STREAMS && (
-        <p className="mb-2 text-[10px] text-amber-400">
-          Showing {displayCameras.length} of {cameras.length} cameras (max {MAX_STREAMS} simultaneous feeds)
-        </p>
-      )}
+      <p className="mb-2 text-[10px] text-muted-foreground">
+        {displayCameras.length} cameras · {displayCameras.filter(c => c.hasVideo && c.streamUrl).length} with live video
+      </p>
 
       <div className="space-y-0">
         {displayCameras.map((camera, i) => {
@@ -56,15 +49,18 @@ export function RouteLiveView({ cameras, routeDuration }: RouteLiveViewProps) {
                   <span className="mt-1 text-[9px] text-muted-foreground whitespace-nowrap">{etaMinutes}m</span>
                 </div>
 
-                {/* Camera feed card */}
-                <div className={`flex-1 rounded-lg border overflow-hidden bg-card ${
-                  hasIssues ? 'border-red-500/30' : 'border-border/60'
-                }`}>
-                  {/* Header */}
-                  <div className="flex items-center gap-2 px-2.5 py-1.5 border-b border-border/50">
+                {/* Camera feed card — compact */}
+                <div
+                  className={`flex-1 rounded-lg border overflow-hidden bg-card cursor-pointer hover:shadow-md transition-shadow ${
+                    hasIssues ? 'border-red-500/30' : 'border-border/60'
+                  }`}
+                  onClick={() => setSelectedCamera(camera)}
+                >
+                  {/* Header — compact */}
+                  <div className="flex items-center gap-1.5 px-2 py-1 border-b border-border/50">
                     <RouteShield route={camera.route} size="sm" />
-                    <span className="text-xs font-medium truncate">{camera.direction}</span>
-                    <span className="text-[10px] text-muted-foreground truncate">
+                    <span className="text-[11px] font-medium truncate">{camera.direction}</span>
+                    <span className="text-[9px] text-muted-foreground truncate">
                       {camera.location || camera.city}
                     </span>
                     {camera.hasVideo && camera.streamUrl && (
@@ -73,20 +69,16 @@ export function RouteLiveView({ cameras, routeDuration }: RouteLiveViewProps) {
                         live
                       </span>
                     )}
-                    <button
-                      onClick={() => setSelectedCamera(camera)}
-                      className="ml-auto text-[10px] text-muted-foreground hover:text-foreground shrink-0"
-                    >
-                      Details
-                    </button>
                   </div>
 
-                  {/* Video/Image feed */}
-                  <VideoPlayer
-                    streamUrl={camera.streamUrl}
-                    imageUrl={camera.imageUrl}
-                    cameraName={camera.location}
-                  />
+                  {/* Video/Image feed — constrained height */}
+                  <div className="max-h-[200px] overflow-hidden">
+                    <VideoPlayer
+                      streamUrl={camera.streamUrl}
+                      imageUrl={camera.imageUrl}
+                      cameraName={camera.location}
+                    />
+                  </div>
 
                   {/* Conditions bar */}
                   {(hasIssues || camera.nearbyCMS.length > 0 || camera.travelTime) && (
