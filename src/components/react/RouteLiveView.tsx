@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { VideoPlayer } from './VideoPlayer';
 import { CMSSign } from './CMSSign';
 import { RouteShield } from './RouteShield';
@@ -9,6 +9,42 @@ import type { RouteCamera } from '@/hooks/use-route-planner';
 interface RouteLiveViewProps {
   cameras: RouteCamera[];
   routeDuration: number;
+}
+
+/** Smart feed: shows static image always, mounts VideoPlayer only when visible */
+function SmartFeed({ camera }: { camera: RouteCamera }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    if (!ref.current || !camera.streamUrl) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { rootMargin: '200px' },
+    );
+    observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [camera.streamUrl]);
+
+  // No stream → always show static image (free)
+  if (!camera.streamUrl) {
+    return (
+      <div ref={ref}>
+        <img src={camera.imageUrl} alt={camera.location} className="w-full aspect-video object-cover" />
+      </div>
+    );
+  }
+
+  // Has stream → mount VideoPlayer only when visible, static image otherwise
+  return (
+    <div ref={ref}>
+      {isVisible ? (
+        <VideoPlayer streamUrl={camera.streamUrl} imageUrl={camera.imageUrl} cameraName={camera.location} />
+      ) : (
+        <img src={camera.imageUrl} alt={camera.location} className="w-full aspect-video object-cover" />
+      )}
+    </div>
+  );
 }
 
 function FeedCard({ camera, routeDuration, isExpanded, onToggle }: {
@@ -43,9 +79,9 @@ function FeedCard({ camera, routeDuration, isExpanded, onToggle }: {
         } ${hasIssues ? 'border-red-500/30' : 'border-border/60'}`} onClick={onToggle}>
 
           <div className="flex">
-            {/* Left: feed */}
+            {/* Left: feed — smart play/pause based on viewport */}
             <div className="w-[45%] shrink-0">
-              <VideoPlayer streamUrl={camera.streamUrl} imageUrl={camera.imageUrl} cameraName={camera.location} />
+              <SmartFeed camera={camera} />
             </div>
 
             {/* Right: info + details */}

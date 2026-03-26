@@ -121,6 +121,19 @@ function AutocompleteInput({ ac, label, placeholder, onKeyDown }: {
   );
 }
 
+const PRESET_ROUTES = [
+  { label: 'Sacramento → SF', from: { lat: 38.581, lon: -121.494, label: 'Sacramento' }, to: { lat: 37.775, lon: -122.419, label: 'San Francisco' } },
+  { label: 'Sacramento → LA', from: { lat: 38.581, lon: -121.494, label: 'Sacramento' }, to: { lat: 34.054, lon: -118.243, label: 'Los Angeles' } },
+  { label: 'SF → LA', from: { lat: 37.775, lon: -122.419, label: 'San Francisco' }, to: { lat: 34.054, lon: -118.243, label: 'Los Angeles' } },
+  { label: 'LA → San Diego', from: { lat: 34.054, lon: -118.243, label: 'Los Angeles' }, to: { lat: 32.716, lon: -117.161, label: 'San Diego' } },
+  { label: 'Folsom → Sacramento', from: { lat: 38.678, lon: -121.176, label: 'Folsom' }, to: { lat: 38.581, lon: -121.494, label: 'Sacramento' } },
+  { label: 'SF → San Jose', from: { lat: 37.775, lon: -122.419, label: 'San Francisco' }, to: { lat: 37.339, lon: -121.895, label: 'San Jose' } },
+  { label: 'LA → Bakersfield', from: { lat: 34.054, lon: -118.243, label: 'Los Angeles' }, to: { lat: 35.373, lon: -119.019, label: 'Bakersfield' } },
+  { label: 'Sacramento → Tahoe', from: { lat: 38.581, lon: -121.494, label: 'Sacramento' }, to: { lat: 39.097, lon: -120.032, label: 'South Lake Tahoe' } },
+  { label: 'LA → Palm Springs', from: { lat: 34.054, lon: -118.243, label: 'Los Angeles' }, to: { lat: 33.830, lon: -116.545, label: 'Palm Springs' } },
+  { label: 'Fresno → SF', from: { lat: 36.738, lon: -119.784, label: 'Fresno' }, to: { lat: 37.775, lon: -122.419, label: 'San Francisco' } },
+];
+
 export function RoutePlanner() {
   const {
     origin, destination, setOrigin, setDestination, clearRoute,
@@ -186,6 +199,27 @@ export function RoutePlanner() {
             </div>
           </div>
           {geocodeError && <p className="mt-1.5 text-xs text-red-400">{geocodeError}</p>}
+
+          {/* Preset routes */}
+          {!hasRoute && (
+            <div className="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-border/50">
+              <span className="text-[10px] text-muted-foreground mr-1 self-center">Quick:</span>
+              {PRESET_ROUTES.map((preset) => (
+                <button
+                  key={preset.label}
+                  onClick={() => {
+                    originAC.select(preset.from);
+                    destAC.select(preset.to);
+                    setOrigin(preset.from);
+                    setDestination(preset.to);
+                  }}
+                  className="rounded-full border border-border px-2.5 py-0.5 text-[10px] text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Route summary */}
