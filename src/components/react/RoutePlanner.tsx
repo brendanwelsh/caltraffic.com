@@ -164,31 +164,28 @@ export function RoutePlanner() {
 
   return (
     <ErrorBoundary>
-      <div className="space-y-3">
-        {/* Route input form */}
-        <div className="rounded-lg border border-border bg-card p-4">
-          <h2 className="text-sm font-semibold mb-3">Plan Your Route</h2>
-          <div className="space-y-2">
-            <div className="flex flex-col sm:flex-row gap-2">
-              <AutocompleteInput ac={originAC} label="FROM" placeholder="City, address, or landmark" onKeyDown={handleKeyDown} />
-              <AutocompleteInput ac={destAC} label="TO" placeholder="City, address, or landmark" onKeyDown={handleKeyDown} />
-            </div>
-            <div className="flex gap-2">
+      <div className="space-y-2">
+        {/* Route input form — compact single row when route is active */}
+        <div className="rounded-lg border border-border bg-card px-3 py-2">
+          <div className="flex flex-col sm:flex-row items-end gap-2">
+            <AutocompleteInput ac={originAC} label="FROM" placeholder="City, address, or landmark" onKeyDown={handleKeyDown} />
+            <AutocompleteInput ac={destAC} label="TO" placeholder="City, address, or landmark" onKeyDown={handleKeyDown} />
+            <div className="flex gap-1.5 shrink-0">
               <button
                 onClick={handlePlanRoute}
                 disabled={routeLoading || !originAC.selected || !destAC.selected}
-                className="h-9 rounded-lg bg-primary px-6 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
+                className="h-9 rounded-lg bg-primary px-4 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 whitespace-nowrap"
               >
-                {routeLoading ? 'Loading cameras...' : 'Plan Route'}
+                {routeLoading ? 'Loading...' : 'Plan Route'}
               </button>
               {(origin || originAC.query) && (
-                <button onClick={handleClear} className="h-9 rounded-lg border border-border px-3 text-xs text-muted-foreground hover:bg-accent transition-colors">
+                <button onClick={handleClear} className="h-9 rounded-lg border border-border px-2.5 text-xs text-muted-foreground hover:bg-accent transition-colors">
                   Clear
                 </button>
               )}
             </div>
           </div>
-          {geocodeError && <p className="mt-2 text-xs text-red-400">{geocodeError}</p>}
+          {geocodeError && <p className="mt-1.5 text-xs text-red-400">{geocodeError}</p>}
         </div>
 
         {/* Route summary */}
@@ -223,7 +220,7 @@ export function RoutePlanner() {
 
         {/* Main content: Feed (left) + Map (right) */}
         {hasRoute && routeCameras.length > 0 && (
-          <div className="flex gap-4" style={{ height: 'calc(100vh - 260px)' }}>
+          <div className="flex gap-4" style={{ height: 'calc(100vh - 180px)' }}>
             {/* Left: scrollable feed timeline */}
             <div className="flex-1 overflow-y-auto pr-1">
               <RouteLiveView cameras={routeCameras} routeDuration={routeDuration} />
