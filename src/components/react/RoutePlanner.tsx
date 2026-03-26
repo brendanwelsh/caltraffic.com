@@ -205,8 +205,8 @@ export function RoutePlanner() {
                 {routeLoading ? 'Loading...' : 'Plan Route'}
               </button>
               {(origin || originAC.query) && (
-                <button onClick={handleClear} className="h-9 rounded-lg border border-border px-2.5 text-xs text-muted-foreground hover:bg-accent transition-colors">
-                  Clear
+                <button onClick={handleClear} className="h-9 rounded-lg border border-red-500/40 bg-red-500/10 px-4 text-xs font-medium text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors">
+                  Clear Route
                 </button>
               )}
             </div>

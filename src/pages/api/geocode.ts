@@ -51,7 +51,7 @@ async function nominatimStructured(street: string, city: string): Promise<Sugges
     addressdetails: '1',
   });
   const resp = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, {
-    headers: { 'User-Agent': 'CaliforniaTrafficLens/1.0' },
+    headers: { 'User-Agent': 'CalTraffic/1.0' },
   });
   if (!resp.ok) return [];
   const results = await resp.json() as any[];

@@ -37,7 +37,7 @@ export const GET: APIRoute = async ({ url }) => {
 
   try {
     const resp = await fetch(osrmUrl, {
-      headers: { 'User-Agent': 'CaliforniaTrafficLens/1.0' },
+      headers: { 'User-Agent': 'CalTraffic/1.0' },
     });
 
     if (!resp.ok) {

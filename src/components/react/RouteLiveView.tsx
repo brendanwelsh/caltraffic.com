@@ -55,11 +55,10 @@ function StableFeed({ camera }: { camera: RouteCamera }) {
   );
 }
 
-function FeedCard({ camera, routeDuration, isExpanded, onToggle, onMarkPassed }: {
+function FeedCard({ camera, routeDuration, onCameraFocus, onMarkPassed }: {
   camera: RouteCamera;
   routeDuration: number;
-  isExpanded: boolean;
-  onToggle: () => void;
+  onCameraFocus?: () => void;
   onMarkPassed?: () => void;
 }) {
   const { isFavorite, toggle: toggleFavorite } = useFavorites();
@@ -68,9 +67,7 @@ function FeedCard({ camera, routeDuration, isExpanded, onToggle, onMarkPassed }:
   const favorite = isFavorite(camera.id);
 
   return (
-    <div className={`rounded-xl border overflow-hidden bg-card cursor-pointer transition-shadow flex-1 min-w-0 ${
-      isExpanded ? 'shadow-lg' : 'hover:shadow-md'
-    } ${hasIssues ? 'border-red-500/30' : 'border-border/60'}`} onClick={onToggle}>
+    <div className={`rounded-xl border overflow-hidden bg-card cursor-pointer transition-shadow flex-1 min-w-0 hover:shadow-md ${hasIssues ? 'border-red-500/30' : 'border-border/60'}`} onClick={onCameraFocus}>
 
       {/* Mobile: stacked. Desktop: side by side */}
       <div className="flex flex-col md:flex-row">
@@ -150,66 +147,6 @@ function FeedCard({ camera, routeDuration, isExpanded, onToggle, onMarkPassed }:
         </div>
       </div>
 
-      {/* Expanded: camera details, incident logs, all signs, closures */}
-      {isExpanded && (
-        <div className="border-t border-border p-3 space-y-3">
-          {/* Camera details — always shown */}
-          <div className="rounded-lg border border-border/40 bg-muted/30 p-2.5 text-xs space-y-1">
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">District</span>
-              <span className="font-medium">D{String(camera.district).padStart(2, '0')}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Postmile</span>
-              <span className="font-medium">{camera.postmile.toFixed(1)}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Coordinates</span>
-              <span className="font-medium">{camera.latitude.toFixed(4)}, {camera.longitude.toFixed(4)}</span>
-            </div>
-            <div className="pt-1">
-              <a href={`https://www.google.com/maps?q=${camera.latitude},${camera.longitude}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 text-[11px] text-primary hover:text-primary/80 transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
-                Open in Google Maps
-              </a>
-            </div>
-          </div>
-
-          {camera.nearbyCMS.length > 2 && (
-            <div>
-              <h4 className="mb-1.5 text-[11px] font-semibold text-amber-400">All Signs ({camera.nearbyCMS.length})</h4>
-              <div className="space-y-1.5">{camera.nearbyCMS.slice(2).map((cms) => <CMSSign key={cms.id} phase1Lines={cms.phase1Lines} phase2Lines={cms.phase2Lines} location={cms.location} />)}</div>
-            </div>
-          )}
-          {camera.nearbyIncidents.map((inc) => (
-            <div key={inc.id} className="rounded-lg border border-red-500/20 bg-red-500/5 p-2.5">
-              <p className="text-xs font-medium">{inc.type} — {inc.location}</p>
-              <p className="mt-0.5 text-[11px] text-muted-foreground">{inc.description}</p>
-              {inc.logEntries.length > 0 && (
-                <div className="mt-1.5 space-y-0.5 border-t border-border pt-1.5">
-                  {inc.logEntries.slice(0, 5).map((entry, i) => (
-                    <p key={i} className="text-[10px] text-muted-foreground"><span className="font-medium">{entry.time}</span> — {entry.text}</p>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-          {camera.chainControls.map((cc) => (
-            <div key={cc.id} className="rounded-lg border border-blue-500/20 bg-blue-500/5 p-2.5 text-xs">
-              <span className="font-semibold text-blue-400">{cc.level}</span> — {cc.location}
-            </div>
-          ))}
-          {camera.nearbyClosures.map((cl) => (
-            <div key={cl.id} className="rounded-lg border border-orange-500/20 bg-orange-500/5 p-2.5 text-xs">
-              <div className="font-medium">{cl.location}</div>
-              <div className="text-[11px] text-muted-foreground">{cl.closureType} — {cl.lanesAffected}</div>
-            </div>
-          ))}
-          {camera.nearbyIncidents.length === 0 && camera.chainControls.length === 0 && camera.nearbyClosures.length === 0 && camera.nearbyCMS.length <= 2 && (
-            <p className="text-[11px] text-muted-foreground/60 italic">No active conditions near this camera</p>
-          )}
-        </div>
-      )}
     </div>
   );
 }
@@ -228,7 +165,6 @@ function MiniCard({ camera, routeDuration }: { camera: RouteCamera; routeDuratio
 }
 
 export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLocationChange }: RouteLiveViewProps) {
-  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [passedIds, setPassedIds] = useState<Set<string>>(new Set());
   const [tracking, setTracking] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null);
@@ -421,11 +357,7 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLoc
               <FeedCard
                 camera={camera}
                 routeDuration={routeDuration}
-                isExpanded={expandedId === camera.id}
-                onToggle={() => {
-                  setExpandedId(expandedId === camera.id ? null : camera.id);
-                  onCameraFocus?.(camera.id);
-                }}
+                onCameraFocus={() => onCameraFocus?.(camera.id)}
                 onMarkPassed={() => setPassedIds((prev) => new Set(prev).add(camera.id))}
               />
 
