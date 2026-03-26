@@ -1,0 +1,20 @@
+---
+export const prerender = false;
+
+import Base from '../layouts/Base.astro';
+import Header from '../components/astro/Header.astro';
+import Footer from '../components/astro/Footer.astro';
+import { FeaturedCameras } from '../components/react/FeaturedCameras';
+---
+
+<Base title="Featured Cameras — Cal Traffic">
+  <div class="flex min-h-screen flex-col">
+    <Header />
+    <main class="flex-1">
+      <div class="px-4 py-4 md:px-6">
+        <FeaturedCameras client:load />
+      </div>
+    </main>
+    <Footer />
+  </div>
+</Base>
