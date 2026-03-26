@@ -76,15 +76,15 @@ function FeedCard({ camera, routeDuration, isExpanded, onToggle, onMarkPassed }:
         </div>
 
         {/* Info panel — clean, modern layout */}
-        <div className="flex-1 p-2.5 min-w-0">
+        <div className="flex-1 p-1.5 md:p-2.5 min-w-0">
           {/* Top: Location name + ETA badge */}
-          <div className="flex items-start gap-2">
+          <div className="flex items-start gap-1.5 md:gap-2">
             <div className="min-w-0 flex-1">
-              <p className="text-sm font-bold leading-tight truncate">{camera.location || camera.city}</p>
-              <div className="flex items-center gap-1.5 mt-0.5">
+              <p className="text-xs md:text-sm font-bold leading-tight truncate">{camera.location || camera.city}</p>
+              <div className="flex items-center gap-1 md:gap-1.5 mt-0.5">
                 <RouteShield route={camera.route} size="sm" />
-                <span className="text-[11px] text-muted-foreground">{camera.direction}</span>
-                <span className="text-[10px] text-muted-foreground">· {camera.city}</span>
+                <span className="text-[10px] md:text-[11px] text-muted-foreground">{camera.direction}</span>
+                <span className="text-[9px] md:text-[10px] text-muted-foreground">· {camera.city}</span>
               </div>
             </div>
             {/* ETA + live badge */}
@@ -104,7 +104,7 @@ function FeedCard({ camera, routeDuration, isExpanded, onToggle, onMarkPassed }:
           </div>
 
           {/* Middle: Conditions */}
-          <div className="mt-2 space-y-1.5">
+          <div className="mt-1.5 md:mt-2 space-y-1 md:space-y-1.5">
             <ConditionBadges chainControls={camera.chainControls} closures={camera.nearbyClosures} travelTime={camera.travelTime} />
 
             {camera.nearbyIncidents.length > 0 && (
@@ -126,7 +126,7 @@ function FeedCard({ camera, routeDuration, isExpanded, onToggle, onMarkPassed }:
           </div>
 
           {/* Bottom: Actions bar */}
-          <div className="mt-2 pt-1.5 border-t border-border/30 flex items-center gap-1">
+          <div className="mt-1.5 md:mt-2 pt-1 md:pt-1.5 border-t border-border/30 flex items-center gap-1">
             <a href={`https://www.google.com/maps?q=${camera.latitude},${camera.longitude}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
               Maps
@@ -152,9 +152,31 @@ function FeedCard({ camera, routeDuration, isExpanded, onToggle, onMarkPassed }:
         </div>
       </div>
 
-      {/* Expanded: full incident logs, all signs, closures */}
+      {/* Expanded: camera details, incident logs, all signs, closures */}
       {isExpanded && (
         <div className="border-t border-border p-3 space-y-3">
+          {/* Camera details — always shown */}
+          <div className="rounded-lg border border-border/40 bg-muted/30 p-2.5 text-xs space-y-1">
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">District</span>
+              <span className="font-medium">D{String(camera.district).padStart(2, '0')}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Postmile</span>
+              <span className="font-medium">{camera.postmile.toFixed(1)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-muted-foreground">Coordinates</span>
+              <span className="font-medium">{camera.latitude.toFixed(4)}, {camera.longitude.toFixed(4)}</span>
+            </div>
+            <div className="pt-1">
+              <a href={`https://www.google.com/maps?q=${camera.latitude},${camera.longitude}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 text-[11px] text-primary hover:text-primary/80 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+                Open in Google Maps
+              </a>
+            </div>
+          </div>
+
           {camera.nearbyCMS.length > 2 && (
             <div>
               <h4 className="mb-1.5 text-[11px] font-semibold text-amber-400">All Signs ({camera.nearbyCMS.length})</h4>
@@ -185,6 +207,9 @@ function FeedCard({ camera, routeDuration, isExpanded, onToggle, onMarkPassed }:
               <div className="text-[11px] text-muted-foreground">{cl.closureType} — {cl.lanesAffected}</div>
             </div>
           ))}
+          {camera.nearbyIncidents.length === 0 && camera.chainControls.length === 0 && camera.nearbyClosures.length === 0 && camera.nearbyCMS.length <= 2 && (
+            <p className="text-[11px] text-muted-foreground/60 italic">No active conditions near this camera</p>
+          )}
         </div>
       )}
     </div>
@@ -346,23 +371,16 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLoc
         </button>
       </div>
 
-      <div className="space-y-0">
+      <div className="space-y-2">
         {sorted.map((camera, i) => {
           const isUnavailable = !camera.imageUrl || camera.isStale;
           const isPassed = passedIds.has(camera.id);
           const showUserDotBefore = tracking && userLocation && userDotInsertIndex === i;
 
           const userDotElement = showUserDotBefore ? (
-            <div className="relative" key={`user-dot-${i}`}>
-              <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-border" />
-              <div className="relative flex gap-3 py-1.5">
-                <div className="flex items-center shrink-0 z-10">
-                  <div className="w-4 h-4 rounded-full bg-blue-500 border-2 border-white shadow-md animate-pulse" />
-                </div>
-                <div className="flex items-center gap-2 text-[10px] text-blue-400 font-medium">
-                  <span>You are here</span>
-                </div>
-              </div>
+            <div className="flex items-center gap-2 py-1" key={`user-dot-${i}`}>
+              <div className="w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow-md animate-pulse shrink-0" />
+              <span className="text-[10px] text-blue-400 font-medium">You are here</span>
             </div>
           ) : null;
 
@@ -371,15 +389,7 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLoc
             return (
               <div key={camera.id}>
                 {userDotElement}
-                <div className="relative">
-                  <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-border" />
-                  <div className="relative flex gap-3 py-0.5">
-                    <div className="flex items-center shrink-0 z-10">
-                      <div className="w-2 h-2 rounded-full bg-muted-foreground/20" />
-                    </div>
-                    <MiniCard camera={camera} routeDuration={routeDuration} />
-                  </div>
-                </div>
+                <MiniCard camera={camera} routeDuration={routeDuration} />
               </div>
             );
           }
@@ -390,26 +400,18 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLoc
             return (
               <div key={camera.id}>
                 {userDotElement}
-                <div className="relative">
-                  <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-border" />
-                  <div className="relative flex gap-3 py-0.5">
-                    <div className="flex items-center shrink-0 z-10">
-                      <div className="w-2 h-2 rounded-full bg-green-500/30" />
-                    </div>
-                    <div className="flex items-center gap-2 rounded-lg border border-border/30 bg-card/40 px-2.5 py-1 opacity-50 flex-1">
-                      <RouteShield route={camera.route} size="sm" />
-                      <span className="text-[10px] text-muted-foreground truncate">{camera.direction} — {camera.location || camera.city}</span>
-                      <span className="ml-auto text-[9px] text-muted-foreground shrink-0">{etaMinutes != null ? `${etaMinutes}m` : '\u2014'}</span>
-                      <span className="text-[8px] text-green-500/60 italic shrink-0">passed</span>
-                      <button
-                        onClick={() => setPassedIds((prev) => { const next = new Set(prev); next.delete(camera.id); return next; })}
-                        className="text-[9px] text-muted-foreground hover:text-foreground transition-colors shrink-0"
-                        title="Undo passed"
-                      >
-                        undo
-                      </button>
-                    </div>
-                  </div>
+                <div className="flex items-center gap-2 rounded-lg border border-border/30 bg-card/40 px-2.5 py-1 opacity-50">
+                  <RouteShield route={camera.route} size="sm" />
+                  <span className="text-[10px] text-muted-foreground truncate">{camera.direction} — {camera.location || camera.city}</span>
+                  <span className="ml-auto text-[9px] text-muted-foreground shrink-0">{etaMinutes != null ? `${etaMinutes}m` : '\u2014'}</span>
+                  <span className="text-[8px] text-green-500/60 italic shrink-0">passed</span>
+                  <button
+                    onClick={() => setPassedIds((prev) => { const next = new Set(prev); next.delete(camera.id); return next; })}
+                    className="text-[9px] text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                    title="Undo passed"
+                  >
+                    undo
+                  </button>
                 </div>
               </div>
             );
@@ -418,39 +420,23 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLoc
           return (
             <div key={camera.id}>
               {userDotElement}
-              <div className="relative">
-                <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-border" />
-                <div className="relative flex gap-3 py-2">
-                  <div className="flex flex-col items-center shrink-0 z-10 pt-3">
-                    <div className={`w-4 h-4 rounded-full border-2 ${
-                      camera.nearbyIncidents.length > 0 ? 'border-red-500 bg-red-500/30' :
-                      camera.hasVideo ? 'border-green-500 bg-green-500/30' :
-                      'border-muted-foreground bg-muted'
-                    }`} />
-                    <span className="mt-1 text-[10px] font-medium text-muted-foreground">
-                      {routeDuration > 0 && !isNaN(routeDuration) ? `${Math.round(camera.progressAlongRoute * (routeDuration / 60))}m` : '\u2014'}
-                    </span>
-                  </div>
-                  <FeedCard
-                    camera={camera}
-                    routeDuration={routeDuration}
-                    isExpanded={expandedId === camera.id}
-                    onToggle={() => {
-                      setExpandedId(expandedId === camera.id ? null : camera.id);
-                      onCameraFocus?.(camera.id);
-                    }}
-                    onMarkPassed={() => setPassedIds((prev) => new Set(prev).add(camera.id))}
-                  />
-                </div>
-              </div>
+              <FeedCard
+                camera={camera}
+                routeDuration={routeDuration}
+                isExpanded={expandedId === camera.id}
+                onToggle={() => {
+                  setExpandedId(expandedId === camera.id ? null : camera.id);
+                  onCameraFocus?.(camera.id);
+                }}
+                onMarkPassed={() => setPassedIds((prev) => new Set(prev).add(camera.id))}
+              />
 
               {/* Distance to next available camera */}
               {camera.distanceToNext != null && i < sorted.length - 1 && (
-                <div className="relative flex items-center py-0.5 pl-[15px]">
-                  <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-border" />
-                  <div className="ml-6 text-[9px] text-muted-foreground/40">
+                <div className="flex items-center justify-center py-0.5">
+                  <span className="text-[9px] text-muted-foreground/40">
                     {camera.distanceToNext < 1 ? `${Math.round(camera.distanceToNext * 1000)}m` : `${camera.distanceToNext.toFixed(1)}km`}
-                  </div>
+                  </span>
                 </div>
               )}
             </div>
@@ -459,16 +445,9 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLoc
 
         {/* User dot after all cameras (when past the last one) */}
         {tracking && userLocation && userDotInsertIndex === sorted.length && (
-          <div className="relative">
-            <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-border" />
-            <div className="relative flex gap-3 py-1.5">
-              <div className="flex items-center shrink-0 z-10">
-                <div className="w-4 h-4 rounded-full bg-blue-500 border-2 border-white shadow-md animate-pulse" />
-              </div>
-              <div className="flex items-center gap-2 text-[10px] text-blue-400 font-medium">
-                <span>You are here</span>
-              </div>
-            </div>
+          <div className="flex items-center gap-2 py-1">
+            <div className="w-3 h-3 rounded-full bg-blue-500 border-2 border-white shadow-md animate-pulse shrink-0" />
+            <span className="text-[10px] text-blue-400 font-medium">You are here</span>
           </div>
         )}
       </div>

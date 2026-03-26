@@ -305,7 +305,25 @@ export function RoutePlanner() {
                 <RouteLiveView cameras={routeCameras} routeDuration={routeDuration} onCameraFocus={setFocusedCameraId} onUserLocationChange={setUserLocation} />
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pb-4">
-                  {routeCameras.map((camera) => (
+                  {routeCameras.map((camera) => {
+                    const isUnavailable = !camera.imageUrl || camera.isStale;
+                    if (isUnavailable) {
+                      return (
+                        <div key={camera.id} className="rounded-xl border border-border/30 overflow-hidden bg-card/40 opacity-50">
+                          <div className="aspect-video bg-muted flex items-center justify-center">
+                            <span className="text-[10px] text-muted-foreground italic">Unavailable</span>
+                          </div>
+                          <div className="px-2.5 py-1.5">
+                            <div className="flex items-center gap-1.5">
+                              <RouteShield route={camera.route} size="sm" />
+                              <span className="text-xs font-medium truncate">{camera.direction}</span>
+                            </div>
+                            <p className="text-[11px] text-muted-foreground truncate mt-0.5">{camera.location || camera.city}</p>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return (
                     <div
                       key={camera.id}
                       className="rounded-xl border border-border/60 overflow-hidden bg-card cursor-pointer hover:shadow-md transition-shadow"
@@ -326,7 +344,8 @@ export function RoutePlanner() {
                         <p className="text-[11px] text-muted-foreground truncate mt-0.5">{camera.location || camera.city}</p>
                       </div>
                     </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>
