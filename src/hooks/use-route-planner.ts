@@ -128,9 +128,9 @@ export function useRoutePlanner() {
     if (!origin || !destination || allCameras.length === 0) return [];
     if (!osrmRoute?.geometry?.coordinates) return []; // Wait for real route
 
-    // Tight matching: 0.3km for short routes, 0.5km for longer ones
+    // Tight matching: 0.2km for short routes (<30km), 0.3km for medium (30-100km), 0.5km for long (100km+)
     const routeLen = osrmRoute.distance ? osrmRoute.distance / 1000 : 50;
-    const tolerance = routeLen < 50 ? 0.3 : 0.5;
+    const tolerance = routeLen < 30 ? 0.2 : routeLen < 100 ? 0.3 : 0.5;
     const rawMatches = matchCamerasToRoute(osrmRoute.geometry.coordinates, allCameras, tolerance);
     // Convert RouteCameraMatch to the format enrichAndSort expects
     const matches = rawMatches.map((m) => ({

@@ -11,14 +11,16 @@ interface RouteMapViewProps {
   destination?: { lat: number; lon: number } | null;
   onCameraClick?: (camera: RouteCamera) => void;
   focusedCameraId?: string | null;
+  userLocation?: { lat: number; lon: number } | null;
 }
 
-export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, destination, onCameraClick, focusedCameraId }: RouteMapViewProps) {
+export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, destination, onCameraClick, focusedCameraId, userLocation }: RouteMapViewProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
   const routeLayerRef = useRef<L.LayerGroup | null>(null);
   const cameraLayerRef = useRef<L.LayerGroup | null>(null);
   const cameraMarkersRef = useRef<Map<string, L.Marker>>(new Map());
+  const userMarkerRef = useRef<L.Marker | null>(null);
 
   useEffect(() => {
     if (!mapRef.current || mapInstance.current) return;
@@ -160,6 +162,38 @@ export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, d
     mapInstance.current.panTo(latLng, { animate: true, duration: 0.5 });
     marker.openPopup();
   }, [focusedCameraId]);
+
+  // User location blue pulsing dot
+  useEffect(() => {
+    if (!mapInstance.current) return;
+
+    if (userMarkerRef.current) {
+      mapInstance.current.removeLayer(userMarkerRef.current);
+      userMarkerRef.current = null;
+    }
+
+    if (userLocation) {
+      const userIcon = L.divIcon({
+        className: 'user-location-marker',
+        html: `<div style="
+          width:18px;height:18px;border-radius:50%;background:#3b82f6;
+          border:3px solid white;box-shadow:0 0 0 4px rgba(59,130,246,0.3), 0 0 8px rgba(59,130,246,0.4);
+          animation: pulse-blue 2s ease-in-out infinite;
+        "></div>
+        <style>
+          @keyframes pulse-blue {
+            0%, 100% { box-shadow: 0 0 0 4px rgba(59,130,246,0.3), 0 0 8px rgba(59,130,246,0.4); }
+            50% { box-shadow: 0 0 0 8px rgba(59,130,246,0.15), 0 0 16px rgba(59,130,246,0.2); }
+          }
+        </style>`,
+        iconSize: [18, 18],
+        iconAnchor: [9, 9],
+      });
+      userMarkerRef.current = L.marker([userLocation.lat, userLocation.lon], { icon: userIcon, zIndexOffset: 1000 })
+        .bindTooltip('Your location', { direction: 'top', offset: [0, -12] })
+        .addTo(mapInstance.current);
+    }
+  }, [userLocation]);
 
   return (
     <div className="relative">

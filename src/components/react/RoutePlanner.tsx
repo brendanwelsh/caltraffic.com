@@ -154,6 +154,7 @@ export function RoutePlanner() {
   const [showMap, setShowMap] = useState(true);
   const [selectedCamera, setSelectedCamera] = useState<EnrichedCamera | null>(null);
   const [focusedCameraId, setFocusedCameraId] = useState<string | null>(null);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null);
 
   const handlePlanRoute = useCallback(() => {
     setGeocodeError(null);
@@ -293,8 +294,8 @@ export function RoutePlanner() {
           </div>
         )}
 
-        {/* Loading state — waiting for route + cameras */}
-        {hasRoute && (routeLoading || routeCameras.length === 0) && (
+        {/* Loading state — show spinner immediately when route is set but cameras haven't loaded yet */}
+        {hasRoute && routeCameras.length === 0 && (routeLoading || routeLineLoading) && (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="h-8 w-8 animate-spin rounded-full border-3 border-primary border-t-transparent mb-4" />
             <p className="text-sm font-medium">Finding route and cameras...</p>
@@ -308,7 +309,7 @@ export function RoutePlanner() {
             {/* Left: scrollable feed timeline or camera grid */}
             <div className="flex-1 overflow-y-auto pr-1">
               {routeView === 'list' ? (
-                <RouteLiveView cameras={routeCameras} routeDuration={routeDuration} onCameraFocus={setFocusedCameraId} />
+                <RouteLiveView cameras={routeCameras} routeDuration={routeDuration} onCameraFocus={setFocusedCameraId} onUserLocationChange={setUserLocation} />
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pb-4">
                   {routeCameras.map((camera) => (
@@ -349,6 +350,7 @@ export function RoutePlanner() {
                       origin={origin}
                       destination={destination}
                       focusedCameraId={focusedCameraId}
+                      userLocation={userLocation}
                     />
                   </div>
                 </Suspense>

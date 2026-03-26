@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
 import { VideoPlayer } from './VideoPlayer';
 import { CMSSign } from './CMSSign';
 import { RouteShield } from './RouteShield';
@@ -6,10 +6,23 @@ import { ConditionBadges } from './ConditionBadges';
 import { useFavorites } from '@/hooks/use-favorites';
 import type { RouteCamera } from '@/hooks/use-route-planner';
 
+/** Haversine distance in km between two lat/lon points */
+function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371;
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) * Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 interface RouteLiveViewProps {
   cameras: RouteCamera[];
   routeDuration: number;
   onCameraFocus?: (id: string) => void;
+  onUserLocationChange?: (loc: { lat: number; lon: number } | null) => void;
 }
 
 /** Mount video once seen, keep mounted. Static images always show. */
@@ -99,23 +112,23 @@ function FeedCard({ camera, routeDuration, isExpanded, onToggle, onMarkPassed }:
           <p className="text-base font-semibold mt-1.5 leading-snug">{camera.location || 'Unknown'}</p>
           <p className="text-xs text-muted-foreground">{camera.city}{camera.county ? `, ${camera.county}` : ''}</p>
 
-          {/* Row 3: Details */}
-          <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
-            <div><span className="text-muted-foreground">District:</span> <span className="font-medium">D{String(camera.district).padStart(2, '0')}</span></div>
-            <div><span className="text-muted-foreground">Postmile:</span> <span className="font-medium">{camera.postmile.toFixed(1)}</span></div>
-            <div><span className="text-muted-foreground">ETA:</span> <span className="font-medium">{etaMinutes != null ? `~${etaMinutes} min` : '\u2014'}</span></div>
-            <div><span className="text-muted-foreground">Coords:</span> <span className="font-medium">{camera.latitude.toFixed(4)}, {camera.longitude.toFixed(4)}</span></div>
+          {/* Row 3: Details — compact inline */}
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-[11px] text-muted-foreground">
+            <span>D{String(camera.district).padStart(2, '0')}</span>
+            <span>PM {camera.postmile.toFixed(1)}</span>
+            <span>{etaMinutes != null ? `~${etaMinutes} min` : '\u2014'}</span>
+            <span>{camera.latitude.toFixed(4)}, {camera.longitude.toFixed(4)}</span>
           </div>
 
-          {/* Row 4: Links */}
-          <div className="mt-2 flex flex-wrap gap-2">
-            <a href={`https://www.google.com/maps?q=${camera.latitude},${camera.longitude}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1.5 rounded-md border border-input px-2.5 py-1 text-[11px] hover:bg-accent transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
-              Google Maps
+          {/* Row 4: Links — side by side row */}
+          <div className="mt-1.5 flex items-center gap-1.5">
+            <a href={`https://www.google.com/maps?q=${camera.latitude},${camera.longitude}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 rounded-md border border-input px-2 py-0.5 text-[11px] hover:bg-accent transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+              Maps
             </a>
-            <a href={`/camera/${camera.id}`} onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1.5 rounded-md border border-input px-2.5 py-1 text-[11px] hover:bg-accent transition-colors">
-              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
-              Camera Page
+            <a href={`/camera/${camera.id}`} onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 rounded-md border border-input px-2 py-0.5 text-[11px] hover:bg-accent transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+              Camera
             </a>
           </div>
 
@@ -195,18 +208,135 @@ function MiniCard({ camera, routeDuration }: { camera: RouteCamera; routeDuratio
   );
 }
 
-export function RouteLiveView({ cameras, routeDuration, onCameraFocus }: RouteLiveViewProps) {
+export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLocationChange }: RouteLiveViewProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [passedIds, setPassedIds] = useState<Set<string>>(new Set());
+  const [tracking, setTracking] = useState(false);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null);
+  const [trackingError, setTrackingError] = useState<string | null>(null);
+  const watchIdRef = useRef<number | null>(null);
 
   const sorted = [...cameras].sort((a, b) => a.progressAlongRoute - b.progressAlongRoute);
   const available = sorted.filter(c => c.imageUrl && !c.isStale);
   const unavailable = sorted.filter(c => !c.imageUrl || c.isStale);
   const liveCount = available.filter(c => c.hasVideo && c.streamUrl).length;
 
+  // Compute user's progress along route (0-1) based on nearest camera
+  const userProgress = useMemo(() => {
+    if (!userLocation || sorted.length === 0) return null;
+    let bestDist = Infinity;
+    let bestProgress = 0;
+    for (const cam of sorted) {
+      const d = haversineKm(userLocation.lat, userLocation.lon, cam.latitude, cam.longitude);
+      if (d < bestDist) {
+        bestDist = d;
+        bestProgress = cam.progressAlongRoute;
+      }
+    }
+    return bestProgress;
+  }, [userLocation, sorted]);
+
+  // Auto-mark cameras as passed when tracking
+  useEffect(() => {
+    if (!tracking || !userLocation || !userProgress) return;
+    const newPassed = new Set(passedIds);
+    let changed = false;
+    for (const cam of sorted) {
+      if (passedIds.has(cam.id)) continue;
+      const dist = haversineKm(userLocation.lat, userLocation.lon, cam.latitude, cam.longitude);
+      // Within 500m AND the camera is behind us (lower progress)
+      if (dist <= 0.5 && cam.progressAlongRoute < userProgress) {
+        newPassed.add(cam.id);
+        changed = true;
+      }
+    }
+    if (changed) setPassedIds(newPassed);
+  }, [userLocation, userProgress, tracking, sorted]);
+
+  const startTracking = useCallback(() => {
+    if (!navigator.geolocation) {
+      setTrackingError('Geolocation is not supported by your browser');
+      return;
+    }
+    setTrackingError(null);
+    setTracking(true);
+    watchIdRef.current = navigator.geolocation.watchPosition(
+      (pos) => {
+        const loc = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+        setUserLocation(loc);
+        onUserLocationChange?.(loc);
+      },
+      (err) => {
+        if (err.code === err.PERMISSION_DENIED) {
+          setTrackingError('Location permission denied');
+        } else {
+          setTrackingError('Unable to get your location');
+        }
+        setTracking(false);
+      },
+      { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 },
+    );
+  }, [onUserLocationChange]);
+
+  const stopTracking = useCallback(() => {
+    if (watchIdRef.current !== null) {
+      navigator.geolocation.clearWatch(watchIdRef.current);
+      watchIdRef.current = null;
+    }
+    setTracking(false);
+    setUserLocation(null);
+    onUserLocationChange?.(null);
+  }, [onUserLocationChange]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (watchIdRef.current !== null) {
+        navigator.geolocation.clearWatch(watchIdRef.current);
+      }
+    };
+  }, []);
+
+  // Find where user dot goes in the timeline (between which camera indices)
+  const userDotInsertIndex = useMemo(() => {
+    if (userProgress === null) return null;
+    for (let i = 0; i < sorted.length; i++) {
+      if (sorted[i].progressAlongRoute > userProgress) return i;
+    }
+    return sorted.length;
+  }, [userProgress, sorted]);
+
   return (
     <div>
-      <div className="mb-2 flex items-center gap-2">
+      <div className="mb-2 flex items-center gap-2 flex-wrap">
+        {/* Track My Location toggle */}
+        <button
+          onClick={tracking ? stopTracking : startTracking}
+          className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-colors ${
+            tracking
+              ? 'border-blue-500/50 bg-blue-500/10 text-blue-400'
+              : 'border-border text-muted-foreground hover:bg-accent'
+          }`}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="3"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M2 12h4"/><path d="M18 12h4"/>
+          </svg>
+          {tracking ? 'Stop Tracking' : 'Track My Location'}
+        </button>
+
+        {tracking && userLocation && (
+          <span className="inline-flex items-center gap-1.5 text-[10px] text-blue-400">
+            <span className="h-2 w-2 rounded-full bg-blue-400 animate-pulse" />
+            Tracking your location...
+          </span>
+        )}
+
+        {trackingError && (
+          <span className="text-[10px] text-red-400">{trackingError}</span>
+        )}
+
+        <div className="flex-1" />
+
         {passedIds.size > 0 && (
           <p className="text-[10px] text-muted-foreground">{passedIds.size} passed</p>
         )}
@@ -224,17 +354,35 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus }: RouteLi
         {sorted.map((camera, i) => {
           const isUnavailable = !camera.imageUrl || camera.isStale;
           const isPassed = passedIds.has(camera.id);
+          const showUserDotBefore = tracking && userLocation && userDotInsertIndex === i;
+
+          const userDotElement = showUserDotBefore ? (
+            <div className="relative" key={`user-dot-${i}`}>
+              <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-border" />
+              <div className="relative flex gap-3 py-1.5">
+                <div className="flex items-center shrink-0 z-10">
+                  <div className="w-4 h-4 rounded-full bg-blue-500 border-2 border-white shadow-md animate-pulse" />
+                </div>
+                <div className="flex items-center gap-2 text-[10px] text-blue-400 font-medium">
+                  <span>You are here</span>
+                </div>
+              </div>
+            </div>
+          ) : null;
 
           // Unavailable: always show collapsed
           if (isUnavailable) {
             return (
-              <div key={camera.id} className="relative">
-                <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-border" />
-                <div className="relative flex gap-3 py-0.5">
-                  <div className="flex items-center shrink-0 z-10">
-                    <div className="w-2 h-2 rounded-full bg-muted-foreground/20" />
+              <div key={camera.id}>
+                {userDotElement}
+                <div className="relative">
+                  <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-border" />
+                  <div className="relative flex gap-3 py-0.5">
+                    <div className="flex items-center shrink-0 z-10">
+                      <div className="w-2 h-2 rounded-full bg-muted-foreground/20" />
+                    </div>
+                    <MiniCard camera={camera} routeDuration={routeDuration} />
                   </div>
-                  <MiniCard camera={camera} routeDuration={routeDuration} />
                 </div>
               </div>
             );
@@ -244,24 +392,27 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus }: RouteLi
           if (isPassed) {
             const etaMinutes = routeDuration > 0 && !isNaN(routeDuration) ? Math.round(camera.progressAlongRoute * (routeDuration / 60)) : null;
             return (
-              <div key={camera.id} className="relative">
-                <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-border" />
-                <div className="relative flex gap-3 py-0.5">
-                  <div className="flex items-center shrink-0 z-10">
-                    <div className="w-2 h-2 rounded-full bg-green-500/30" />
-                  </div>
-                  <div className="flex items-center gap-2 rounded-lg border border-border/30 bg-card/40 px-2.5 py-1 opacity-50 flex-1">
-                    <RouteShield route={camera.route} size="sm" />
-                    <span className="text-[10px] text-muted-foreground truncate">{camera.direction} — {camera.location || camera.city}</span>
-                    <span className="ml-auto text-[9px] text-muted-foreground shrink-0">{etaMinutes != null ? `${etaMinutes}m` : '\u2014'}</span>
-                    <span className="text-[8px] text-green-500/60 italic shrink-0">passed</span>
-                    <button
-                      onClick={() => setPassedIds((prev) => { const next = new Set(prev); next.delete(camera.id); return next; })}
-                      className="text-[9px] text-muted-foreground hover:text-foreground transition-colors shrink-0"
-                      title="Undo passed"
-                    >
-                      undo
-                    </button>
+              <div key={camera.id}>
+                {userDotElement}
+                <div className="relative">
+                  <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-border" />
+                  <div className="relative flex gap-3 py-0.5">
+                    <div className="flex items-center shrink-0 z-10">
+                      <div className="w-2 h-2 rounded-full bg-green-500/30" />
+                    </div>
+                    <div className="flex items-center gap-2 rounded-lg border border-border/30 bg-card/40 px-2.5 py-1 opacity-50 flex-1">
+                      <RouteShield route={camera.route} size="sm" />
+                      <span className="text-[10px] text-muted-foreground truncate">{camera.direction} — {camera.location || camera.city}</span>
+                      <span className="ml-auto text-[9px] text-muted-foreground shrink-0">{etaMinutes != null ? `${etaMinutes}m` : '\u2014'}</span>
+                      <span className="text-[8px] text-green-500/60 italic shrink-0">passed</span>
+                      <button
+                        onClick={() => setPassedIds((prev) => { const next = new Set(prev); next.delete(camera.id); return next; })}
+                        className="text-[9px] text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                        title="Undo passed"
+                      >
+                        undo
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -270,6 +421,7 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus }: RouteLi
 
           return (
             <div key={camera.id}>
+              {userDotElement}
               <div className="relative">
                 <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-border" />
                 <div className="relative flex gap-3 py-2">
@@ -308,6 +460,21 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus }: RouteLi
             </div>
           );
         })}
+
+        {/* User dot after all cameras (when past the last one) */}
+        {tracking && userLocation && userDotInsertIndex === sorted.length && (
+          <div className="relative">
+            <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-border" />
+            <div className="relative flex gap-3 py-1.5">
+              <div className="flex items-center shrink-0 z-10">
+                <div className="w-4 h-4 rounded-full bg-blue-500 border-2 border-white shadow-md animate-pulse" />
+              </div>
+              <div className="flex items-center gap-2 text-[10px] text-blue-400 font-medium">
+                <span>You are here</span>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {available.length === 0 && (
