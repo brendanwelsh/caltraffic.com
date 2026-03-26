@@ -138,23 +138,44 @@ const PRESET_ROUTES = [
   { label: 'Fresno → SF', from: { lat: 36.738, lon: -119.784, label: 'Fresno' }, to: { lat: 37.775, lon: -122.419, label: 'San Francisco' } },
 ];
 
-const DEFAULT_PRESET = PRESET_ROUTES.find((r) => r.label === 'Folsom → Sacramento')!;
-
 export function RoutePlanner() {
   const {
     origin, destination, setOrigin, setDestination, clearRoute,
     routeLineCoords, routeLineLoading, hasRoute,
     routeCameras, routeLoading,
     routeDistance, routeDuration, routeSteps,
-  } = useRoutePlanner(DEFAULT_PRESET.from, DEFAULT_PRESET.to);
-  const originAC = useGeocodeAutocomplete(DEFAULT_PRESET.from);
-  const destAC = useGeocodeAutocomplete(DEFAULT_PRESET.to);
+  } = useRoutePlanner();
+  const originAC = useGeocodeAutocomplete();
+  const destAC = useGeocodeAutocomplete();
   const [geocodeError, setGeocodeError] = useState<string | null>(null);
   const [routeView, setRouteView] = useState<'list' | 'grid'>('list');
   const [showMap, setShowMap] = useState(true);
   const [selectedCamera, setSelectedCamera] = useState<EnrichedCamera | null>(null);
   const [focusedCameraId, setFocusedCameraId] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null);
+
+  // Load route from URL params (permalink support)
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const params = new URLSearchParams(window.location.search);
+    const from = params.get('from');
+    const to = params.get('to');
+    const fromLabel = params.get('fromLabel') || 'Origin';
+    const toLabel = params.get('toLabel') || 'Destination';
+    if (from && to) {
+      const [fromLat, fromLon] = from.split(',').map(Number);
+      const [toLat, toLon] = to.split(',').map(Number);
+      if (!isNaN(fromLat) && !isNaN(fromLon) && !isNaN(toLat) && !isNaN(toLon)) {
+        const orig = { lat: fromLat, lon: fromLon, label: fromLabel };
+        const dest = { lat: toLat, lon: toLon, label: toLabel };
+        originAC.select(orig);
+        destAC.select(dest);
+        setOrigin(orig);
+        setDestination(dest);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handlePlanRoute = useCallback(() => {
     setGeocodeError(null);
@@ -181,8 +202,7 @@ export function RoutePlanner() {
     setGeocodeError(null);
   }, [clearRoute, originAC.clear, destAC.clear]);
 
-  const [dismissSampleBanner, setDismissSampleBanner] = useState(false);
-  const isDefaultRoute = origin?.label === 'Folsom' && destination?.label === 'Sacramento';
+  // No more default route — clean slate on load unless URL has params
 
   const totalIncidents = routeCameras.reduce((sum, c) => sum + c.nearbyIncidents.length, 0);
   const totalClosures = routeCameras.reduce((sum, c) => sum + c.nearbyClosures.length, 0);
@@ -212,6 +232,23 @@ export function RoutePlanner() {
         <div className="rounded-lg border border-border bg-card px-3 py-2">
           <div className="flex flex-col sm:flex-row items-end gap-2">
             <AutocompleteInput ac={originAC} label="FROM" placeholder="City, address, or landmark" onKeyDown={handleKeyDown} />
+            {/* Flip directions button */}
+            <button
+              onClick={() => {
+                const tempOrigin = originAC.selected;
+                const tempDest = destAC.selected;
+                if (tempOrigin && tempDest) {
+                  originAC.select(tempDest);
+                  destAC.select(tempOrigin);
+                  setOrigin(tempDest);
+                  setDestination(tempOrigin);
+                }
+              }}
+              className="hidden sm:flex h-9 w-9 items-center justify-center rounded-lg border border-border text-muted-foreground hover:bg-accent hover:text-foreground transition-colors shrink-0"
+              title="Swap origin and destination"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m7 15 5 5 5-5"/><path d="m7 9 5-5 5 5"/></svg>
+            </button>
             <AutocompleteInput ac={destAC} label="TO" placeholder="City, address, or landmark" onKeyDown={handleKeyDown} />
             <div className="flex gap-1.5 shrink-0">
               <button
@@ -219,52 +256,33 @@ export function RoutePlanner() {
                 disabled={routeLoading || !originAC.selected || !destAC.selected}
                 className="h-9 rounded-lg bg-primary px-4 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 whitespace-nowrap"
               >
-                {routeLoading ? 'Loading...' : 'Plan Route'}
+                {routeLoading ? 'Loading...' : 'View Route'}
               </button>
-              {(origin || originAC.query) && (
-                <button onClick={handleClear} className="h-9 rounded-lg border border-red-500/40 bg-red-500/10 px-4 text-xs font-medium text-red-400 hover:bg-red-500/20 hover:text-red-300 transition-colors">
-                  Clear Route
-                </button>
+              {hasRoute && (
+                <>
+                  <button
+                    onClick={() => {
+                      const url = new URL(window.location.href);
+                      url.searchParams.set('from', `${origin!.lat},${origin!.lon}`);
+                      url.searchParams.set('to', `${destination!.lat},${destination!.lon}`);
+                      url.searchParams.set('fromLabel', origin!.label);
+                      url.searchParams.set('toLabel', destination!.label);
+                      navigator.clipboard.writeText(url.toString());
+                    }}
+                    className="h-9 rounded-lg border border-border px-2.5 text-xs text-muted-foreground hover:bg-accent transition-colors"
+                    title="Copy shareable link"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/></svg>
+                  </button>
+                  <button onClick={handleClear} className="h-9 rounded-lg border border-border px-2.5 text-xs text-muted-foreground hover:bg-accent transition-colors" title="Clear route">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                  </button>
+                </>
               )}
             </div>
           </div>
           {geocodeError && <p className="mt-1.5 text-xs text-red-400">{geocodeError}</p>}
-
-          {/* Preset routes */}
-          {!hasRoute && (
-            <div className="flex flex-wrap justify-center gap-1.5 mt-2 pt-2 border-t border-border/50">
-              <span className="text-[10px] text-muted-foreground mr-1 self-center">Quick:</span>
-              {PRESET_ROUTES.map((preset) => (
-                <button
-                  key={preset.label}
-                  onClick={() => {
-                    originAC.select(preset.from);
-                    destAC.select(preset.to);
-                    setOrigin(preset.from);
-                    setDestination(preset.to);
-                  }}
-                  className="rounded-full border border-border px-2.5 py-0.5 text-[10px] text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-                >
-                  {preset.label}
-                </button>
-              ))}
-            </div>
-          )}
         </div>
-
-        {/* Sample route banner */}
-        {hasRoute && isDefaultRoute && !dismissSampleBanner && (
-          <div className="flex items-center gap-1.5 rounded border border-border/40 bg-muted/20 px-2 py-0.5 text-[10px] text-muted-foreground">
-            <span>Sample route: Folsom → Sacramento · Enter your own above</span>
-            <button
-              onClick={() => setDismissSampleBanner(true)}
-              className="shrink-0 rounded p-0.5 hover:bg-accent transition-colors"
-              aria-label="Dismiss"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-            </button>
-          </div>
-        )}
 
         {/* Controls bar */}
         {hasRoute && routeCameras.length > 0 && (
@@ -497,17 +515,33 @@ export function RoutePlanner() {
           </div>
         )}
 
-        {/* Initial empty state */}
+        {/* Landing state — no route selected */}
         {!hasRoute && !routeLoading && (
-          <div className="flex flex-col items-center justify-center py-16 text-center">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground/30 mb-4">
-              <path d="m3 3 7 7" /><path d="m14 21-7-7" /><path d="m3 21 18-18" /><path d="M21 14v7h-7" /><path d="M3 10V3h7" />
-            </svg>
-            <p className="text-sm text-muted-foreground">
-              See what's ahead — enter your origin and destination to view live traffic cameras along your route
+          <div className="py-10 text-center max-w-lg mx-auto">
+            <h2 className="text-xl font-bold mb-2">See what's ahead on your drive</h2>
+            <p className="text-sm text-muted-foreground mb-6">
+              Enter an origin and destination above to view live traffic cameras, incidents, road conditions, and turn-by-turn directions along your route.
             </p>
-            <p className="mt-1.5 text-xs text-muted-foreground/60">
-              Or try a popular route above
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-left">
+              {PRESET_ROUTES.slice(0, 6).map((preset) => (
+                <button
+                  key={preset.label}
+                  onClick={() => {
+                    originAC.select(preset.from);
+                    destAC.select(preset.to);
+                    setOrigin(preset.from);
+                    setDestination(preset.to);
+                  }}
+                  className="rounded-lg border border-border bg-card p-3 text-left hover:bg-accent hover:border-primary/30 transition-colors"
+                >
+                  <p className="text-xs font-medium">{preset.from.label}</p>
+                  <p className="text-[10px] text-muted-foreground">→ {preset.to.label}</p>
+                </button>
+              ))}
+            </div>
+            <p className="mt-4 text-[10px] text-muted-foreground/50">
+              3,000+ cameras across all 12 Caltrans districts · Live video · Real-time incidents
             </p>
           </div>
         )}
