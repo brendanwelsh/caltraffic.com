@@ -156,7 +156,8 @@ export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, d
     if (!marker) return;
 
     const latLng = marker.getLatLng();
-    mapInstance.current.setView(latLng, Math.max(mapInstance.current.getZoom(), 12), { animate: true });
+    // Pan without changing zoom level — prevents zoom bounce
+    mapInstance.current.panTo(latLng, { animate: true, duration: 0.5 });
     marker.openPopup();
   }, [focusedCameraId]);
 

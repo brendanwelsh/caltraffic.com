@@ -143,7 +143,7 @@ export function RoutePlanner() {
     origin, destination, setOrigin, setDestination, clearRoute,
     routeLineCoords, routeLineLoading, hasRoute,
     routeCameras, routeLoading,
-    routeDistance, routeDuration,
+    routeDistance, routeDuration, routeSteps,
   } = useRoutePlanner();
 
   const defaultPreset = PRESET_ROUTES.find((r) => r.label === 'Folsom → Sacramento')!;
@@ -255,45 +255,21 @@ export function RoutePlanner() {
           </div>
         )}
 
-        {/* Route summary */}
+        {/* Controls bar */}
         {hasRoute && routeCameras.length > 0 && (
-          <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="rounded-full border border-border px-2.5 py-1">
-              {(routeDistance / 1609.34).toFixed(0)} mi
-            </span>
-            <span className="rounded-full border border-border px-2.5 py-1">
-              {routeDuration > 0 && !isNaN(routeDuration) ? `~${Math.round(routeDuration / 60)} min` : '\u2014'}
-            </span>
-            <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-primary">
-              {routeCameras.length} cameras
-            </span>
-            {totalIncidents > 0 && (
-              <span className="rounded-full border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-red-400">
-                {totalIncidents} incident{totalIncidents > 1 ? 's' : ''}
-              </span>
-            )}
-            {totalClosures > 0 && (
-              <span className="rounded-full border border-orange-500/30 bg-orange-500/10 px-2.5 py-1 text-orange-400">
-                {totalClosures} closure{totalClosures > 1 ? 's' : ''}
-              </span>
-            )}
-            {totalChainControls > 0 && (
-              <span className="rounded-full border border-blue-500/30 bg-blue-500/10 px-2.5 py-1 text-blue-400">
-                {totalChainControls} chain control{totalChainControls > 1 ? 's' : ''}
-              </span>
-            )}
+          <div className="flex items-center gap-2">
+            <p className="text-[11px] text-muted-foreground">
+              {routeCameras.length} cameras · {routeCameras.filter(c => c.hasVideo && c.streamUrl).length} live
+            </p>
 
-            {/* Spacer to push toggles right */}
             <div className="flex-1" />
 
-            {/* View toggle: List / Grid */}
+            {/* View toggle */}
             <div className="flex items-center rounded-lg border border-border overflow-hidden">
               <button
                 onClick={() => setRouteView('list')}
                 className={`px-2.5 py-1 text-[11px] font-medium transition-colors ${
-                  routeView === 'list'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:bg-accent'
+                  routeView === 'list' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent'
                 }`}
               >
                 List
@@ -301,16 +277,13 @@ export function RoutePlanner() {
               <button
                 onClick={() => setRouteView('grid')}
                 className={`px-2.5 py-1 text-[11px] font-medium transition-colors ${
-                  routeView === 'grid'
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:bg-accent'
+                  routeView === 'grid' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-accent'
                 }`}
               >
                 Grid
               </button>
             </div>
 
-            {/* Hide/Show map toggle */}
             <button
               onClick={() => setShowMap((v) => !v)}
               className="hidden lg:inline-flex items-center gap-1 rounded-lg border border-border px-2.5 py-1 text-[11px] text-muted-foreground hover:bg-accent transition-colors"
@@ -364,11 +337,11 @@ export function RoutePlanner() {
               )}
             </div>
 
-            {/* Right: sticky map (hideable) */}
+            {/* Right: map + route info (hideable) */}
             {showMap && (
-              <div className="hidden lg:block w-[45%] shrink-0">
-                <Suspense fallback={<div className="h-full animate-pulse rounded-lg bg-muted" />}>
-                  <div className="sticky top-0 h-full">
+              <div className="hidden lg:flex lg:flex-col w-[45%] shrink-0 gap-3 overflow-y-auto">
+                <Suspense fallback={<div className="h-[50vh] animate-pulse rounded-lg bg-muted" />}>
+                  <div style={{ minHeight: '350px', height: '45vh' }}>
                     <RouteMapView
                       routeCoords={routeLineCoords}
                       routeLineLoading={routeLineLoading}
@@ -379,6 +352,56 @@ export function RoutePlanner() {
                     />
                   </div>
                 </Suspense>
+
+                {/* Route summary */}
+                <div className="rounded-lg border border-border bg-card p-3">
+                  <div className="flex flex-wrap gap-2 text-xs">
+                    <span className="rounded-full border border-border px-2.5 py-1 font-medium">
+                      {(routeDistance / 1609.34).toFixed(0)} mi
+                    </span>
+                    <span className="rounded-full border border-border px-2.5 py-1 font-medium">
+                      ~{routeDuration > 0 ? Math.round(routeDuration / 60) : '—'} min
+                    </span>
+                    <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-primary font-medium">
+                      {routeCameras.length} cameras
+                    </span>
+                    {totalIncidents > 0 && (
+                      <span className="rounded-full border border-red-500/30 bg-red-500/10 px-2.5 py-1 text-red-400">
+                        {totalIncidents} incident{totalIncidents > 1 ? 's' : ''}
+                      </span>
+                    )}
+                    {totalClosures > 0 && (
+                      <span className="rounded-full border border-orange-500/30 bg-orange-500/10 px-2.5 py-1 text-orange-400">
+                        {totalClosures} closure{totalClosures > 1 ? 's' : ''}
+                      </span>
+                    )}
+                  </div>
+                </div>
+
+                {/* Turn-by-turn directions */}
+                {routeSteps.length > 0 && (
+                  <div className="rounded-lg border border-border bg-card p-3">
+                    <h3 className="text-xs font-semibold mb-2">Directions</h3>
+                    <div className="space-y-0">
+                      {routeSteps.map((step: any, i: number) => (
+                        <div key={i} className="flex items-start gap-2 py-1.5 border-b border-border/30 last:border-0">
+                          <span className="shrink-0 w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[9px] font-bold text-muted-foreground mt-0.5">
+                            {i + 1}
+                          </span>
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs">
+                              <span className="text-muted-foreground capitalize">{step.type === 'depart' ? 'Start on' : step.type === 'arrive' ? 'Arrive at' : step.modifier || step.type}</span>
+                              {' '}<span className="font-medium">{step.name}</span>
+                            </p>
+                            <p className="text-[10px] text-muted-foreground">
+                              {(step.distance / 1609.34).toFixed(1)} mi · ~{Math.max(1, Math.round(step.duration / 60))} min
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>

@@ -155,6 +155,18 @@ export function useRoutePlanner() {
     setDestination(null);
   }, []);
 
+  // Extract turn-by-turn steps from OSRM
+  const routeSteps = useMemo(() => {
+    if (!osrmRoute) return [];
+    return (osrmRoute as any).steps?.filter((s: any) => s.name && s.distance > 50).map((s: any) => ({
+      name: s.name,
+      distance: s.distance,
+      duration: s.duration,
+      type: s.maneuver?.type ?? '',
+      modifier: s.maneuver?.modifier ?? '',
+    })) ?? [];
+  }, [osrmRoute]);
+
   return {
     origin,
     destination,
@@ -168,5 +180,6 @@ export function useRoutePlanner() {
     routeLoading: !!(origin && destination) && (camerasLoading || routeLineLoading),
     routeDistance,
     routeDuration,
+    routeSteps,
   };
 }
