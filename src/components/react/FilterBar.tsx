@@ -34,6 +34,7 @@ interface FilterBarProps {
 function IconToggle({
   icon,
   label,
+  title,
   active,
   onChange,
   color = 'default',
@@ -41,6 +42,7 @@ function IconToggle({
 }: {
   icon: React.ReactNode;
   label: string;
+  title?: string;
   active: boolean;
   onChange: (v: boolean) => void;
   color?: 'default' | 'green' | 'red' | 'amber' | 'yellow' | 'blue';
@@ -63,7 +65,7 @@ function IconToggle({
         'inline-flex items-center gap-1 rounded-full border px-2 py-1 text-[11px] font-medium transition-all active:scale-95 whitespace-nowrap',
         active ? s.on : s.off,
       )}
-      title={label}
+      title={title ?? label}
     >
       {icon}
       <span className="hidden sm:inline">{label}</span>
@@ -219,6 +221,7 @@ export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesO
         <IconToggle
           icon={<span className="h-1.5 w-1.5 rounded-full bg-green-400" />}
           label="Live"
+          title="Show only cameras with live video streams"
           active={videoOnly}
           onChange={(v) => showVideoOnly.set(v)}
           color="green"
@@ -227,6 +230,7 @@ export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesO
         <IconToggle
           icon={<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>}
           label="Hide broken"
+          title="Hide cameras with unavailable or placeholder images"
           active={noUnavailable}
           onChange={(v) => hideUnavailable.set(v)}
           color="default"
@@ -235,6 +239,7 @@ export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesO
           <IconToggle
             icon={<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>}
             label="Incidents"
+            title="Show only cameras with nearby traffic incidents"
             active={withIncidents}
             onChange={(v) => showWithIncidents.set(v)}
             color="red"
@@ -245,6 +250,7 @@ export function FilterBar({ stats, showFavoritesOnly = false, onToggleFavoritesO
           <IconToggle
             icon={<svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill={showFavoritesOnly ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>}
             label="Favorites"
+            title="Show only your saved favorite cameras"
             active={showFavoritesOnly}
             onChange={(v) => onToggleFavoritesOnly(v)}
             color="yellow"

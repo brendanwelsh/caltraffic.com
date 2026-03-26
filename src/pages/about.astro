@@ -9,29 +9,83 @@ import Footer from '../components/astro/Footer.astro';
 <Base title="About — California Traffic Lens">
   <div class="flex min-h-screen flex-col">
     <Header />
-    <main class="flex-1 px-4 py-8 md:px-6 max-w-4xl mx-auto">
-      <h1 class="text-3xl font-bold mb-6">About California Traffic Lens</h1>
-      <p class="text-muted-foreground mb-8 text-lg">
-        Real-time traffic cameras, incidents, and road conditions across all 12 Caltrans districts in California.
+    <main class="flex-1 px-4 py-8 md:px-6 max-w-4xl mx-auto w-full">
+
+      <!-- What is California Traffic Lens -->
+      <h1 class="text-3xl font-bold mb-4">About California Traffic Lens</h1>
+      <p class="text-muted-foreground text-lg mb-4">
+        A real-time traffic camera viewer and route planner for California highways. View live camera feeds, check road conditions, and plan your route with cameras along the way.
+      </p>
+      <p class="text-muted-foreground mb-10">
+        California Traffic Lens aggregates data from multiple public agencies into a single, fast interface. Browse over 3,000 traffic cameras across all 12 Caltrans districts, see active CHP incidents on the map, check weather alerts, chain controls, lane closures, and more — all updating in near real-time.
       </p>
 
-      <h2 class="text-xl font-semibold mb-4">Data Sources</h2>
-      <ul class="space-y-2 text-muted-foreground mb-8">
-        <li><strong class="text-foreground">Traffic Cameras</strong> — Live photo &amp; video feeds from Caltrans</li>
-        <li><strong class="text-foreground">Highway Signs</strong> — Electronic message signs along highways (e.g. "ACCIDENT AHEAD")</li>
-        <li><strong class="text-foreground">Incidents</strong> — Live incident feed from California Highway Patrol</li>
-        <li><strong class="text-foreground">Weather Alerts</strong> — Active alerts from the National Weather Service</li>
-        <li><strong class="text-foreground">Chain Control</strong> — Tire chain requirements on mountain passes</li>
-        <li><strong class="text-foreground">Lane Closures</strong> — Active lane and road closures</li>
-        <li><strong class="text-foreground">Road Weather Sensors</strong> — Temperature, wind, humidity, and visibility at roadside stations</li>
-        <li><strong class="text-foreground">Travel Times</strong> — Estimated drive times along major corridors</li>
-      </ul>
+      <!-- Data Sources -->
+      <h2 class="text-2xl font-semibold mb-4">Data Sources</h2>
+      <div class="space-y-4 mb-10">
+        <div class="rounded-lg border border-border p-4">
+          <h3 class="font-semibold text-foreground mb-1">
+            <a href="https://cwwp2.dot.ca.gov/" class="underline hover:text-primary transition-colors" target="_blank" rel="noopener">Caltrans CWWP2</a>
+          </h3>
+          <p class="text-sm text-muted-foreground">
+            The Commercial Wholesale Web Portal — Caltrans' programmatic data access point. Provides traffic camera feeds (CCTV), Changeable Message Signs (CMS), Chain Controls, Lane Closures, Road Weather stations (RWIS), and Travel Times. Data is served as JSON feeds organized by district.
+          </p>
+        </div>
+        <div class="rounded-lg border border-border p-4">
+          <h3 class="font-semibold text-foreground mb-1">
+            <a href="https://media.chp.ca.gov/sa_xml/sa.xml" class="underline hover:text-primary transition-colors" target="_blank" rel="noopener">California Highway Patrol</a>
+          </h3>
+          <p class="text-sm text-muted-foreground">
+            Real-time traffic incidents from CHP's public incident feed. Includes accidents, road hazards, closures, and other events across the state.
+          </p>
+        </div>
+        <div class="rounded-lg border border-border p-4">
+          <h3 class="font-semibold text-foreground mb-1">
+            <a href="https://api.weather.gov/" class="underline hover:text-primary transition-colors" target="_blank" rel="noopener">National Weather Service</a>
+          </h3>
+          <p class="text-sm text-muted-foreground">
+            Active weather alerts for California zones — winter storms, high winds, flooding, heat advisories, and more.
+          </p>
+        </div>
+        <div class="rounded-lg border border-border p-4">
+          <h3 class="font-semibold text-foreground mb-1">
+            <a href="https://router.project-osrm.org/" class="underline hover:text-primary transition-colors" target="_blank" rel="noopener">OSRM</a>
+          </h3>
+          <p class="text-sm text-muted-foreground">
+            Open Source Routing Machine — used for route calculation in the route planner. Provides driving directions, distances, and estimated travel times.
+          </p>
+        </div>
+        <div class="rounded-lg border border-border p-4">
+          <h3 class="font-semibold text-foreground mb-1">Photon / Nominatim</h3>
+          <p class="text-sm text-muted-foreground">
+            Address geocoding — converts city names, addresses, and landmarks into geographic coordinates for the route planner.
+          </p>
+        </div>
+      </div>
 
-      <h2 class="text-xl font-semibold mb-4">District Capability Matrix</h2>
+      <!-- How It's Made -->
+      <h2 class="text-2xl font-semibold mb-4">How It's Made</h2>
+      <div class="space-y-3 text-muted-foreground mb-10">
+        <p>
+          Built with <strong class="text-foreground">Astro</strong>, <strong class="text-foreground">React</strong>, <strong class="text-foreground">Tailwind CSS</strong>, and <strong class="text-foreground">Leaflet</strong>. Hosted on <strong class="text-foreground">Cloudflare Workers</strong>.
+        </p>
+        <ul class="list-disc list-inside space-y-1.5 ml-2">
+          <li>Camera data refreshes every <strong class="text-foreground">30 seconds</strong>, incidents every <strong class="text-foreground">60 seconds</strong></li>
+          <li>Cameras near active incidents refresh every <strong class="text-foreground">15 seconds</strong></li>
+          <li><strong class="text-foreground">12 Caltrans districts</strong> covering all of California</li>
+          <li>Over <strong class="text-foreground">3,000 cameras</strong> statewide</li>
+        </ul>
+        <p>
+          The CWWP2 data format provides JSON feeds per district containing camera snapshot images, HLS video streams (where available), GPS coordinates, route/postmile data, and metadata such as camera direction and nearby landmarks. This app fetches each district's feed, enriches it with CHP incident data and weather alerts, and presents everything on an interactive map and grid.
+        </p>
+      </div>
+
+      <!-- District Capability Matrix -->
+      <h2 class="text-2xl font-semibold mb-4">District Capability Matrix</h2>
       <p class="text-muted-foreground mb-4">
         Not all data sources are available in every district. This is a Caltrans limitation, not an app limitation.
       </p>
-      <div class="overflow-x-auto">
+      <div class="overflow-x-auto mb-6">
         <table class="w-full text-sm border border-border rounded-lg">
           <thead>
             <tr class="border-b border-border bg-muted/50">
@@ -62,12 +116,65 @@ import Footer from '../components/astro/Footer.astro';
         </table>
       </div>
 
-      <h2 class="text-xl font-semibold mt-8 mb-4">Refresh Rates</h2>
-      <ul class="space-y-1 text-muted-foreground">
-        <li>Cameras near incidents: every 15 seconds</li>
-        <li>Video cameras: every 30 seconds</li>
-        <li>Default: every 60 seconds</li>
+      <!-- District Map -->
+      <h2 class="text-2xl font-semibold mb-4">Caltrans District Map</h2>
+      <div class="mb-4">
+        <img
+          src="https://cwwp2.dot.ca.gov/documentation/district-map-edited-2019.png"
+          alt="Map of the 12 Caltrans districts covering California, showing district boundaries and headquarters cities"
+          class="rounded-lg border border-border max-w-md mx-auto w-full"
+          loading="lazy"
+        />
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-1 text-sm text-muted-foreground mb-10">
+        <p><strong class="text-foreground">D01</strong> — Eureka / North Coast</p>
+        <p><strong class="text-foreground">D02</strong> — Redding / Northeastern CA</p>
+        <p><strong class="text-foreground">D03</strong> — Sacramento / North Central</p>
+        <p><strong class="text-foreground">D04</strong> — Oakland / Bay Area</p>
+        <p><strong class="text-foreground">D05</strong> — San Luis Obispo / Central Coast</p>
+        <p><strong class="text-foreground">D06</strong> — Fresno / Central Valley South</p>
+        <p><strong class="text-foreground">D07</strong> — Los Angeles / LA Metro</p>
+        <p><strong class="text-foreground">D08</strong> — San Bernardino / Inland Empire</p>
+        <p><strong class="text-foreground">D09</strong> — Bishop / Eastern Sierra</p>
+        <p><strong class="text-foreground">D10</strong> — Stockton / Central Valley North</p>
+        <p><strong class="text-foreground">D11</strong> — San Diego / Border Region</p>
+        <p><strong class="text-foreground">D12</strong> — Irvine / Orange County</p>
+      </div>
+
+      <!-- Refresh Rates -->
+      <h2 class="text-2xl font-semibold mb-4">Refresh Rates</h2>
+      <ul class="space-y-1 text-muted-foreground mb-10">
+        <li>Cameras near incidents: every <strong class="text-foreground">15 seconds</strong></li>
+        <li>Video cameras: every <strong class="text-foreground">30 seconds</strong></li>
+        <li>Default: every <strong class="text-foreground">60 seconds</strong></li>
       </ul>
+
+      <!-- Support -->
+      <h2 class="text-2xl font-semibold mb-4">Support This Project</h2>
+      <p class="text-muted-foreground mb-6">
+        If you find this tool useful, consider supporting its development. Every bit helps keep the servers running and the data flowing.
+      </p>
+      <div class="flex flex-wrap gap-3 mb-10">
+        <a
+          href="https://buymeacoffee.com/brendanwelsh"
+          target="_blank"
+          rel="noopener"
+          class="inline-flex items-center gap-2 rounded-lg bg-[#FFDD00] px-5 py-2.5 text-sm font-semibold text-[#000000] hover:bg-[#FFDD00]/90 transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 8h1a4 4 0 1 1 0 8h-1"/><path d="M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" x2="6" y1="2" y2="4"/><line x1="10" x2="10" y1="2" y2="4"/><line x1="14" x2="14" y1="2" y2="4"/></svg>
+          Buy Me a Coffee
+        </a>
+        <a
+          href="https://paypal.me/BrendanWelsh"
+          target="_blank"
+          rel="noopener"
+          class="inline-flex items-center gap-2 rounded-lg border border-[#0070BA]/40 bg-[#0070BA]/10 px-5 py-2.5 text-sm font-semibold text-[#0070BA] hover:bg-[#0070BA]/20 transition-colors"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11A4.5 4.5 0 0 1 11.5 7h1A4.5 4.5 0 0 1 17 11.5a4 4 0 0 1-4 3.5H9.5L8 21H4l3-10Z"/><path d="M15 7a4.5 4.5 0 0 1 4 4.5 4 4 0 0 1-4 3.5h-1"/></svg>
+          PayPal
+        </a>
+      </div>
+
     </main>
     <Footer />
   </div>

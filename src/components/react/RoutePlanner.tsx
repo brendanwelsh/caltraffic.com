@@ -192,6 +192,9 @@ export function RoutePlanner() {
     }
   }, [origin, destination, originAC, destAC, setOrigin, setDestination]);
 
+  const [dismissSampleBanner, setDismissSampleBanner] = useState(false);
+  const isDefaultRoute = origin?.label === 'Folsom' && destination?.label === 'Sacramento';
+
   const totalIncidents = routeCameras.reduce((sum, c) => sum + c.nearbyIncidents.length, 0);
   const totalClosures = routeCameras.reduce((sum, c) => sum + c.nearbyClosures.length, 0);
   const totalChainControls = routeCameras.reduce((sum, c) => sum + c.chainControls.length, 0);
@@ -223,7 +226,7 @@ export function RoutePlanner() {
 
           {/* Preset routes */}
           {!hasRoute && (
-            <div className="flex flex-wrap gap-1.5 mt-2 pt-2 border-t border-border/50">
+            <div className="flex flex-wrap justify-center gap-1.5 mt-2 pt-2 border-t border-border/50">
               <span className="text-[10px] text-muted-foreground mr-1 self-center">Quick:</span>
               {PRESET_ROUTES.map((preset) => (
                 <button
@@ -242,6 +245,20 @@ export function RoutePlanner() {
             </div>
           )}
         </div>
+
+        {/* Sample route banner */}
+        {hasRoute && isDefaultRoute && !dismissSampleBanner && (
+          <div className="flex items-center justify-between rounded-lg border border-border/50 bg-muted/30 px-3 py-1.5 text-xs text-muted-foreground">
+            <span>Showing sample route: Folsom → Sacramento · Enter your own origin and destination above</span>
+            <button
+              onClick={() => setDismissSampleBanner(true)}
+              className="ml-2 shrink-0 rounded p-0.5 hover:bg-accent transition-colors"
+              aria-label="Dismiss"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            </button>
+          </div>
+        )}
 
         {/* Route summary */}
         {hasRoute && routeCameras.length > 0 && (
@@ -379,10 +396,10 @@ export function RoutePlanner() {
               <path d="m3 3 7 7" /><path d="m14 21-7-7" /><path d="m3 21 18-18" /><path d="M21 14v7h-7" /><path d="M3 10V3h7" />
             </svg>
             <p className="text-sm text-muted-foreground">
-              Enter an origin and destination to see cameras along your route
+              See what's ahead — enter your origin and destination to view live traffic cameras along your route
             </p>
-            <p className="mt-1 text-xs text-muted-foreground/60">
-              Start typing and select from the dropdown
+            <p className="mt-1.5 text-xs text-muted-foreground/60">
+              Or try a popular route above
             </p>
           </div>
         )}
