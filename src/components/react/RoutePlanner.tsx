@@ -22,6 +22,7 @@ function useGeocodeAutocomplete(initial?: GeocodeSuggestion | null) {
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState<GeocodeSuggestion | null>(initial ?? null);
   const timerRef = useRef<ReturnType<typeof setTimeout>>();
+  const abortRef = useRef<AbortController>();
 
   useEffect(() => {
     if (selected) return;
@@ -33,20 +34,29 @@ function useGeocodeAutocomplete(initial?: GeocodeSuggestion | null) {
 
     clearTimeout(timerRef.current);
     timerRef.current = setTimeout(async () => {
+      // Abort any in-flight request before starting a new one
+      abortRef.current?.abort();
+      const controller = new AbortController();
+      abortRef.current = controller;
       setLoading(true);
       try {
-        const resp = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`);
+        const resp = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`, {
+          signal: controller.signal,
+        });
         const data: GeocodeSuggestion[] = await resp.json();
         setSuggestions(data);
         setIsOpen(data.length > 0);
       } catch {
-        setSuggestions([]);
+        if (!controller.signal.aborted) setSuggestions([]);
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     }, 300);
 
-    return () => clearTimeout(timerRef.current);
+    return () => {
+      clearTimeout(timerRef.current);
+      abortRef.current?.abort();
+    };
   }, [query, selected]);
 
   const select = useCallback((suggestion: GeocodeSuggestion) => {

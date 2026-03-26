@@ -39,7 +39,7 @@ function parseAddress(q: string): { street: string; city: string } | null {
   return null;
 }
 
-// Nominatim structured query — best for specific addresses
+// Nominatim structured query — best for specific addresses (3s timeout)
 async function nominatimStructured(street: string, city: string): Promise<Suggestion[]> {
   const params = new URLSearchParams({
     street,
@@ -50,57 +50,75 @@ async function nominatimStructured(street: string, city: string): Promise<Sugges
     limit: '5',
     addressdetails: '1',
   });
-  const resp = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, {
-    headers: { 'User-Agent': 'CalTraffic/1.0' },
-  });
-  if (!resp.ok) return [];
-  const results = await resp.json() as any[];
-  return results
-    .filter((r: any) => r.address?.state === 'California')
-    .map((r: any) => {
-      const addr = r.address ?? {};
-      const parts: string[] = [];
-      if (addr.house_number && addr.road) parts.push(`${addr.house_number} ${addr.road}`);
-      else if (addr.road) parts.push(addr.road);
-      if (addr.city || addr.town || addr.village) parts.push(addr.city || addr.town || addr.village);
-      if (addr.county) parts.push(addr.county);
-      return {
-        lat: parseFloat(r.lat),
-        lon: parseFloat(r.lon),
-        label: parts.join(', ') || r.display_name.split(',').slice(0, 3).join(',').trim(),
-      };
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 3000);
+  try {
+    const resp = await fetch(`https://nominatim.openstreetmap.org/search?${params}`, {
+      headers: { 'User-Agent': 'CalTraffic/1.0' },
+      signal: controller.signal,
     });
+    if (!resp.ok) return [];
+    const results = await resp.json() as any[];
+    return results
+      .filter((r: any) => r.address?.state === 'California')
+      .map((r: any) => {
+        const addr = r.address ?? {};
+        const parts: string[] = [];
+        if (addr.house_number && addr.road) parts.push(`${addr.house_number} ${addr.road}`);
+        else if (addr.road) parts.push(addr.road);
+        if (addr.city || addr.town || addr.village) parts.push(addr.city || addr.town || addr.village);
+        if (addr.county) parts.push(addr.county);
+        return {
+          lat: parseFloat(r.lat),
+          lon: parseFloat(r.lon),
+          label: parts.join(', ') || r.display_name.split(',').slice(0, 3).join(',').trim(),
+        };
+      });
+  } catch {
+    return []; // Timeout or network error — fall through to Photon
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
-// Photon — best for general place/city/landmark autocomplete
+// Photon — best for general place/city/landmark autocomplete (3s timeout)
 async function photonSearch(q: string): Promise<Suggestion[]> {
   const encoded = encodeURIComponent(q);
-  const resp = await fetch(
-    `https://photon.komoot.io/api/?q=${encoded}&limit=8&lat=37.5&lon=-119.5&lang=en`,
-  );
-  if (!resp.ok) return [];
-  const data = await resp.json() as any;
-  const features = (data.features ?? []).filter((f: any) => f.properties?.state === 'California');
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 3000);
+  try {
+    const resp = await fetch(
+      `https://photon.komoot.io/api/?q=${encoded}&limit=8&lat=37.5&lon=-119.5&lang=en`,
+      { signal: controller.signal },
+    );
+    if (!resp.ok) return [];
+    const data = await resp.json() as any;
+    const features = (data.features ?? []).filter((f: any) => f.properties?.state === 'California');
 
-  const seen = new Set<string>();
-  return features
-    .map((f: any) => {
-      const p = f.properties ?? {};
-      const coords = f.geometry?.coordinates ?? [0, 0];
-      const parts: string[] = [];
-      if (p.housenumber && p.street) parts.push(`${p.housenumber} ${p.street}`);
-      else if (p.street) parts.push(p.street);
-      else if (p.name) parts.push(p.name);
-      if (p.city && !parts.includes(p.city)) parts.push(p.city);
-      if (p.county) parts.push(p.county);
-      return { lat: coords[1], lon: coords[0], label: parts.join(', ') || p.name || 'Unknown' };
-    })
-    .filter((s: Suggestion) => {
-      if (seen.has(s.label)) return false;
-      seen.add(s.label);
-      return true;
-    })
-    .slice(0, 6);
+    const seen = new Set<string>();
+    return features
+      .map((f: any) => {
+        const p = f.properties ?? {};
+        const coords = f.geometry?.coordinates ?? [0, 0];
+        const parts: string[] = [];
+        if (p.housenumber && p.street) parts.push(`${p.housenumber} ${p.street}`);
+        else if (p.street) parts.push(p.street);
+        else if (p.name) parts.push(p.name);
+        if (p.city && !parts.includes(p.city)) parts.push(p.city);
+        if (p.county) parts.push(p.county);
+        return { lat: coords[1], lon: coords[0], label: parts.join(', ') || p.name || 'Unknown' };
+      })
+      .filter((s: Suggestion) => {
+        if (seen.has(s.label)) return false;
+        seen.add(s.label);
+        return true;
+      })
+      .slice(0, 6);
+  } catch {
+    return [];
+  } finally {
+    clearTimeout(timeout);
+  }
 }
 
 export const GET: APIRoute = async ({ url }) => {
@@ -115,13 +133,15 @@ export const GET: APIRoute = async ({ url }) => {
     let suggestions: Suggestion[] = [];
 
     if (looksLikeAddress(q)) {
-      // Address-like query: try Nominatim structured first, fall back to Photon
+      // Address-like query: race Nominatim + Photon in parallel, prefer Nominatim if it returns results
       const parsed = parseAddress(q);
       if (parsed) {
-        suggestions = await nominatimStructured(parsed.street, parsed.city);
-      }
-      // If no results, also try Photon
-      if (suggestions.length === 0) {
+        const [nominatimResults, photonResults] = await Promise.all([
+          nominatimStructured(parsed.street, parsed.city),
+          photonSearch(q),
+        ]);
+        suggestions = nominatimResults.length > 0 ? nominatimResults : photonResults;
+      } else {
         suggestions = await photonSearch(q);
       }
     } else {

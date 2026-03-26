@@ -35,9 +35,12 @@ export const GET: APIRoute = async ({ url }) => {
 
   const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${fromLon},${fromLat};${toLon},${toLat}?overview=full&geometries=geojson&steps=true&annotations=duration,distance`;
 
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 5000);
   try {
     const resp = await fetch(osrmUrl, {
       headers: { 'User-Agent': 'CalTraffic/1.0' },
+      signal: controller.signal,
     });
 
     if (!resp.ok) {
@@ -79,5 +82,7 @@ export const GET: APIRoute = async ({ url }) => {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
     });
+  } finally {
+    clearTimeout(timeout);
   }
 };
