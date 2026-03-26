@@ -92,7 +92,7 @@ function FeedCard({ camera, routeDuration, onCameraFocus, onMarkPassed, onOpenDe
             <div className="min-w-0 flex-1">
               <p className="text-xs md:text-sm font-bold leading-tight truncate">{camera.location || camera.city}</p>
               <div className="flex items-center gap-1 md:gap-1.5 mt-0.5">
-                <RouteShield route={camera.route} size="sm" />
+                <RouteShield route={camera.route} size="md" />
                 <span className="text-[10px] md:text-[11px] text-muted-foreground">{camera.direction}</span>
                 <span className="text-[9px] md:text-[10px] text-muted-foreground">· {camera.city}</span>
               </div>

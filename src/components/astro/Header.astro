@@ -4,18 +4,21 @@
 <header class="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
   <div class="flex h-14 items-center px-4 md:px-6">
     <a href="/" class="flex items-center gap-2 font-semibold">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-amber-500">
-        <path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/>
-        <circle cx="12" cy="13" r="3"/>
-      </svg>
-      <span>Cal Traffic</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 text-primary"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+      <span>CalTraffic<span class="text-xs font-normal text-muted-foreground">.com</span></span>
     </a>
-    <div class="ml-auto flex items-center gap-4">
+
+    <!-- Desktop nav -->
+    <div class="ml-auto hidden md:flex items-center gap-4">
       <a href="/" class="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-md" data-nav="/">
         Route Viewer
       </a>
-      <a href="/cameras" class="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-md" data-nav="/cameras">
-        Cameras
+      <a href="/cameras" class="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-md inline-flex items-center gap-1.5" data-nav="/cameras">
+        Camera Viewer
+        <span class="relative flex h-2 w-2">
+          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+        </span>
       </a>
       <a href="/reports" class="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-md" data-nav="/reports">
         Reports
@@ -40,14 +43,89 @@
         </svg>
       </button>
     </div>
+
+    <!-- Mobile: theme toggle + hamburger -->
+    <div class="ml-auto flex md:hidden items-center gap-2">
+      <button
+        id="theme-toggle-mobile"
+        class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-input bg-background text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+        aria-label="Toggle theme"
+      >
+        <svg class="h-4 w-4 dark:hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>
+        </svg>
+        <svg class="h-4 w-4 hidden dark:block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="4"/>
+          <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>
+        </svg>
+      </button>
+      <button
+        id="hamburger-btn"
+        class="inline-flex h-9 w-9 items-center justify-center rounded-md border border-input bg-background text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+        aria-label="Open menu"
+      >
+        <svg id="hamburger-icon" class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/>
+        </svg>
+        <svg id="close-icon" class="h-5 w-5 hidden" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile dropdown menu -->
+  <div id="mobile-menu" class="hidden md:hidden border-t border-border bg-background px-4 pb-3 pt-2 space-y-1">
+    <a href="/" class="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2 rounded-md" data-nav="/">
+      Route Viewer
+    </a>
+    <a href="/cameras" class="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2 rounded-md inline-flex items-center gap-1.5" data-nav="/cameras">
+      Camera Viewer
+      <span class="relative flex h-2 w-2">
+        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+        <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+      </span>
+    </a>
+    <a href="/reports" class="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2 rounded-md" data-nav="/reports">
+      Reports
+    </a>
+    <a href="/stats" class="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2 rounded-md" data-nav="/stats">
+      Stats
+    </a>
+    <a href="/about" class="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2 rounded-md" data-nav="/about">
+      About
+    </a>
   </div>
 </header>
 
 <script>
-  const toggle = document.getElementById('theme-toggle');
-  toggle?.addEventListener('click', () => {
+  // Theme toggles (both desktop and mobile)
+  const toggleDesktop = document.getElementById('theme-toggle');
+  const toggleMobile = document.getElementById('theme-toggle-mobile');
+  const handleThemeToggle = () => {
     const isDark = document.documentElement.classList.toggle('dark');
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
+  };
+  toggleDesktop?.addEventListener('click', handleThemeToggle);
+  toggleMobile?.addEventListener('click', handleThemeToggle);
+
+  // Hamburger menu toggle
+  const hamburgerBtn = document.getElementById('hamburger-btn');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const hamburgerIcon = document.getElementById('hamburger-icon');
+  const closeIcon = document.getElementById('close-icon');
+
+  hamburgerBtn?.addEventListener('click', () => {
+    const isOpen = !mobileMenu?.classList.contains('hidden');
+    if (isOpen) {
+      mobileMenu?.classList.add('hidden');
+      hamburgerIcon?.classList.remove('hidden');
+      closeIcon?.classList.add('hidden');
+    } else {
+      mobileMenu?.classList.remove('hidden');
+      hamburgerIcon?.classList.add('hidden');
+      closeIcon?.classList.remove('hidden');
+    }
   });
 
   // Highlight active nav link

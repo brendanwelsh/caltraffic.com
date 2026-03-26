@@ -176,9 +176,9 @@ export function CameraCard({ camera, onClick, isFavorite = false, onToggleFavori
 
       {/* Info bar */}
       <div className="flex items-center gap-2 px-2.5 py-1.5">
-        <RouteShield route={camera.route} size="sm" />
+        <RouteShield route={camera.route} size="md" />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[13px] font-medium leading-tight">
+          <p className="truncate text-[13px] font-semibold leading-tight">
             {camera.location || camera.city}
           </p>
           <p className="truncate text-[10px] text-muted-foreground/80">
