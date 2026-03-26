@@ -125,17 +125,27 @@ function AutocompleteInput({ ac, label, placeholder, onKeyDown }: {
   );
 }
 
-const PRESET_ROUTES = [
-  { label: 'Sacramento → SF', from: { lat: 38.581, lon: -121.494, label: 'Sacramento' }, to: { lat: 37.775, lon: -122.419, label: 'San Francisco' } },
-  { label: 'Sacramento → LA', from: { lat: 38.581, lon: -121.494, label: 'Sacramento' }, to: { lat: 34.054, lon: -118.243, label: 'Los Angeles' } },
-  { label: 'SF → LA', from: { lat: 37.775, lon: -122.419, label: 'San Francisco' }, to: { lat: 34.054, lon: -118.243, label: 'Los Angeles' } },
-  { label: 'LA → San Diego', from: { lat: 34.054, lon: -118.243, label: 'Los Angeles' }, to: { lat: 32.716, lon: -117.161, label: 'San Diego' } },
-  { label: 'Folsom → Sacramento', from: { lat: 38.678, lon: -121.176, label: 'Folsom' }, to: { lat: 38.581, lon: -121.494, label: 'Sacramento' } },
-  { label: 'SF → San Jose', from: { lat: 37.775, lon: -122.419, label: 'San Francisco' }, to: { lat: 37.339, lon: -121.895, label: 'San Jose' } },
-  { label: 'LA → Bakersfield', from: { lat: 34.054, lon: -118.243, label: 'Los Angeles' }, to: { lat: 35.373, lon: -119.019, label: 'Bakersfield' } },
-  { label: 'Sacramento → Tahoe', from: { lat: 38.581, lon: -121.494, label: 'Sacramento' }, to: { lat: 39.097, lon: -120.032, label: 'South Lake Tahoe' } },
-  { label: 'LA → Palm Springs', from: { lat: 34.054, lon: -118.243, label: 'Los Angeles' }, to: { lat: 33.830, lon: -116.545, label: 'Palm Springs' } },
-  { label: 'Fresno → SF', from: { lat: 36.738, lon: -119.784, label: 'Fresno' }, to: { lat: 37.775, lon: -122.419, label: 'San Francisco' } },
+const CA_CITIES = [
+  { label: 'Sacramento', lat: 38.581, lon: -121.494 },
+  { label: 'San Francisco', lat: 37.775, lon: -122.419 },
+  { label: 'Los Angeles', lat: 34.054, lon: -118.243 },
+  { label: 'San Diego', lat: 32.716, lon: -117.161 },
+  { label: 'San Jose', lat: 37.339, lon: -121.895 },
+  { label: 'Fresno', lat: 36.738, lon: -119.784 },
+  { label: 'Bakersfield', lat: 35.373, lon: -119.019 },
+  { label: 'Oakland', lat: 37.804, lon: -122.271 },
+  { label: 'Stockton', lat: 37.958, lon: -121.291 },
+  { label: 'Redding', lat: 40.587, lon: -122.392 },
+  { label: 'Santa Barbara', lat: 34.421, lon: -119.699 },
+  { label: 'Palm Springs', lat: 33.830, lon: -116.545 },
+  { label: 'Lake Tahoe', lat: 39.097, lon: -120.032 },
+  { label: 'Folsom', lat: 38.678, lon: -121.176 },
+  { label: 'Irvine', lat: 33.684, lon: -117.826 },
+  { label: 'Riverside', lat: 33.953, lon: -117.396 },
+  { label: 'Eureka', lat: 40.802, lon: -124.164 },
+  { label: 'Modesto', lat: 37.639, lon: -120.997 },
+  { label: 'Santa Cruz', lat: 36.974, lon: -122.031 },
+  { label: 'Monterey', lat: 36.600, lon: -121.895 },
 ];
 
 export function RoutePlanner() {
@@ -153,6 +163,9 @@ export function RoutePlanner() {
   const [selectedCamera, setSelectedCamera] = useState<EnrichedCamera | null>(null);
   const [focusedCameraId, setFocusedCameraId] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null);
+  const [pickStep, setPickStep] = useState<'from' | 'to' | null>('from');
+  const [pickedFrom, setPickedFrom] = useState<typeof CA_CITIES[number] | null>(null);
+  const [mobileTab, setMobileTab] = useState<'cameras' | 'map' | 'info'>('cameras');
 
   // Load route from URL params (permalink support)
   useEffect(() => {
@@ -200,6 +213,8 @@ export function RoutePlanner() {
     originAC.clear();
     destAC.clear();
     setGeocodeError(null);
+    setPickStep('from');
+    setPickedFrom(null);
   }, [clearRoute, originAC.clear, destAC.clear]);
 
   // No more default route — clean slate on load unless URL has params
@@ -320,52 +335,243 @@ export function RoutePlanner() {
 
         {/* Loading state — show spinner immediately when route is set but cameras haven't loaded yet */}
         {hasRoute && routeCameras.length === 0 && (routeLoading || routeLineLoading) && (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
+          <div className="flex flex-col items-center justify-center py-12 text-center">
             <div className="h-8 w-8 animate-spin rounded-full border-3 border-primary border-t-transparent mb-4" />
-            <p className="text-sm font-medium">Finding route and cameras...</p>
-            <p className="mt-1 text-xs text-muted-foreground">Calculating the best path and locating cameras along it</p>
+            <p className="text-sm font-medium">{routeLineLoading ? 'Calculating route...' : 'Loading cameras along your route...'}</p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              {routeLineLoading ? 'Finding the best path' : `This may take a moment for longer routes`}
+            </p>
           </div>
         )}
 
         {/* Main content: Feed/Grid (left) + Map (right) */}
         {hasRoute && !routeLoading && routeCameras.length > 0 && (
-          <div className="flex gap-4" style={{ height: 'calc(100vh - 180px)' }}>
-            {/* Left: scrollable feed timeline or camera grid */}
-            <div className="flex-1 overflow-y-auto pr-1">
-              {/* Route alert banners */}
-              {routeHasWeatherAlert && (
-                <div className="mb-2 flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-300">
-                  <span className="shrink-0 mt-0.5">&#x26A0;&#xFE0F;</span>
-                  <div>
-                    <span className="font-semibold">Weather Alert:</span>{' '}
-                    {weatherAlertHeadlines.join('; ')} affecting your route
+          <>
+            {/* Desktop layout: side-by-side */}
+            <div className="hidden lg:flex gap-4" style={{ height: 'calc(100vh - 180px)' }}>
+              {/* Left: scrollable feed timeline or camera grid */}
+              <div className="flex-1 overflow-y-auto pr-1">
+                {/* Route alert banners */}
+                {routeHasWeatherAlert && (
+                  <div className="mb-2 flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-300">
+                    <span className="shrink-0 mt-0.5">&#x26A0;&#xFE0F;</span>
+                    <div>
+                      <span className="font-semibold">Weather Alert:</span>{' '}
+                      {weatherAlertHeadlines.join('; ')} affecting your route
+                    </div>
                   </div>
-                </div>
-              )}
-              {routeHasChainControl && (
-                <div className="mb-2 flex items-start gap-2 rounded-lg border border-blue-500/30 bg-blue-500/10 px-3 py-2 text-xs text-blue-300">
-                  <span className="shrink-0 mt-0.5">&#x1F517;</span>
-                  <div>
-                    <span className="font-semibold">Chain Control:</span>{' '}
-                    {chainControlDetails.map((cc, i) => (
-                      <span key={i}>{i > 0 && ' · '}{cc.level} active on {cc.route} near {cc.location}</span>
-                    ))}
+                )}
+                {routeHasChainControl && (
+                  <div className="mb-2 flex items-start gap-2 rounded-lg border border-blue-500/30 bg-blue-500/10 px-3 py-2 text-xs text-blue-300">
+                    <span className="shrink-0 mt-0.5">&#x1F517;</span>
+                    <div>
+                      <span className="font-semibold">Chain Control:</span>{' '}
+                      {chainControlDetails.map((cc, i) => (
+                        <span key={i}>{i > 0 && ' · '}{cc.level} active on {cc.route} near {cc.location}</span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {routeView === 'list' ? (
-                <RouteLiveView cameras={routeCameras} routeDuration={routeDuration} onCameraFocus={setFocusedCameraId} onUserLocationChange={setUserLocation} />
-              ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pb-4">
-                  {routeCameras.map((camera) => {
-                    const isUnavailable = !camera.imageUrl || camera.isStale;
-                    if (isUnavailable) {
-                      return (
-                        <div key={camera.id} className="rounded-xl border border-border/30 overflow-hidden bg-card/40 opacity-50">
-                          <div className="aspect-video bg-muted flex items-center justify-center">
-                            <span className="text-[10px] text-muted-foreground italic">Unavailable</span>
+                {routeView === 'list' ? (
+                  <RouteLiveView cameras={routeCameras} routeDuration={routeDuration} onCameraFocus={setFocusedCameraId} onUserLocationChange={setUserLocation} />
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pb-4">
+                    {routeCameras.map((camera) => {
+                      const isUnavailable = !camera.imageUrl || camera.isStale;
+                      if (isUnavailable) {
+                        return (
+                          <div key={camera.id} className="rounded-xl border border-border/30 overflow-hidden bg-card/40 opacity-50">
+                            <div className="aspect-video bg-muted flex items-center justify-center">
+                              <span className="text-[10px] text-muted-foreground italic">Unavailable</span>
+                            </div>
+                            <div className="px-2.5 py-1.5">
+                              <div className="flex items-center gap-1.5">
+                                <RouteShield route={camera.route} size="sm" />
+                                <span className="text-xs font-medium truncate">{camera.direction}</span>
+                              </div>
+                              <p className="text-[11px] text-muted-foreground truncate mt-0.5">{camera.location || camera.city}</p>
+                            </div>
                           </div>
+                        );
+                      }
+                      return (
+                      <div
+                        key={camera.id}
+                        className="rounded-xl border border-border/60 overflow-hidden bg-card cursor-pointer hover:shadow-md transition-shadow"
+                        onClick={() => setSelectedCamera(camera)}
+                      >
+                        <VideoPlayer streamUrl={camera.streamUrl} imageUrl={camera.imageUrl} cameraName={camera.location} hideControls />
+                        <div className="px-2.5 py-1.5">
+                          <div className="flex items-center gap-1.5">
+                            <RouteShield route={camera.route} size="sm" />
+                            <span className="text-xs font-medium truncate">{camera.direction}</span>
+                          </div>
+                          <p className="text-[11px] text-muted-foreground truncate mt-0.5">{camera.location || camera.city}</p>
+                        </div>
+                      </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Right: map + route info (hideable) */}
+              {showMap && (
+                <div className="flex flex-col w-[45%] shrink-0 gap-3 overflow-y-auto">
+                  <Suspense fallback={<div className="h-[50vh] animate-pulse rounded-lg bg-muted" />}>
+                    <div style={{ minHeight: '350px', height: '45vh' }}>
+                      <RouteMapView
+                        routeCoords={routeLineCoords}
+                        routeLineLoading={routeLineLoading}
+                        cameras={routeCameras}
+                        origin={origin}
+                        destination={destination}
+                        focusedCameraId={focusedCameraId}
+                        userLocation={userLocation}
+                      />
+                    </div>
+                  </Suspense>
+
+                  {/* Route summary */}
+                  <div className="rounded-lg border border-border bg-card p-3">
+                    <h3 className="text-xs font-semibold mb-2">Route Overview</h3>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Distance</span>
+                        <span className="font-medium">{(routeDistance / 1609.34).toFixed(0)} mi</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Drive Time</span>
+                        <span className="font-medium">~{routeDuration > 0 ? (() => { const mins = Math.round(routeDuration / 60); const hrs = Math.floor(mins / 60); const remainder = mins % 60; return hrs > 0 ? `${hrs}h ${remainder}m` : `${mins}m`; })() : '—'}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Cameras</span>
+                        <span className="font-medium text-primary">{routeCameras.length}</span>
+                      </div>
+                      {totalIncidents > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Incidents</span>
+                          <span className="font-medium text-red-400">{totalIncidents}</span>
+                        </div>
+                      )}
+                      {totalClosures > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Closures</span>
+                          <span className="font-medium text-orange-400">{totalClosures}</span>
+                        </div>
+                      )}
+                      {totalChainControls > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Chain Control</span>
+                          <span className="font-medium text-blue-400">{totalChainControls}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Turn-by-turn directions */}
+                  {routeSteps.length > 0 && (
+                    <div className="rounded-lg border border-border bg-card p-3">
+                      <h3 className="text-xs font-semibold mb-2">Directions</h3>
+                      <div className="space-y-0">
+                        {routeSteps.map((step: any, i: number) => {
+                          // Find a camera on this road segment to focus when clicked
+                          const matchingCamera = routeCameras.find((c) =>
+                            c.route && step.name && (
+                              c.location?.toLowerCase().includes(step.name.toLowerCase()) ||
+                              step.name.toLowerCase().includes(c.route.toLowerCase())
+                            )
+                          );
+                          return (
+                            <div
+                              key={i}
+                              className={`flex items-start gap-2 py-1.5 border-b border-border/30 last:border-0 ${matchingCamera ? 'cursor-pointer hover:bg-accent/50 rounded-md -mx-1 px-1' : ''} transition-colors`}
+                              onClick={() => {
+                                if (matchingCamera) {
+                                  setFocusedCameraId(matchingCamera.id);
+                                  document.getElementById(`feed-${matchingCamera.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                }
+                              }}
+                            >
+                              <span className="shrink-0 w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[9px] font-bold text-muted-foreground mt-0.5">
+                                {i + 1}
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-xs">
+                                  <span className="text-muted-foreground capitalize">{step.type === 'depart' ? 'Start on' : step.type === 'arrive' ? 'Arrive at' : step.modifier || step.type}</span>
+                                  {' '}<span className="font-medium">{step.name}</span>
+                                  {matchingCamera && <span className="text-[9px] text-primary ml-1">({routeCameras.filter(c => c.location?.toLowerCase().includes(step.name.toLowerCase()) || step.name.toLowerCase().includes(c.route.toLowerCase())).length} cam)</span>}
+                                </p>
+                                <p className="text-[10px] text-muted-foreground">
+                                  {(step.distance / 1609.34).toFixed(1)} mi · ~{Math.max(1, Math.round(step.duration / 60))} min
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Mobile layout: tab-based */}
+            <div className="lg:hidden pb-16" style={{ height: 'calc(100vh - 180px)', overflow: 'auto' }}>
+              {mobileTab === 'cameras' && (
+                <div>
+                  {/* Route alert banners */}
+                  {routeHasWeatherAlert && (
+                    <div className="mb-2 flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-300">
+                      <span className="shrink-0 mt-0.5">&#x26A0;&#xFE0F;</span>
+                      <div>
+                        <span className="font-semibold">Weather Alert:</span>{' '}
+                        {weatherAlertHeadlines.join('; ')} affecting your route
+                      </div>
+                    </div>
+                  )}
+                  {routeHasChainControl && (
+                    <div className="mb-2 flex items-start gap-2 rounded-lg border border-blue-500/30 bg-blue-500/10 px-3 py-2 text-xs text-blue-300">
+                      <span className="shrink-0 mt-0.5">&#x1F517;</span>
+                      <div>
+                        <span className="font-semibold">Chain Control:</span>{' '}
+                        {chainControlDetails.map((cc, i) => (
+                          <span key={i}>{i > 0 && ' · '}{cc.level} active on {cc.route} near {cc.location}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {routeView === 'list' ? (
+                    <RouteLiveView cameras={routeCameras} routeDuration={routeDuration} onCameraFocus={setFocusedCameraId} onUserLocationChange={setUserLocation} />
+                  ) : (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-4">
+                      {routeCameras.map((camera) => {
+                        const isUnavailable = !camera.imageUrl || camera.isStale;
+                        if (isUnavailable) {
+                          return (
+                            <div key={camera.id} className="rounded-xl border border-border/30 overflow-hidden bg-card/40 opacity-50">
+                              <div className="aspect-video bg-muted flex items-center justify-center">
+                                <span className="text-[10px] text-muted-foreground italic">Unavailable</span>
+                              </div>
+                              <div className="px-2.5 py-1.5">
+                                <div className="flex items-center gap-1.5">
+                                  <RouteShield route={camera.route} size="sm" />
+                                  <span className="text-xs font-medium truncate">{camera.direction}</span>
+                                </div>
+                                <p className="text-[11px] text-muted-foreground truncate mt-0.5">{camera.location || camera.city}</p>
+                              </div>
+                            </div>
+                          );
+                        }
+                        return (
+                        <div
+                          key={camera.id}
+                          className="rounded-xl border border-border/60 overflow-hidden bg-card cursor-pointer hover:shadow-md transition-shadow"
+                          onClick={() => setSelectedCamera(camera)}
+                        >
+                          <VideoPlayer streamUrl={camera.streamUrl} imageUrl={camera.imageUrl} cameraName={camera.location} hideControls />
                           <div className="px-2.5 py-1.5">
                             <div className="flex items-center gap-1.5">
                               <RouteShield route={camera.route} size="sm" />
@@ -374,34 +580,16 @@ export function RoutePlanner() {
                             <p className="text-[11px] text-muted-foreground truncate mt-0.5">{camera.location || camera.city}</p>
                           </div>
                         </div>
-                      );
-                    }
-                    return (
-                    <div
-                      key={camera.id}
-                      className="rounded-xl border border-border/60 overflow-hidden bg-card cursor-pointer hover:shadow-md transition-shadow"
-                      onClick={() => setSelectedCamera(camera)}
-                    >
-                      <VideoPlayer streamUrl={camera.streamUrl} imageUrl={camera.imageUrl} cameraName={camera.location} hideControls />
-                      <div className="px-2.5 py-1.5">
-                        <div className="flex items-center gap-1.5">
-                          <RouteShield route={camera.route} size="sm" />
-                          <span className="text-xs font-medium truncate">{camera.direction}</span>
-                        </div>
-                        <p className="text-[11px] text-muted-foreground truncate mt-0.5">{camera.location || camera.city}</p>
-                      </div>
+                        );
+                      })}
                     </div>
-                    );
-                  })}
+                  )}
                 </div>
               )}
-            </div>
 
-            {/* Right: map + route info (hideable) */}
-            {showMap && (
-              <div className="hidden lg:flex lg:flex-col w-[45%] shrink-0 gap-3 overflow-y-auto">
-                <Suspense fallback={<div className="h-[50vh] animate-pulse rounded-lg bg-muted" />}>
-                  <div style={{ minHeight: '350px', height: '45vh' }}>
+              {mobileTab === 'map' && (
+                <Suspense fallback={<div className="h-[60vh] animate-pulse rounded-lg bg-muted" />}>
+                  <div style={{ height: '70vh' }}>
                     <RouteMapView
                       routeCoords={routeLineCoords}
                       routeLineLoading={routeLineLoading}
@@ -413,90 +601,127 @@ export function RoutePlanner() {
                     />
                   </div>
                 </Suspense>
+              )}
 
-                {/* Route summary */}
-                <div className="rounded-lg border border-border bg-card p-3">
-                  <h3 className="text-xs font-semibold mb-2">Route Overview</h3>
-                  <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Distance</span>
-                      <span className="font-medium">{(routeDistance / 1609.34).toFixed(0)} mi</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Drive Time</span>
-                      <span className="font-medium">~{routeDuration > 0 ? (() => { const mins = Math.round(routeDuration / 60); const hrs = Math.floor(mins / 60); const remainder = mins % 60; return hrs > 0 ? `${hrs}h ${remainder}m` : `${mins}m`; })() : '—'}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-muted-foreground">Cameras</span>
-                      <span className="font-medium text-primary">{routeCameras.length}</span>
-                    </div>
-                    {totalIncidents > 0 && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Incidents</span>
-                        <span className="font-medium text-red-400">{totalIncidents}</span>
-                      </div>
-                    )}
-                    {totalClosures > 0 && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Closures</span>
-                        <span className="font-medium text-orange-400">{totalClosures}</span>
-                      </div>
-                    )}
-                    {totalChainControls > 0 && (
-                      <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Chain Control</span>
-                        <span className="font-medium text-blue-400">{totalChainControls}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Turn-by-turn directions */}
-                {routeSteps.length > 0 && (
+              {mobileTab === 'info' && (
+                <div className="space-y-3">
+                  {/* Route summary */}
                   <div className="rounded-lg border border-border bg-card p-3">
-                    <h3 className="text-xs font-semibold mb-2">Directions</h3>
-                    <div className="space-y-0">
-                      {routeSteps.map((step: any, i: number) => {
-                        // Find a camera on this road segment to focus when clicked
-                        const matchingCamera = routeCameras.find((c) =>
-                          c.route && step.name && (
-                            c.location?.toLowerCase().includes(step.name.toLowerCase()) ||
-                            step.name.toLowerCase().includes(c.route.toLowerCase())
-                          )
-                        );
-                        return (
-                          <div
-                            key={i}
-                            className={`flex items-start gap-2 py-1.5 border-b border-border/30 last:border-0 ${matchingCamera ? 'cursor-pointer hover:bg-accent/50 rounded-md -mx-1 px-1' : ''} transition-colors`}
-                            onClick={() => {
-                              if (matchingCamera) {
-                                setFocusedCameraId(matchingCamera.id);
-                                document.getElementById(`feed-${matchingCamera.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                              }
-                            }}
-                          >
-                            <span className="shrink-0 w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[9px] font-bold text-muted-foreground mt-0.5">
-                              {i + 1}
-                            </span>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-xs">
-                                <span className="text-muted-foreground capitalize">{step.type === 'depart' ? 'Start on' : step.type === 'arrive' ? 'Arrive at' : step.modifier || step.type}</span>
-                                {' '}<span className="font-medium">{step.name}</span>
-                                {matchingCamera && <span className="text-[9px] text-primary ml-1">({routeCameras.filter(c => c.location?.toLowerCase().includes(step.name.toLowerCase()) || step.name.toLowerCase().includes(c.route.toLowerCase())).length} cam)</span>}
-                              </p>
-                              <p className="text-[10px] text-muted-foreground">
-                                {(step.distance / 1609.34).toFixed(1)} mi · ~{Math.max(1, Math.round(step.duration / 60))} min
-                              </p>
-                            </div>
-                          </div>
-                        );
-                      })}
+                    <h3 className="text-xs font-semibold mb-2">Route Overview</h3>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Distance</span>
+                        <span className="font-medium">{(routeDistance / 1609.34).toFixed(0)} mi</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Drive Time</span>
+                        <span className="font-medium">~{routeDuration > 0 ? (() => { const mins = Math.round(routeDuration / 60); const hrs = Math.floor(mins / 60); const remainder = mins % 60; return hrs > 0 ? `${hrs}h ${remainder}m` : `${mins}m`; })() : '—'}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Cameras</span>
+                        <span className="font-medium text-primary">{routeCameras.length}</span>
+                      </div>
+                      {totalIncidents > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Incidents</span>
+                          <span className="font-medium text-red-400">{totalIncidents}</span>
+                        </div>
+                      )}
+                      {totalClosures > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Closures</span>
+                          <span className="font-medium text-orange-400">{totalClosures}</span>
+                        </div>
+                      )}
+                      {totalChainControls > 0 && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-muted-foreground">Chain Control</span>
+                          <span className="font-medium text-blue-400">{totalChainControls}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
-                )}
-              </div>
-            )}
-          </div>
+
+                  {/* Turn-by-turn directions */}
+                  {routeSteps.length > 0 && (
+                    <div className="rounded-lg border border-border bg-card p-3">
+                      <h3 className="text-xs font-semibold mb-2">Directions</h3>
+                      <div className="space-y-0">
+                        {routeSteps.map((step: any, i: number) => {
+                          const matchingCamera = routeCameras.find((c) =>
+                            c.route && step.name && (
+                              c.location?.toLowerCase().includes(step.name.toLowerCase()) ||
+                              step.name.toLowerCase().includes(c.route.toLowerCase())
+                            )
+                          );
+                          return (
+                            <div
+                              key={i}
+                              className={`flex items-start gap-2 py-1.5 border-b border-border/30 last:border-0 ${matchingCamera ? 'cursor-pointer hover:bg-accent/50 rounded-md -mx-1 px-1' : ''} transition-colors`}
+                              onClick={() => {
+                                if (matchingCamera) {
+                                  setFocusedCameraId(matchingCamera.id);
+                                  setMobileTab('cameras');
+                                  setTimeout(() => {
+                                    document.getElementById(`feed-${matchingCamera.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                                  }, 100);
+                                }
+                              }}
+                            >
+                              <span className="shrink-0 w-5 h-5 rounded-full bg-muted flex items-center justify-center text-[9px] font-bold text-muted-foreground mt-0.5">
+                                {i + 1}
+                              </span>
+                              <div className="min-w-0 flex-1">
+                                <p className="text-xs">
+                                  <span className="text-muted-foreground capitalize">{step.type === 'depart' ? 'Start on' : step.type === 'arrive' ? 'Arrive at' : step.modifier || step.type}</span>
+                                  {' '}<span className="font-medium">{step.name}</span>
+                                  {matchingCamera && <span className="text-[9px] text-primary ml-1">({routeCameras.filter(c => c.location?.toLowerCase().includes(step.name.toLowerCase()) || step.name.toLowerCase().includes(c.route.toLowerCase())).length} cam)</span>}
+                                </p>
+                                <p className="text-[10px] text-muted-foreground">
+                                  {(step.distance / 1609.34).toFixed(1)} mi · ~{Math.max(1, Math.round(step.duration / 60))} min
+                                </p>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Mobile bottom tab bar */}
+            <div className="fixed bottom-0 left-0 right-0 z-50 lg:hidden border-t border-border bg-card flex">
+              <button
+                onClick={() => setMobileTab('cameras')}
+                className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium transition-colors ${
+                  mobileTab === 'cameras' ? 'text-primary' : 'text-muted-foreground'
+                }`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15.2 3.9 2.4 2.4"/><path d="m17.6 6.3-6.6 6.6"/><path d="M2 12h5"/><path d="M2 16h7"/><path d="M2 20h8"/><path d="M2 8h3"/><path d="m22 2-5.1 5.1"/><circle cx="18" cy="18" r="3"/><path d="m22 22-1.5-1.5"/></svg>
+                Cameras
+              </button>
+              <button
+                onClick={() => setMobileTab('map')}
+                className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium transition-colors ${
+                  mobileTab === 'map' ? 'text-primary' : 'text-muted-foreground'
+                }`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/></svg>
+                Map
+              </button>
+              <button
+                onClick={() => setMobileTab('info')}
+                className={`flex-1 flex flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium transition-colors ${
+                  mobileTab === 'info' ? 'text-primary' : 'text-muted-foreground'
+                }`}
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/></svg>
+                Info
+              </button>
+            </div>
+          </>
         )}
 
         {/* Camera detail dialog for grid view */}
@@ -515,33 +740,63 @@ export function RoutePlanner() {
           </div>
         )}
 
-        {/* Landing state — no route selected */}
+        {/* Landing state — city picker with pick-two UX */}
         {!hasRoute && !routeLoading && (
-          <div className="py-10 text-center max-w-lg mx-auto">
-            <h2 className="text-xl font-bold mb-2">See what's ahead on your drive</h2>
+          <div className="py-10 text-center max-w-2xl mx-auto">
+            <h2 className="text-xl font-bold mb-2">
+              {pickStep === 'from' ? 'Where are you going?' : pickStep === 'to' ? 'Where to?' : 'See what\'s ahead on your drive'}
+            </h2>
             <p className="text-sm text-muted-foreground mb-6">
-              Enter an origin and destination above to view live traffic cameras, incidents, road conditions, and turn-by-turn directions along your route.
+              {pickStep === 'from'
+                ? 'Pick your starting city'
+                : pickStep === 'to'
+                  ? `From ${pickedFrom?.label} — now pick your destination`
+                  : 'Enter an origin and destination above to view live traffic cameras along your route.'}
             </p>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-left">
-              {PRESET_ROUTES.slice(0, 6).map((preset) => (
-                <button
-                  key={preset.label}
-                  onClick={() => {
-                    originAC.select(preset.from);
-                    destAC.select(preset.to);
-                    setOrigin(preset.from);
-                    setDestination(preset.to);
-                  }}
-                  className="rounded-lg border border-border bg-card p-3 text-left hover:bg-accent hover:border-primary/30 transition-colors"
-                >
-                  <p className="text-xs font-medium">{preset.from.label}</p>
-                  <p className="text-[10px] text-muted-foreground">→ {preset.to.label}</p>
-                </button>
-              ))}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 text-left">
+              {CA_CITIES.map((city) => {
+                const isPickedFrom = pickedFrom?.label === city.label;
+                return (
+                  <button
+                    key={city.label}
+                    onClick={() => {
+                      if (pickStep === 'from') {
+                        setPickedFrom(city);
+                        setPickStep('to');
+                      } else if (pickStep === 'to' && !isPickedFrom) {
+                        const fromGeo = { lat: pickedFrom!.lat, lon: pickedFrom!.lon, label: pickedFrom!.label };
+                        const toGeo = { lat: city.lat, lon: city.lon, label: city.label };
+                        originAC.select(fromGeo);
+                        destAC.select(toGeo);
+                        setOrigin(fromGeo);
+                        setDestination(toGeo);
+                        setPickStep(null);
+                      }
+                    }}
+                    disabled={pickStep === 'to' && isPickedFrom}
+                    className={`rounded-lg border p-3 text-left transition-colors ${
+                      isPickedFrom
+                        ? 'border-green-500 bg-green-500/10 text-green-400'
+                        : 'border-border bg-card hover:bg-accent hover:border-primary/30'
+                    } disabled:opacity-40 disabled:cursor-not-allowed`}
+                  >
+                    <p className="text-xs font-medium">{city.label}</p>
+                    {isPickedFrom && <p className="text-[10px] text-green-500 font-semibold mt-0.5">FROM</p>}
+                  </button>
+                );
+              })}
             </div>
+            {pickStep === 'to' && (
+              <button
+                onClick={() => { setPickStep('from'); setPickedFrom(null); }}
+                className="mt-3 text-xs text-muted-foreground hover:text-foreground underline transition-colors"
+              >
+                Start over
+              </button>
+            )}
             <p className="mt-4 text-[10px] text-muted-foreground/50">
-              3,000+ cameras across all 12 Caltrans districts · Live video · Real-time incidents
+              or type any address above · 3,000+ cameras across all 12 Caltrans districts
             </p>
           </div>
         )}

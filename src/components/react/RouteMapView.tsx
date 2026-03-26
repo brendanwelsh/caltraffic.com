@@ -84,18 +84,18 @@ export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, d
     if (origin) {
       const startIcon = L.divIcon({
         className: 'route-start',
-        html: '<div style="width:20px;height:20px;border-radius:50%;background:#22c55e;border:3px solid white;box-shadow:0 0 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;color:white;font-weight:bold;">A</div>',
-        iconSize: [20, 20],
-        iconAnchor: [10, 10],
+        html: '<div style="width:16px;height:16px;border-radius:50%;background:#22c55e;border:3px solid white;box-shadow:0 0 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;color:white;font-weight:bold;">A</div>',
+        iconSize: [16, 16],
+        iconAnchor: [8, 8],
       });
       L.marker([origin.lat, origin.lon], { icon: startIcon }).addTo(routeLayerRef.current);
     }
     if (destination) {
       const endIcon = L.divIcon({
         className: 'route-end',
-        html: '<div style="width:20px;height:20px;border-radius:50%;background:#ef4444;border:3px solid white;box-shadow:0 0 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;color:white;font-weight:bold;">B</div>',
-        iconSize: [20, 20],
-        iconAnchor: [10, 10],
+        html: '<div style="width:16px;height:16px;border-radius:50%;background:#ef4444;border:3px solid white;box-shadow:0 0 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;color:white;font-weight:bold;">B</div>',
+        iconSize: [16, 16],
+        iconAnchor: [8, 8],
       });
       L.marker([destination.lat, destination.lon], { icon: endIcon }).addTo(routeLayerRef.current);
     }
@@ -117,13 +117,13 @@ export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, d
       const icon = L.divIcon({
         className: 'route-camera-marker',
         html: `<div style="
-          width:24px;height:24px;border-radius:50%;background:${color};
-          border:2px solid white;box-shadow:0 0 4px rgba(0,0,0,0.3);
+          width:16px;height:16px;border-radius:50%;background:${color};
+          border:1.5px solid white;box-shadow:0 0 3px rgba(0,0,0,0.3);
           display:flex;align-items:center;justify-content:center;
-          font-size:11px;color:white;font-weight:bold;
+          font-size:8px;color:white;font-weight:bold;
         ">${i + 1}</div>`,
-        iconSize: [24, 24],
-        iconAnchor: [12, 12],
+        iconSize: [16, 16],
+        iconAnchor: [8, 8],
       });
 
       const marker = L.marker([camera.latitude, camera.longitude], { icon });
