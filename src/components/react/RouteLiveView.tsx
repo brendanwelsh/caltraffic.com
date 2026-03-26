@@ -85,7 +85,7 @@ function LazyFeedCard({ camera, routeDuration, onSelect }: {
       </div>
 
       {/* Feed — only loads when visible */}
-      <div className="max-h-[180px] overflow-hidden">
+      <div className="max-h-[150px] overflow-hidden">
         <LazyFeed camera={camera} isVisible={isVisible} />
       </div>
 
@@ -132,7 +132,7 @@ export function RouteLiveView({ cameras, routeDuration }: RouteLiveViewProps) {
         {displayCameras.length} cameras · {liveCount} with live video · feeds load as you scroll
       </p>
 
-      <div className="space-y-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
         {displayCameras.map((camera) => (
           <LazyFeedCard
             key={camera.id}
