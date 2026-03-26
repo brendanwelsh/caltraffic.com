@@ -35,61 +35,82 @@ function FeedCard({ camera, routeDuration, onSelect }: {
           <span className="mt-0.5 text-[9px] text-muted-foreground whitespace-nowrap">{etaMinutes}m</span>
         </div>
 
-        {/* Camera feed card — full width */}
+        {/* Feed + Info side by side */}
         <div
           className={`flex-1 rounded-lg border overflow-hidden bg-card cursor-pointer hover:shadow-md transition-shadow ${
             hasIssues ? 'border-red-500/30' : 'border-border/60'
           }`}
           onClick={() => onSelect(camera)}
         >
-          {/* Header */}
-          <div className="flex items-center gap-1.5 px-2.5 py-1.5 border-b border-border/50">
-            <RouteShield route={camera.route} size="sm" />
-            <span className="text-xs font-medium">{camera.direction}</span>
-            <span className="text-[10px] text-muted-foreground truncate">
-              {camera.location || camera.city}
-            </span>
-            {camera.hasVideo && camera.streamUrl && (
-              <span className="ml-auto inline-flex items-center gap-1 text-[9px] font-bold uppercase text-green-400 shrink-0">
-                <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
-                live
-              </span>
-            )}
-          </div>
-
-          {/* Feed — full size, all play */}
-          <VideoPlayer
-            streamUrl={camera.streamUrl}
-            imageUrl={camera.imageUrl}
-            cameraName={camera.location}
-          />
-
-          {/* Conditions bar */}
-          {(hasIssues || camera.nearbyCMS.length > 0 || camera.travelTime) && (
-            <div className="px-2.5 py-1.5 border-t border-border/50 space-y-1">
-              <ConditionBadges
-                chainControls={camera.chainControls}
-                closures={camera.nearbyClosures}
-                travelTime={camera.travelTime}
+          <div className="flex">
+            {/* Left: compact feed */}
+            <div className="w-[55%] shrink-0">
+              <VideoPlayer
+                streamUrl={camera.streamUrl}
+                imageUrl={camera.imageUrl}
+                cameraName={camera.location}
               />
-              {camera.nearbyIncidents.length > 0 && (
-                <p className="text-[10px] text-red-400">
-                  {camera.nearbyIncidents.map((inc) => `${inc.type}: ${inc.description}`).join(' · ')}
-                </p>
-              )}
-              {camera.nearbyCMS.slice(0, 1).map((cms) => {
-                const lines = [...cms.phase1Lines, ...(cms.phase2Lines ?? [])].filter((l) => l.trim());
-                if (lines.length === 0) return null;
-                return (
-                  <div key={cms.id} className="rounded bg-amber-500/10 border border-amber-500/20 px-2 py-1">
-                    {lines.map((line, li) => (
-                      <p key={li} className="text-[9px] font-mono font-bold text-amber-400 leading-tight">{line}</p>
-                    ))}
-                  </div>
-                );
-              })}
             </div>
-          )}
+
+            {/* Right: info card */}
+            <div className="flex-1 p-2.5 flex flex-col min-w-0">
+              {/* Route + direction */}
+              <div className="flex items-center gap-1.5">
+                <RouteShield route={camera.route} size="sm" />
+                <span className="text-xs font-medium">{camera.direction}</span>
+                {camera.hasVideo && camera.streamUrl && (
+                  <span className="inline-flex items-center gap-1 text-[8px] font-bold uppercase text-green-400 shrink-0">
+                    <span className="h-1.5 w-1.5 rounded-full bg-green-400 animate-pulse" />
+                    live
+                  </span>
+                )}
+              </div>
+
+              {/* Location */}
+              <p className="text-[11px] text-foreground mt-1 leading-tight">
+                {camera.location || 'Unknown location'}
+              </p>
+              <p className="text-[10px] text-muted-foreground">
+                {camera.city}{camera.county ? `, ${camera.county}` : ''}
+              </p>
+
+              {/* Details */}
+              <div className="mt-auto pt-1.5 space-y-1">
+                <div className="flex flex-wrap gap-x-3 gap-y-0.5 text-[9px] text-muted-foreground">
+                  <span>District {camera.district}</span>
+                  <span>PM {camera.postmile.toFixed(1)}</span>
+                  <span>~{etaMinutes}m into route</span>
+                </div>
+
+                {/* Condition badges */}
+                <ConditionBadges
+                  chainControls={camera.chainControls}
+                  closures={camera.nearbyClosures}
+                  travelTime={camera.travelTime}
+                />
+
+                {/* Incidents */}
+                {camera.nearbyIncidents.length > 0 && (
+                  <p className="text-[9px] text-red-400 leading-tight">
+                    {camera.nearbyIncidents.map((inc) => inc.type).join(', ')}
+                  </p>
+                )}
+
+                {/* CMS signs */}
+                {camera.nearbyCMS.slice(0, 1).map((cms) => {
+                  const lines = [...cms.phase1Lines, ...(cms.phase2Lines ?? [])].filter((l) => l.trim());
+                  if (lines.length === 0) return null;
+                  return (
+                    <div key={cms.id} className="rounded bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5">
+                      {lines.map((line, li) => (
+                        <p key={li} className="text-[8px] font-mono font-bold text-amber-400 leading-tight">{line}</p>
+                      ))}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -106,7 +127,7 @@ export function RouteLiveView({ cameras, routeDuration }: RouteLiveViewProps) {
   return (
     <div>
       <p className="mb-2 text-[10px] text-muted-foreground">
-        {displayCameras.length} cameras · {liveCount} live · feeds load as you scroll
+        {displayCameras.length} cameras · {liveCount} live
       </p>
 
       <div className="space-y-0">
