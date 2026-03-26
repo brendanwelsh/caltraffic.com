@@ -91,9 +91,7 @@ export function CameraGrid({ showFavoritesOnly }: CameraGridProps) {
       return true;
     })
     .sort((a, b) => {
-      const aFav = isFavorite(a.id) ? 1 : 0;
-      const bFav = isFavorite(b.id) ? 1 : 0;
-      if (aFav !== bFav) return bFav - aFav;
+      // No favorites sort — favorites is a filter toggle, not a sort priority
       if (a.hasVideo !== b.hasVideo) return a.hasVideo ? -1 : 1;
       if (a.nearbyIncidents.length !== b.nearbyIncidents.length) return b.nearbyIncidents.length - a.nearbyIncidents.length;
       if (a.isStale !== b.isStale) return a.isStale ? 1 : -1;
@@ -205,6 +203,23 @@ export function CameraGrid({ showFavoritesOnly }: CameraGridProps) {
           <p className="mt-1 text-sm text-muted-foreground">
             {search ? `No results for "${search}"` : 'Try adjusting your filters.'}
           </p>
+          <button
+            onClick={() => {
+              selectedDistrict.set(null);
+              selectedRoute.set(null);
+              selectedCity.set(null);
+              selectedCounty.set(null);
+              searchQuery.set('');
+              showVideoOnly.set(false);
+              hideStale.set(false);
+              hideUnavailable.set(true);
+              showWithIncidents.set(false);
+              showWithSigns.set(false);
+            }}
+            className="mt-4 rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground hover:bg-accent transition-colors"
+          >
+            Clear all filters
+          </button>
         </div>
       ) : view === 'map' ? (
         <div>
