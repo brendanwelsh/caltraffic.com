@@ -153,6 +153,7 @@ export function RoutePlanner() {
   const [routeView, setRouteView] = useState<'list' | 'grid'>('list');
   const [showMap, setShowMap] = useState(true);
   const [selectedCamera, setSelectedCamera] = useState<EnrichedCamera | null>(null);
+  const [focusedCameraId, setFocusedCameraId] = useState<string | null>(null);
 
   const handlePlanRoute = useCallback(() => {
     setGeocodeError(null);
@@ -320,7 +321,7 @@ export function RoutePlanner() {
         )}
 
         {/* Loading state — waiting for route + cameras */}
-        {hasRoute && routeLoading && (
+        {hasRoute && (routeLoading || routeCameras.length === 0) && (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="h-8 w-8 animate-spin rounded-full border-3 border-primary border-t-transparent mb-4" />
             <p className="text-sm font-medium">Finding route and cameras...</p>
@@ -334,7 +335,7 @@ export function RoutePlanner() {
             {/* Left: scrollable feed timeline or camera grid */}
             <div className="flex-1 overflow-y-auto pr-1">
               {routeView === 'list' ? (
-                <RouteLiveView cameras={routeCameras} routeDuration={routeDuration} />
+                <RouteLiveView cameras={routeCameras} routeDuration={routeDuration} onCameraFocus={setFocusedCameraId} />
               ) : (
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pb-4">
                   {routeCameras.map((camera) => (
@@ -343,7 +344,7 @@ export function RoutePlanner() {
                       className="rounded-xl border border-border/60 overflow-hidden bg-card cursor-pointer hover:shadow-md transition-shadow"
                       onClick={() => setSelectedCamera(camera)}
                     >
-                      <VideoPlayer streamUrl={camera.streamUrl} imageUrl={camera.imageUrl} cameraName={camera.location} />
+                      <VideoPlayer streamUrl={camera.streamUrl} imageUrl={camera.imageUrl} cameraName={camera.location} hideControls />
                       <div className="px-2.5 py-1.5">
                         <div className="flex items-center gap-1.5">
                           <RouteShield route={camera.route} size="sm" />
@@ -374,6 +375,7 @@ export function RoutePlanner() {
                       cameras={routeCameras}
                       origin={origin}
                       destination={destination}
+                      focusedCameraId={focusedCameraId}
                     />
                   </div>
                 </Suspense>
@@ -390,8 +392,8 @@ export function RoutePlanner() {
           />
         )}
 
-        {/* Empty / no cameras state */}
-        {hasRoute && routeCameras.length === 0 && !routeLoading && (
+        {/* Empty / no cameras state — only after loading is fully done */}
+        {hasRoute && routeCameras.length === 0 && !routeLoading && !routeLineLoading && (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <p className="text-sm text-muted-foreground">No cameras found along this route</p>
             <p className="mt-1 text-xs text-muted-foreground/60">Try a longer distance or different cities</p>

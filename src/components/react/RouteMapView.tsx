@@ -10,13 +10,15 @@ interface RouteMapViewProps {
   origin?: { lat: number; lon: number } | null;
   destination?: { lat: number; lon: number } | null;
   onCameraClick?: (camera: RouteCamera) => void;
+  focusedCameraId?: string | null;
 }
 
-export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, destination, onCameraClick }: RouteMapViewProps) {
+export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, destination, onCameraClick, focusedCameraId }: RouteMapViewProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
   const routeLayerRef = useRef<L.LayerGroup | null>(null);
   const cameraLayerRef = useRef<L.LayerGroup | null>(null);
+  const cameraMarkersRef = useRef<Map<string, L.Marker>>(new Map());
 
   useEffect(() => {
     if (!mapRef.current || mapInstance.current) return;
@@ -80,18 +82,18 @@ export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, d
     if (origin) {
       const startIcon = L.divIcon({
         className: 'route-start',
-        html: '<div style="width:14px;height:14px;border-radius:50%;background:#22c55e;border:3px solid white;box-shadow:0 0 6px rgba(0,0,0,0.3);"></div>',
-        iconSize: [14, 14],
-        iconAnchor: [7, 7],
+        html: '<div style="width:20px;height:20px;border-radius:50%;background:#22c55e;border:3px solid white;box-shadow:0 0 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;color:white;font-weight:bold;">A</div>',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10],
       });
       L.marker([origin.lat, origin.lon], { icon: startIcon }).addTo(routeLayerRef.current);
     }
     if (destination) {
       const endIcon = L.divIcon({
         className: 'route-end',
-        html: '<div style="width:14px;height:14px;border-radius:50%;background:#ef4444;border:3px solid white;box-shadow:0 0 6px rgba(0,0,0,0.3);"></div>',
-        iconSize: [14, 14],
-        iconAnchor: [7, 7],
+        html: '<div style="width:20px;height:20px;border-radius:50%;background:#ef4444;border:3px solid white;box-shadow:0 0 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:11px;color:white;font-weight:bold;">B</div>',
+        iconSize: [20, 20],
+        iconAnchor: [10, 10],
       });
       L.marker([destination.lat, destination.lon], { icon: endIcon }).addTo(routeLayerRef.current);
     }
@@ -102,6 +104,7 @@ export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, d
     if (!mapInstance.current || !cameraLayerRef.current) return;
 
     cameraLayerRef.current.clearLayers();
+    cameraMarkersRef.current.clear();
 
     cameras.forEach((camera, i) => {
       if (camera.latitude === 0 && camera.longitude === 0) return;
@@ -112,16 +115,21 @@ export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, d
       const icon = L.divIcon({
         className: 'route-camera-marker',
         html: `<div style="
-          width:20px;height:20px;border-radius:50%;background:${color};
+          width:24px;height:24px;border-radius:50%;background:${color};
           border:2px solid white;box-shadow:0 0 4px rgba(0,0,0,0.3);
           display:flex;align-items:center;justify-content:center;
-          font-size:9px;color:white;font-weight:bold;
+          font-size:11px;color:white;font-weight:bold;
         ">${i + 1}</div>`,
-        iconSize: [20, 20],
-        iconAnchor: [10, 10],
+        iconSize: [24, 24],
+        iconAnchor: [12, 12],
       });
 
       const marker = L.marker([camera.latitude, camera.longitude], { icon });
+
+      marker.bindTooltip(`${camera.route} ${camera.direction} — ${camera.location || camera.city}`, {
+        direction: 'top',
+        offset: [0, -12],
+      });
 
       marker.bindPopup(`
         <div style="min-width:180px;font-family:system-ui,sans-serif;">
@@ -136,8 +144,21 @@ export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, d
       }
 
       cameraLayerRef.current!.addLayer(marker);
+      cameraMarkersRef.current.set(camera.id, marker);
     });
   }, [cameras, onCameraClick]);
+
+  // Pan to focused camera and open its popup
+  useEffect(() => {
+    if (!mapInstance.current || !focusedCameraId) return;
+
+    const marker = cameraMarkersRef.current.get(focusedCameraId);
+    if (!marker) return;
+
+    const latLng = marker.getLatLng();
+    mapInstance.current.setView(latLng, Math.max(mapInstance.current.getZoom(), 12), { animate: true });
+    marker.openPopup();
+  }, [focusedCameraId]);
 
   return (
     <div className="relative">

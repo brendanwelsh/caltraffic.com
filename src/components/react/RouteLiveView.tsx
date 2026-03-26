@@ -9,6 +9,7 @@ import type { RouteCamera } from '@/hooks/use-route-planner';
 interface RouteLiveViewProps {
   cameras: RouteCamera[];
   routeDuration: number;
+  onCameraFocus?: (id: string) => void;
 }
 
 /** Mount video once seen, keep mounted. Static images always show. */
@@ -29,7 +30,7 @@ function StableFeed({ camera }: { camera: RouteCamera }) {
   return (
     <div ref={ref}>
       {hasBeenSeen && camera.streamUrl ? (
-        <VideoPlayer streamUrl={camera.streamUrl} imageUrl={camera.imageUrl} cameraName={camera.location} />
+        <VideoPlayer streamUrl={camera.streamUrl} imageUrl={camera.imageUrl} cameraName={camera.location} hideControls />
       ) : (
         <img src={camera.imageUrl} alt={camera.location} className="w-full aspect-video object-cover" loading="lazy" />
       )}
@@ -182,8 +183,9 @@ function MiniCard({ camera, routeDuration }: { camera: RouteCamera; routeDuratio
   );
 }
 
-export function RouteLiveView({ cameras, routeDuration }: RouteLiveViewProps) {
+export function RouteLiveView({ cameras, routeDuration, onCameraFocus }: RouteLiveViewProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [passedIds, setPassedIds] = useState<Set<string>>(new Set());
 
   const sorted = [...cameras].sort((a, b) => a.progressAlongRoute - b.progressAlongRoute);
   const available = sorted.filter(c => c.imageUrl && !c.isStale);
@@ -192,14 +194,26 @@ export function RouteLiveView({ cameras, routeDuration }: RouteLiveViewProps) {
 
   return (
     <div>
-      <p className="mb-2 text-[10px] text-muted-foreground">
-        {available.length} cameras · {liveCount} live
-        {unavailable.length > 0 && ` · ${unavailable.length} unavailable`}
-      </p>
+      <div className="mb-2 flex items-center gap-2">
+        <p className="text-[10px] text-muted-foreground">
+          {available.length} cameras · {liveCount} live
+          {unavailable.length > 0 && ` · ${unavailable.length} unavailable`}
+          {passedIds.size > 0 && ` · ${passedIds.size} passed`}
+        </p>
+        {passedIds.size > 0 && (
+          <button
+            onClick={() => setPassedIds(new Set())}
+            className="text-[10px] text-primary hover:text-primary/80 transition-colors font-medium"
+          >
+            Reset passed
+          </button>
+        )}
+      </div>
 
       <div className="space-y-0">
         {sorted.map((camera, i) => {
           const isUnavailable = !camera.imageUrl || camera.isStale;
+          const isPassed = passedIds.has(camera.id);
 
           // Unavailable: always show collapsed
           if (isUnavailable) {
@@ -211,6 +225,34 @@ export function RouteLiveView({ cameras, routeDuration }: RouteLiveViewProps) {
                     <div className="w-2 h-2 rounded-full bg-muted-foreground/20" />
                   </div>
                   <MiniCard camera={camera} routeDuration={routeDuration} />
+                </div>
+              </div>
+            );
+          }
+
+          // Passed: show as collapsed mini-row
+          if (isPassed) {
+            const etaMinutes = routeDuration > 0 && !isNaN(routeDuration) ? Math.round(camera.progressAlongRoute * (routeDuration / 60)) : null;
+            return (
+              <div key={camera.id} className="relative">
+                <div className="absolute left-[15px] top-0 bottom-0 w-0.5 bg-border" />
+                <div className="relative flex gap-3 py-0.5">
+                  <div className="flex items-center shrink-0 z-10">
+                    <div className="w-2 h-2 rounded-full bg-green-500/30" />
+                  </div>
+                  <div className="flex items-center gap-2 rounded-lg border border-border/30 bg-card/40 px-2.5 py-1 opacity-50 flex-1">
+                    <RouteShield route={camera.route} size="sm" />
+                    <span className="text-[10px] text-muted-foreground truncate">{camera.direction} — {camera.location || camera.city}</span>
+                    <span className="ml-auto text-[9px] text-muted-foreground shrink-0">{etaMinutes != null ? `${etaMinutes}m` : '\u2014'}</span>
+                    <span className="text-[8px] text-green-500/60 italic shrink-0">passed</span>
+                    <button
+                      onClick={() => setPassedIds((prev) => { const next = new Set(prev); next.delete(camera.id); return next; })}
+                      className="text-[9px] text-muted-foreground hover:text-foreground transition-colors shrink-0"
+                      title="Undo passed"
+                    >
+                      undo
+                    </button>
+                  </div>
                 </div>
               </div>
             );
@@ -231,12 +273,27 @@ export function RouteLiveView({ cameras, routeDuration }: RouteLiveViewProps) {
                       {routeDuration > 0 && !isNaN(routeDuration) ? `${Math.round(camera.progressAlongRoute * (routeDuration / 60))}m` : '\u2014'}
                     </span>
                   </div>
-                  <FeedCard
-                    camera={camera}
-                    routeDuration={routeDuration}
-                    isExpanded={expandedId === camera.id}
-                    onToggle={() => setExpandedId(expandedId === camera.id ? null : camera.id)}
-                  />
+                  <div className="flex-1 flex flex-col min-w-0">
+                    <FeedCard
+                      camera={camera}
+                      routeDuration={routeDuration}
+                      isExpanded={expandedId === camera.id}
+                      onToggle={() => {
+                        setExpandedId(expandedId === camera.id ? null : camera.id);
+                        onCameraFocus?.(camera.id);
+                      }}
+                    />
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPassedIds((prev) => new Set(prev).add(camera.id));
+                      }}
+                      className="self-start mt-1 inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] text-muted-foreground hover:bg-accent hover:text-foreground transition-colors border border-border/40"
+                    >
+                      <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+                      Mark passed
+                    </button>
+                  </div>
                 </div>
               </div>
 

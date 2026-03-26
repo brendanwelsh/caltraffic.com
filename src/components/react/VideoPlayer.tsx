@@ -5,9 +5,10 @@ interface VideoPlayerProps {
   streamUrl: string | null;
   imageUrl: string;
   cameraName: string;
+  hideControls?: boolean;
 }
 
-export function VideoPlayer({ streamUrl, imageUrl, cameraName }: VideoPlayerProps) {
+export function VideoPlayer({ streamUrl, imageUrl, cameraName, hideControls }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [error, setError] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -67,7 +68,7 @@ export function VideoPlayer({ streamUrl, imageUrl, cameraName }: VideoPlayerProp
       <video
         ref={videoRef}
         className="w-full rounded-lg bg-black"
-        controls
+        {...(!hideControls ? { controls: true } : {})}
         playsInline
         muted
       />
