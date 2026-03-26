@@ -121,13 +121,18 @@ export function RoutePlanner() {
               <div className="relative flex-1">
                 <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-muted-foreground z-10">FROM</span>
                 <input
-                  type="text"
+                  type="search"
+                  role="combobox"
                   placeholder="City, address, or landmark"
                   value={originAC.query}
                   onChange={(e) => originAC.setQuery(e.target.value)}
                   onFocus={() => originAC.suggestions.length > 0 && originAC.setIsOpen(true)}
                   onBlur={() => setTimeout(() => originAC.setIsOpen(false), 200)}
                   onKeyDown={handleKeyDown}
+                  autoComplete="off"
+                  data-1p-ignore
+                  data-lpignore="true"
+                  data-form-type="other"
                   className={`h-9 w-full rounded-lg border bg-background pl-12 pr-3 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
                     originAC.selected ? 'border-green-500/50' : 'border-input'
                   }`}
@@ -162,13 +167,18 @@ export function RoutePlanner() {
               <div className="relative flex-1">
                 <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-muted-foreground z-10">TO</span>
                 <input
-                  type="text"
+                  type="search"
+                  role="combobox"
                   placeholder="City, address, or landmark"
                   value={destAC.query}
                   onChange={(e) => destAC.setQuery(e.target.value)}
                   onFocus={() => destAC.suggestions.length > 0 && destAC.setIsOpen(true)}
                   onBlur={() => setTimeout(() => destAC.setIsOpen(false), 200)}
                   onKeyDown={handleKeyDown}
+                  autoComplete="off"
+                  data-1p-ignore
+                  data-lpignore="true"
+                  data-form-type="other"
                   className={`h-9 w-full rounded-lg border bg-background pl-8 pr-3 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
                     destAC.selected ? 'border-green-500/50' : 'border-input'
                   }`}
