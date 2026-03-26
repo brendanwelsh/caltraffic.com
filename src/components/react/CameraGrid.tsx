@@ -13,8 +13,6 @@ import { useClosures } from '@/hooks/use-closures';
 import { useFavorites } from '@/hooks/use-favorites';
 import { useUrlState } from '@/hooks/use-url-state';
 import { CameraCard } from './CameraCard';
-import { CMSCard } from './CMSCard';
-import { IncidentCard } from './IncidentCard';
 import { CameraDetailDialog } from './CameraDetailDialog';
 import { DataFreshness } from './DataFreshness';
 import { MapView } from './MapView';
@@ -32,11 +30,6 @@ const GRID_COLS_CLASS: Record<number, string> = {
   5: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5',
   6: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6',
 };
-
-type GridItem =
-  | { type: 'camera'; data: EnrichedCamera }
-  | { type: 'cms'; data: CMS }
-  | { type: 'incident'; data: Incident };
 
 interface CameraGridProps {
   showFavoritesOnly: boolean;
@@ -67,7 +60,7 @@ export function CameraGrid({ showFavoritesOnly }: CameraGridProps) {
   const { data: chainControls = [] } = useChainControl(district);
   const { data: closures = [] } = useClosures(district);
 
-  // Filter cameras
+  // Filter cameras — signs and incidents are pure filters, not interspersed
   const filteredCameras = useMemo(() => {
     return cameras.filter((cam) => {
       if (routeFilter && cam.route !== routeFilter) return false;
@@ -91,7 +84,6 @@ export function CameraGrid({ showFavoritesOnly }: CameraGridProps) {
       return true;
     })
     .sort((a, b) => {
-      // No favorites sort — favorites is a filter toggle, not a sort priority
       if (a.hasVideo !== b.hasVideo) return a.hasVideo ? -1 : 1;
       if (a.nearbyIncidents.length !== b.nearbyIncidents.length) return b.nearbyIncidents.length - a.nearbyIncidents.length;
       if (a.isStale !== b.isStale) return a.isStale ? 1 : -1;
@@ -99,78 +91,29 @@ export function CameraGrid({ showFavoritesOnly }: CameraGridProps) {
     });
   }, [cameras, routeFilter, cityFilter, countyFilter, videoOnly, noStale, noUnavailable, brokenCameras, withIncidents, withSigns, showFavoritesOnly, search, isFavorite]);
 
-  // Filter CMS signs (only show non-blank ones that match current filters)
+  // CMS signs for map view only (not interspersed in grid)
   const filteredCMS = useMemo(() => {
-    if (showFavoritesOnly || videoOnly) return []; // These filters don't apply to signs
     return cmsList.filter((cms) => {
       if (!cms.inService) return false;
-      // Filter out blank signs
       const allBlank = cms.phase1Lines.every((l) => !l.trim()) &&
         (!cms.phase2Lines || cms.phase2Lines.every((l) => !l.trim()));
       if (allBlank) return false;
       if (routeFilter && cms.route !== routeFilter) return false;
-      if (search) {
-        const q = search.toLowerCase();
-        return (
-          cms.location.toLowerCase().includes(q) ||
-          cms.route.toLowerCase().includes(q) ||
-          cms.county.toLowerCase().includes(q)
-        );
-      }
       return true;
     });
-  }, [cmsList, routeFilter, showFavoritesOnly, videoOnly, search]);
+  }, [cmsList, routeFilter]);
 
-  // Filter incidents to match selected district (by matching location text to district counties)
+  // Incidents for map view only
   const filteredIncidents = useMemo(() => {
-    if (showFavoritesOnly || videoOnly) return [];
-    if (!district) return incidents.slice(0, 10); // Show top 10 when no district
+    if (!district) return incidents.slice(0, 10);
     const counties = DISTRICT_COUNTIES[district] ?? [];
     return incidents.filter((inc) =>
       counties.some((county) => inc.location.toLowerCase().includes(county.toLowerCase()))
     );
-  }, [incidents, district, showFavoritesOnly, videoOnly]);
+  }, [incidents, district]);
 
-  // Build mixed grid: intersperse incidents and CMS signs among cameras
-  const gridItems: GridItem[] = useMemo(() => {
-    const items: GridItem[] = [];
-    const cameraItems: GridItem[] = filteredCameras.map((cam) => ({ type: 'camera', data: cam }));
-    const incidentItems: GridItem[] = filteredIncidents.map((inc) => ({ type: 'incident', data: inc }));
-    const cmsItems: GridItem[] = filteredCMS.map((cms) => ({ type: 'cms', data: cms }));
-
-    // Intersperse non-camera items among cameras
-    // Insert incidents after position 4, CMS signs every 8 cameras
-    let camIdx = 0;
-    let incIdx = 0;
-    let cmsIdx = 0;
-
-    while (camIdx < cameraItems.length || incIdx < incidentItems.length || cmsIdx < cmsItems.length) {
-      // Add a batch of cameras
-      const batchEnd = Math.min(camIdx + (items.length === 0 ? 4 : 8), cameraItems.length);
-      while (camIdx < batchEnd) {
-        items.push(cameraItems[camIdx++]);
-      }
-      // Insert an incident if available
-      if (incIdx < incidentItems.length) {
-        items.push(incidentItems[incIdx++]);
-      }
-      // Insert a CMS sign if available
-      if (cmsIdx < cmsItems.length) {
-        items.push(cmsItems[cmsIdx++]);
-      }
-      // If only non-camera items remain, flush them
-      if (camIdx >= cameraItems.length) {
-        while (incIdx < incidentItems.length) items.push(incidentItems[incIdx++]);
-        while (cmsIdx < cmsItems.length) items.push(cmsItems[cmsIdx++]);
-        break;
-      }
-    }
-
-    return items;
-  }, [filteredCameras, filteredCMS, filteredIncidents]);
-
-  const displayed = gridItems.slice(0, page * PAGE_SIZE);
-  const hasMore = displayed.length < gridItems.length;
+  const displayed = filteredCameras.slice(0, page * PAGE_SIZE);
+  const hasMore = displayed.length < filteredCameras.length;
 
   const handleCameraClick = useCallback((camera: EnrichedCamera) => {
     setSelectedCamera(camera);
@@ -197,7 +140,7 @@ export function CameraGrid({ showFavoritesOnly }: CameraGridProps) {
 
   return (
     <div>
-      {gridItems.length === 0 ? (
+      {filteredCameras.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-20 text-center">
           <p className="text-lg font-medium">No cameras found</p>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -225,7 +168,7 @@ export function CameraGrid({ showFavoritesOnly }: CameraGridProps) {
         <div>
           <div className="mb-3">
             <p className="text-sm text-muted-foreground">
-              {filteredCameras.length} cameras{filteredCMS.length > 0 ? ` + ${filteredCMS.length} signs` : ''} on map
+              {filteredCameras.length} cameras on map
             </p>
           </div>
           <MapView
@@ -242,30 +185,20 @@ export function CameraGrid({ showFavoritesOnly }: CameraGridProps) {
           <div className="mb-3 flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
               {filteredCameras.length} cameras
-              {filteredIncidents.length > 0 && ` · ${filteredIncidents.length} incidents`}
-              {filteredCMS.length > 0 && ` · ${filteredCMS.length} signs`}
             </p>
             <DataFreshness count={cameras.length} isLoading={isLoading} />
           </div>
 
           <div className={`grid gap-3 ${GRID_COLS_CLASS[columns]}`}>
-            {displayed.map((item) => {
-              if (item.type === 'camera') {
-                return (
-                  <CameraCard
-                    key={`cam-${item.data.id}`}
-                    camera={item.data}
-                    onClick={handleCameraClick}
-                    isFavorite={isFavorite(item.data.id)}
-                    onToggleFavorite={toggleFavorite}
-                  />
-                );
-              }
-              if (item.type === 'cms') {
-                return <CMSCard key={`cms-${item.data.id}`} cms={item.data} />;
-              }
-              return <IncidentCard key={`inc-${item.data.id}`} incident={item.data} />;
-            })}
+            {displayed.map((camera) => (
+              <CameraCard
+                key={camera.id}
+                camera={camera}
+                onClick={handleCameraClick}
+                isFavorite={isFavorite(camera.id)}
+                onToggleFavorite={toggleFavorite}
+              />
+            ))}
           </div>
 
           {hasMore && (
