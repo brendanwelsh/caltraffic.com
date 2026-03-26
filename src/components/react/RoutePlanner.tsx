@@ -115,86 +115,108 @@ export function RoutePlanner() {
         {/* Route input form */}
         <div className="rounded-lg border border-border bg-card p-4">
           <h2 className="text-sm font-semibold mb-3">Plan Your Route</h2>
-          <div className="flex flex-col sm:flex-row gap-2">
-            {/* Origin input with autocomplete */}
-            <div className="relative flex-1">
-              <div className="absolute left-2.5 top-[18px] -translate-y-1/2 w-2 h-2 rounded-full bg-green-500 z-10" />
-              <input
-                type="text"
-                placeholder="From (city or address)"
-                value={originAC.query}
-                onChange={(e) => originAC.setQuery(e.target.value)}
-                onFocus={() => originAC.suggestions.length > 0 && originAC.setIsOpen(true)}
-                onKeyDown={handleKeyDown}
-                className="h-9 w-full rounded-lg border border-input bg-background pl-7 pr-3 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-              />
-              {originAC.loading && (
-                <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
-                  <div className="h-3 w-3 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
-                </div>
-              )}
-              {originAC.isOpen && (
-                <div className="absolute top-full left-0 right-0 mt-1 z-50 rounded-lg border border-border bg-card shadow-xl overflow-hidden">
-                  {originAC.suggestions.map((s, i) => (
-                    <button
-                      key={i}
-                      onClick={() => originAC.select(s)}
-                      className="w-full px-3 py-2 text-left text-xs hover:bg-accent transition-colors border-b border-border last:border-0"
-                    >
-                      {s.label}
-                    </button>
-                  ))}
-                </div>
-              )}
+          <div className="space-y-2">
+            <div className="flex flex-col sm:flex-row gap-2">
+              {/* Origin input with autocomplete */}
+              <div className="relative flex-1">
+                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-muted-foreground z-10">FROM</span>
+                <input
+                  type="text"
+                  placeholder="City, address, or landmark"
+                  value={originAC.query}
+                  onChange={(e) => originAC.setQuery(e.target.value)}
+                  onFocus={() => originAC.suggestions.length > 0 && originAC.setIsOpen(true)}
+                  onBlur={() => setTimeout(() => originAC.setIsOpen(false), 200)}
+                  onKeyDown={handleKeyDown}
+                  className={`h-9 w-full rounded-lg border bg-background pl-12 pr-3 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
+                    originAC.selected ? 'border-green-500/50' : 'border-input'
+                  }`}
+                />
+                {originAC.loading && (
+                  <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
+                    <div className="h-3 w-3 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
+                  </div>
+                )}
+                {originAC.selected && !originAC.loading && (
+                  <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="3"><path d="M20 6 9 17l-5-5"/></svg>
+                  </div>
+                )}
+                {originAC.isOpen && (
+                  <div className="absolute top-full left-0 right-0 mt-1 z-50 rounded-lg border border-border bg-card shadow-xl overflow-hidden">
+                    {originAC.suggestions.map((s, i) => (
+                      <button
+                        key={i}
+                        onMouseDown={() => originAC.select(s)}
+                        className="w-full px-3 py-2 text-left text-xs hover:bg-accent transition-colors border-b border-border last:border-0 flex items-center gap-2"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground shrink-0"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Destination input with autocomplete */}
+              <div className="relative flex-1">
+                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-muted-foreground z-10">TO</span>
+                <input
+                  type="text"
+                  placeholder="City, address, or landmark"
+                  value={destAC.query}
+                  onChange={(e) => destAC.setQuery(e.target.value)}
+                  onFocus={() => destAC.suggestions.length > 0 && destAC.setIsOpen(true)}
+                  onBlur={() => setTimeout(() => destAC.setIsOpen(false), 200)}
+                  onKeyDown={handleKeyDown}
+                  className={`h-9 w-full rounded-lg border bg-background pl-8 pr-3 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
+                    destAC.selected ? 'border-green-500/50' : 'border-input'
+                  }`}
+                />
+                {destAC.loading && (
+                  <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
+                    <div className="h-3 w-3 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
+                  </div>
+                )}
+                {destAC.selected && !destAC.loading && (
+                  <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="3"><path d="M20 6 9 17l-5-5"/></svg>
+                  </div>
+                )}
+                {destAC.isOpen && (
+                  <div className="absolute top-full left-0 right-0 mt-1 z-50 rounded-lg border border-border bg-card shadow-xl overflow-hidden">
+                    {destAC.suggestions.map((s, i) => (
+                      <button
+                        key={i}
+                        onMouseDown={() => destAC.select(s)}
+                        className="w-full px-3 py-2 text-left text-xs hover:bg-accent transition-colors border-b border-border last:border-0 flex items-center gap-2"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-muted-foreground shrink-0"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                        {s.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* Destination input with autocomplete */}
-            <div className="relative flex-1">
-              <div className="absolute left-2.5 top-[18px] -translate-y-1/2 w-2 h-2 rounded-full bg-red-500 z-10" />
-              <input
-                type="text"
-                placeholder="To (city or address)"
-                value={destAC.query}
-                onChange={(e) => destAC.setQuery(e.target.value)}
-                onFocus={() => destAC.suggestions.length > 0 && destAC.setIsOpen(true)}
-                onKeyDown={handleKeyDown}
-                className="h-9 w-full rounded-lg border border-input bg-background pl-7 pr-3 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
-              />
-              {destAC.loading && (
-                <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
-                  <div className="h-3 w-3 animate-spin rounded-full border-2 border-muted-foreground border-t-transparent" />
-                </div>
-              )}
-              {destAC.isOpen && (
-                <div className="absolute top-full left-0 right-0 mt-1 z-50 rounded-lg border border-border bg-card shadow-xl overflow-hidden">
-                  {destAC.suggestions.map((s, i) => (
-                    <button
-                      key={i}
-                      onClick={() => destAC.select(s)}
-                      className="w-full px-3 py-2 text-left text-xs hover:bg-accent transition-colors border-b border-border last:border-0"
-                    >
-                      {s.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <button
-              onClick={handlePlanRoute}
-              disabled={routeLoading || !originAC.selected || !destAC.selected}
-              className="h-9 rounded-lg bg-primary px-4 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50 shrink-0"
-            >
-              {routeLoading ? 'Loading...' : 'Plan Route'}
-            </button>
-            {(origin || originAC.query) && (
+            <div className="flex gap-2">
               <button
-                onClick={handleClear}
-                className="h-9 rounded-lg border border-border px-3 text-xs text-muted-foreground hover:bg-accent transition-colors shrink-0"
+                onClick={handlePlanRoute}
+                disabled={routeLoading || !originAC.selected || !destAC.selected}
+                className="h-9 rounded-lg bg-primary px-6 text-xs font-medium text-primary-foreground hover:bg-primary/90 transition-colors disabled:opacity-50"
               >
-                Clear
+                {routeLoading ? 'Calculating...' : 'Plan Route'}
               </button>
-            )}
+              {(origin || originAC.query) && (
+                <button
+                  onClick={handleClear}
+                  className="h-9 rounded-lg border border-border px-3 text-xs text-muted-foreground hover:bg-accent transition-colors"
+                >
+                  Clear
+                </button>
+              )}
+            </div>
           </div>
           {geocodeError && <p className="mt-2 text-xs text-red-400">{geocodeError}</p>}
           {routeError && <p className="mt-2 text-xs text-red-400">Failed to calculate route. Try different locations.</p>}
@@ -230,15 +252,9 @@ export function RoutePlanner() {
           </div>
         )}
 
-        {/* Route map + camera list */}
+        {/* Camera list + Route map */}
         {routeData && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Suspense fallback={<div className="h-[50vh] animate-pulse rounded-lg bg-muted" />}>
-              <RouteMapView
-                routeCoords={routeData.geometry.coordinates}
-                cameras={routeCameras}
-              />
-            </Suspense>
             <div className="max-h-[50vh] overflow-y-auto rounded-lg border border-border bg-card">
               <div className="sticky top-0 bg-card/95 backdrop-blur-sm border-b border-border px-3 py-2">
                 <h3 className="text-xs font-semibold">
@@ -250,6 +266,12 @@ export function RoutePlanner() {
               </div>
               <RouteCameraList cameras={routeCameras} routeDuration={routeDuration} />
             </div>
+            <Suspense fallback={<div className="h-[50vh] animate-pulse rounded-lg bg-muted" />}>
+              <RouteMapView
+                routeCoords={routeData.geometry.coordinates}
+                cameras={routeCameras}
+              />
+            </Suspense>
           </div>
         )}
 

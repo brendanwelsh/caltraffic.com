@@ -61,11 +61,13 @@ export function RouteMapView({ routeCoords, cameras, onCameraClick }: RouteMapVi
       iconAnchor: [7, 7],
     });
 
-    L.marker(latLngs[0], { icon: startIcon }).addTo(mapInstance.current);
-    L.marker(latLngs[latLngs.length - 1], { icon: endIcon }).addTo(mapInstance.current);
+    const startMarker = L.marker(latLngs[0], { icon: startIcon }).addTo(mapInstance.current);
+    const endMarker = L.marker(latLngs[latLngs.length - 1], { icon: endIcon }).addTo(mapInstance.current);
 
     return () => {
       polyline.remove();
+      startMarker.remove();
+      endMarker.remove();
     };
   }, [routeCoords]);
 

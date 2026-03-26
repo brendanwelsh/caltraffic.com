@@ -68,6 +68,21 @@ export function RouteCameraList({ cameras, routeDuration }: RouteCameraListProps
                     {camera.nearbyIncidents.map((inc) => inc.type).join(', ')}
                   </p>
                 )}
+                {camera.nearbyCMS.length > 0 && (
+                  <div className="mt-1">
+                    {camera.nearbyCMS.map((cms) => {
+                      const lines = [...cms.phase1Lines, ...(cms.phase2Lines ?? [])].filter((l) => l.trim());
+                      if (lines.length === 0) return null;
+                      return (
+                        <div key={cms.id} className="rounded bg-amber-500/10 border border-amber-500/20 px-1.5 py-0.5 mt-0.5">
+                          {lines.map((line, li) => (
+                            <p key={li} className="text-[9px] font-mono font-bold text-amber-400 leading-tight">{line}</p>
+                          ))}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             </button>
           </div>

@@ -1,5 +1,5 @@
 // src/hooks/use-route-planner.ts
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import useSWR from 'swr';
 import { useCameras } from './use-cameras';
 import { useCMS } from './use-cms';
@@ -56,21 +56,22 @@ export function useRoutePlanner() {
   const { data: allClosures = [] } = useClosures(null);
   const { data: allTravelTimes = [] } = useTravelTimes(null);
 
-  // Match cameras to route
-  const routeCameras: RouteCamera[] = routeData?.geometry?.coordinates
-    ? matchCamerasToRoute(routeData.geometry.coordinates, allCameras)
-        .map((match): RouteCamera => ({
-          ...match.camera,
-          nearbyCMS: matchCMSToCamera(match.camera, allCMS),
-          nearbyIncidents: matchIncidentsToCamera(match.camera, allIncidents),
-          weatherAlerts: [],
-          chainControls: matchChainControlToCamera(match.camera, allChainControls),
-          nearbyClosures: matchClosuresToCamera(match.camera, allClosures),
-          travelTime: matchTravelTimeToCamera(match.camera, allTravelTimes),
-          distanceFromRoute: match.distanceFromRoute,
-          progressAlongRoute: match.progressAlongRoute,
-        }))
-    : [];
+  // Match cameras to route (memoized — haversine calculations are expensive)
+  const routeCameras: RouteCamera[] = useMemo(() => {
+    if (!routeData?.geometry?.coordinates || allCameras.length === 0) return [];
+    return matchCamerasToRoute(routeData.geometry.coordinates, allCameras)
+      .map((match): RouteCamera => ({
+        ...match.camera,
+        nearbyCMS: matchCMSToCamera(match.camera, allCMS),
+        nearbyIncidents: matchIncidentsToCamera(match.camera, allIncidents),
+        weatherAlerts: [],
+        chainControls: matchChainControlToCamera(match.camera, allChainControls),
+        nearbyClosures: matchClosuresToCamera(match.camera, allClosures),
+        travelTime: matchTravelTimeToCamera(match.camera, allTravelTimes),
+        distanceFromRoute: match.distanceFromRoute,
+        progressAlongRoute: match.progressAlongRoute,
+      }));
+  }, [routeData, allCameras, allCMS, allIncidents, allChainControls, allClosures, allTravelTimes]);
 
   const clearRoute = useCallback(() => {
     setOrigin(null);
