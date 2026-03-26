@@ -128,7 +128,16 @@ export function useRoutePlanner() {
     if (!origin || !destination || allCameras.length === 0) return [];
     if (!osrmRoute?.geometry?.coordinates) return []; // Wait for real route
 
-    const matches = matchCamerasToRoute(osrmRoute.geometry.coordinates, allCameras, 0.8);
+    // Tight matching: 0.3km for short routes, 0.5km for longer ones
+    const routeLen = osrmRoute.distance ? osrmRoute.distance / 1000 : 50;
+    const tolerance = routeLen < 50 ? 0.3 : 0.5;
+    const rawMatches = matchCamerasToRoute(osrmRoute.geometry.coordinates, allCameras, tolerance);
+    // Convert RouteCameraMatch to the format enrichAndSort expects
+    const matches = rawMatches.map((m) => ({
+      camera: m.camera,
+      dist: m.distanceFromRoute,
+      progress: m.progressAlongRoute,
+    }));
     return enrichAndSort(matches, allCMS, allIncidents, allChainControls, allClosures, allTravelTimes);
   }, [origin, destination, allCameras, osrmRoute, allCMS, allIncidents, allChainControls, allClosures, allTravelTimes]);
 
@@ -136,8 +145,10 @@ export function useRoutePlanner() {
     ? haversineDistance(origin.lat, origin.lon, destination.lat, destination.lon) * 1000
     : 0;
 
-  const routeDistance = osrmRoute?.distance ?? straightLineDistance * 1.3;
-  const routeDuration = osrmRoute?.duration ?? (straightLineDistance > 0 ? (straightLineDistance * 1.3) / (105 * 1000 / 3600) : 0);
+  const rawDistance = osrmRoute?.distance ?? straightLineDistance * 1.3;
+  const rawDuration = osrmRoute?.duration ?? (straightLineDistance > 0 ? (straightLineDistance * 1.3) / (105 * 1000 / 3600) : 0);
+  const routeDistance = isNaN(rawDistance) ? 0 : rawDistance;
+  const routeDuration = isNaN(rawDuration) ? 0 : rawDuration;
 
   const clearRoute = useCallback(() => {
     setOrigin(null);

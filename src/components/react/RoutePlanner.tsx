@@ -15,12 +15,12 @@ interface GeocodeSuggestion {
   label: string;
 }
 
-function useGeocodeAutocomplete() {
-  const [query, setQuery] = useState('');
+function useGeocodeAutocomplete(initial?: GeocodeSuggestion | null) {
+  const [query, setQuery] = useState(initial?.label ?? '');
   const [suggestions, setSuggestions] = useState<GeocodeSuggestion[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [selected, setSelected] = useState<GeocodeSuggestion | null>(null);
+  const [selected, setSelected] = useState<GeocodeSuggestion | null>(initial ?? null);
   const timerRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(() => {
@@ -146,8 +146,9 @@ export function RoutePlanner() {
     routeDistance, routeDuration,
   } = useRoutePlanner();
 
-  const originAC = useGeocodeAutocomplete();
-  const destAC = useGeocodeAutocomplete();
+  const defaultPreset = PRESET_ROUTES.find((r) => r.label === 'Folsom → Sacramento')!;
+  const originAC = useGeocodeAutocomplete(defaultPreset.from);
+  const destAC = useGeocodeAutocomplete(defaultPreset.to);
   const [geocodeError, setGeocodeError] = useState<string | null>(null);
   const [routeView, setRouteView] = useState<'list' | 'grid'>('list');
   const [showMap, setShowMap] = useState(true);
@@ -178,20 +179,12 @@ export function RoutePlanner() {
     setGeocodeError(null);
   }, [clearRoute, originAC.clear, destAC.clear]);
 
-  // Auto-load Folsom → Sacramento preset on mount if no route is set
-  const hasAutoLoaded = useRef(false);
+  // Auto-load default route on mount
   useEffect(() => {
-    if (hasAutoLoaded.current) return;
-    if (origin || destination) return;
-    hasAutoLoaded.current = true;
-    const preset = PRESET_ROUTES.find((r) => r.label === 'Folsom → Sacramento');
-    if (preset) {
-      originAC.select(preset.from);
-      destAC.select(preset.to);
-      setOrigin(preset.from);
-      setDestination(preset.to);
-    }
-  }, [origin, destination, originAC, destAC, setOrigin, setDestination]);
+    setOrigin(defaultPreset.from);
+    setDestination(defaultPreset.to);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const [dismissSampleBanner, setDismissSampleBanner] = useState(false);
   const isDefaultRoute = origin?.label === 'Folsom' && destination?.label === 'Sacramento';
