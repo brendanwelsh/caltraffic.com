@@ -66,39 +66,56 @@ function FeedCard({ camera, routeDuration, isExpanded, onToggle }: {
           <StableFeed camera={camera} />
         </div>
         <div className="flex-1 p-3 flex flex-col min-w-0">
+          {/* Header */}
           <div className="flex items-center gap-2">
-            <RouteShield route={camera.route} size="md" />
-            <span className="text-sm font-semibold">{camera.direction}</span>
-            {camera.hasVideo && camera.streamUrl && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase text-green-400">
-                <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
-                live
-              </span>
-            )}
+            <RouteShield route={camera.route} size="lg" />
+            <div>
+              <span className="text-base font-bold">{camera.direction}</span>
+              {camera.hasVideo && camera.streamUrl && (
+                <span className="ml-2 inline-flex items-center gap-1 text-[10px] font-bold uppercase text-green-400">
+                  <span className="h-2 w-2 rounded-full bg-green-400 animate-pulse" />
+                  live
+                </span>
+              )}
+            </div>
             <button
               onClick={(e) => { e.stopPropagation(); toggleFavorite(camera.id); }}
-              className={`ml-auto p-1 rounded-md transition-colors ${favorite ? 'text-yellow-400' : 'text-muted-foreground/30 hover:text-muted-foreground'}`}
+              className={`ml-auto p-1.5 rounded-md transition-colors ${favorite ? 'text-yellow-400' : 'text-muted-foreground/30 hover:text-muted-foreground'}`}
             >
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill={favorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill={favorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
                 <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
               </svg>
             </button>
           </div>
-          <p className="text-sm font-medium mt-1 leading-snug">{camera.location || 'Unknown'}</p>
-          <p className="text-[10px] text-muted-foreground">
-            {camera.city}{camera.county ? `, ${camera.county}` : ''} · D{camera.district} · PM {camera.postmile.toFixed(1)} · ~{etaMinutes}m
+
+          {/* Location — bigger */}
+          <p className="text-base font-semibold mt-2 leading-snug">{camera.location || 'Unknown'}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {camera.city}{camera.county ? `, ${camera.county}` : ''}
           </p>
-          <div className="mt-1 flex gap-2">
-            <a href={`https://www.google.com/maps?q=${camera.latitude},${camera.longitude}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 text-[10px] text-primary hover:underline">
-              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
-              Maps
+
+          {/* Details grid */}
+          <div className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 text-xs">
+            <div><span className="text-muted-foreground">District:</span> <span className="font-medium">{camera.district}</span></div>
+            <div><span className="text-muted-foreground">Postmile:</span> <span className="font-medium">{camera.postmile.toFixed(1)}</span></div>
+            <div><span className="text-muted-foreground">ETA:</span> <span className="font-medium">~{etaMinutes} min</span></div>
+            <div><span className="text-muted-foreground">Coords:</span> <span className="font-medium">{camera.latitude.toFixed(4)}, {camera.longitude.toFixed(4)}</span></div>
+          </div>
+
+          {/* Links */}
+          <div className="mt-2 flex gap-3">
+            <a href={`https://www.google.com/maps?q=${camera.latitude},${camera.longitude}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1.5 rounded-md border border-input px-2.5 py-1 text-[11px] hover:bg-accent transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+              Google Maps
             </a>
-            <a href={`/camera/${camera.id}`} onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 text-[10px] text-primary hover:underline">
-              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
-              Camera
+            <a href={`/camera/${camera.id}`} onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1.5 rounded-md border border-input px-2.5 py-1 text-[11px] hover:bg-accent transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+              Camera Page
             </a>
           </div>
-          <div className="mt-1.5 space-y-1">
+
+          {/* Conditions */}
+          <div className="mt-auto pt-2 space-y-1.5">
             <ConditionBadges chainControls={camera.chainControls} closures={camera.nearbyClosures} travelTime={camera.travelTime} />
             {camera.nearbyIncidents.length > 0 && (
               <div className="flex items-start gap-1.5">

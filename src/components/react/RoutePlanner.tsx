@@ -252,8 +252,17 @@ export function RoutePlanner() {
           </div>
         )}
 
+        {/* Loading state — waiting for route + cameras */}
+        {hasRoute && routeLoading && (
+          <div className="flex flex-col items-center justify-center py-20 text-center">
+            <div className="h-8 w-8 animate-spin rounded-full border-3 border-primary border-t-transparent mb-4" />
+            <p className="text-sm font-medium">Finding route and cameras...</p>
+            <p className="mt-1 text-xs text-muted-foreground">Calculating the best path and locating cameras along it</p>
+          </div>
+        )}
+
         {/* Main content: Feed (left) + Map (right) */}
-        {hasRoute && routeCameras.length > 0 && (
+        {hasRoute && !routeLoading && routeCameras.length > 0 && (
           <div className="flex gap-4" style={{ height: 'calc(100vh - 180px)' }}>
             {/* Left: scrollable feed timeline */}
             <div className="flex-1 overflow-y-auto pr-1">

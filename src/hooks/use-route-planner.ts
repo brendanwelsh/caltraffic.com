@@ -123,22 +123,12 @@ export function useRoutePlanner() {
   const { data: allClosures = [] } = useClosures(null);
   const { data: allTravelTimes = [] } = useTravelTimes(null);
 
-  // Two-phase matching:
-  // 1. Instant: corridor match (shows cameras immediately)
-  // 2. When OSRM arrives: re-match against real road polyline (much more accurate)
+  // Wait for OSRM route before matching — no corridor fallback (avoids showing wrong cameras)
   const routeCameras: RouteCamera[] = useMemo(() => {
     if (!origin || !destination || allCameras.length === 0) return [];
+    if (!osrmRoute?.geometry?.coordinates) return []; // Wait for real route
 
-    let matches: { camera: Camera; dist: number; progress: number }[];
-
-    if (osrmRoute?.geometry?.coordinates) {
-      // OSRM route available — match against real road polyline (tight: 0.8km)
-      matches = matchCamerasToRoute(osrmRoute.geometry.coordinates, allCameras, 0.8);
-    } else {
-      // Instant corridor fallback
-      matches = corridorMatch(origin, destination, allCameras);
-    }
-
+    const matches = matchCamerasToRoute(osrmRoute.geometry.coordinates, allCameras, 0.8);
     return enrichAndSort(matches, allCMS, allIncidents, allChainControls, allClosures, allTravelTimes);
   }, [origin, destination, allCameras, osrmRoute, allCMS, allIncidents, allChainControls, allClosures, allTravelTimes]);
 
@@ -164,7 +154,7 @@ export function useRoutePlanner() {
     routeLineLoading,
     hasRoute: !!(origin && destination),
     routeCameras,
-    routeLoading: camerasLoading,
+    routeLoading: !!(origin && destination) && (camerasLoading || routeLineLoading),
     routeDistance,
     routeDuration,
   };
