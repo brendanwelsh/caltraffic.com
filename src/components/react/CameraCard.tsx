@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { RouteShield } from './RouteShield';
-import { ConditionBadges } from './ConditionBadges';
+import { ConditionIcons } from './ConditionIcons';
 import { cn } from '@/lib/utils';
 import { markUnavailable } from '@/stores/filters';
 import type { EnrichedCamera } from '@/hooks/use-enriched-cameras';
@@ -87,16 +87,11 @@ export function CameraCard({ camera, onClick, isFavorite = false, onToggleFavori
     markUnavailable(camera.id);
   }, [camera.id]);
 
-  const hasIncidents = camera.nearbyIncidents.length > 0;
-
   return (
     <div
       ref={containerRef}
       className={cn(
-        'group relative cursor-pointer overflow-hidden rounded-xl border bg-card transition-all hover:shadow-lg',
-        hasIncidents
-          ? 'border-red-500/30 hover:border-red-500/50'
-          : 'border-border/60 hover:border-primary/40',
+        'group relative cursor-pointer overflow-hidden rounded-xl border border-border/60 bg-card transition-all hover:shadow-lg hover:border-primary/40',
         isPlaceholder && 'opacity-60',
       )}
       onClick={() => onClick?.(camera)}
@@ -130,15 +125,20 @@ export function CameraCard({ camera, onClick, isFavorite = false, onToggleFavori
           <div className="absolute inset-0 animate-pulse bg-muted/30" />
         )}
 
-        {/* Subtle gradient for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
+        {/* LIVE indicator — small red dot, top-left */}
+        {camera.hasVideo && imageLoaded && !isPlaceholder && (
+          <div className="absolute top-1.5 left-1.5 flex items-center gap-1 rounded-full bg-black/50 px-1.5 py-0.5 backdrop-blur-sm">
+            <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
+            <span className="text-[9px] font-bold text-white/90">LIVE</span>
+          </div>
+        )}
 
         {/* Favorite button */}
         {onToggleFavorite && (
           <button
             onClick={(e) => { e.stopPropagation(); onToggleFavorite(camera.id); }}
             className={cn(
-              'absolute top-1.5 right-1.5 z-10 rounded-full p-1 transition-all',
+              'absolute bottom-1.5 right-1.5 z-10 rounded-full p-1 transition-all',
               isFavorite
                 ? 'bg-yellow-500/30 text-yellow-400 backdrop-blur-sm'
                 : 'text-white/30 opacity-0 group-hover:opacity-100 hover:text-white/60'
@@ -150,21 +150,6 @@ export function CameraCard({ camera, onClick, isFavorite = false, onToggleFavori
             </svg>
           </button>
         )}
-
-        {/* Top-left: minimal status indicators */}
-        <div className="absolute top-1.5 left-1.5 flex items-center gap-1">
-          {camera.hasVideo && (
-            <span className="inline-flex items-center gap-0.5 rounded px-1 py-px text-[8px] font-bold uppercase tracking-wider text-green-300/90 bg-black/40 backdrop-blur-sm">
-              <span className="h-1 w-1 rounded-full bg-green-400 animate-pulse" />
-              live
-            </span>
-          )}
-          {hasIncidents && (
-            <span className="inline-flex items-center justify-center h-4 w-4 rounded bg-red-500/30 backdrop-blur-sm" title={`${camera.nearbyIncidents.length} incident(s)`}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#f87171" strokeWidth="3"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/></svg>
-            </span>
-          )}
-        </div>
 
         {/* Placeholder overlay */}
         {isPlaceholder && (
@@ -178,7 +163,7 @@ export function CameraCard({ camera, onClick, isFavorite = false, onToggleFavori
       <div className="flex items-center gap-2 px-2.5 py-1.5">
         <RouteShield route={camera.route} size="md" />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[13px] font-semibold leading-tight">
+          <p className="truncate text-sm font-semibold leading-tight">
             {camera.location || camera.city}
           </p>
           <p className="truncate text-[10px] text-muted-foreground/80">
@@ -186,12 +171,12 @@ export function CameraCard({ camera, onClick, isFavorite = false, onToggleFavori
             {camera.direction && camera.city && ' \u2022 '}
             {camera.city}
           </p>
-          <ConditionBadges
-            chainControls={camera.chainControls}
-            closures={camera.nearbyClosures}
-            travelTime={camera.travelTime}
-          />
         </div>
+        <ConditionIcons
+          incidents={camera.nearbyIncidents}
+          chainControls={camera.chainControls}
+          travelTime={camera.travelTime}
+        />
       </div>
     </div>
   );
