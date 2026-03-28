@@ -3,7 +3,7 @@ import { VideoPlayer } from './VideoPlayer';
 import { CMSSign } from './CMSSign';
 import { CameraDetailDialog } from './CameraDetailDialog';
 import { RouteShield } from './RouteShield';
-import { ConditionBadges } from './ConditionBadges';
+import { ConditionIcons } from './ConditionIcons';
 import { useFavorites } from '@/hooks/use-favorites';
 import type { RouteCamera } from '@/hooks/use-route-planner';
 
@@ -34,11 +34,12 @@ interface RouteLiveViewProps {
 }
 
 /** Mount video once seen, keep mounted. Static images always show. */
-function StableFeed({ camera, onClick }: { camera: RouteCamera; onClick?: () => void }) {
+function StableFeed({ camera, onClick, forcePlay }: { camera: RouteCamera; onClick?: () => void; forcePlay?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const [hasBeenSeen, setHasBeenSeen] = useState(false);
 
   useEffect(() => {
+    if (forcePlay) { setHasBeenSeen(true); return; }
     if (!ref.current || !camera.streamUrl || hasBeenSeen) return;
     const observer = new IntersectionObserver(
       ([entry]) => { if (entry.isIntersecting) { setHasBeenSeen(true); observer.disconnect(); } },
@@ -46,16 +47,16 @@ function StableFeed({ camera, onClick }: { camera: RouteCamera; onClick?: () => 
     );
     observer.observe(ref.current);
     return () => observer.disconnect();
-  }, [camera.streamUrl, hasBeenSeen]);
+  }, [camera.streamUrl, hasBeenSeen, forcePlay]);
 
   return (
-    <div ref={ref} onClick={(e) => { if (onClick) { e.stopPropagation(); onClick(); } }} className={onClick ? 'cursor-pointer' : undefined}>
+    <div ref={ref} onClick={(e) => { if (onClick) { e.stopPropagation(); onClick(); } }} className={`h-full ${onClick ? 'cursor-pointer' : ''}`}>
       {hasBeenSeen && camera.streamUrl ? (
-        <div className="aspect-video overflow-hidden bg-black">
+        <div className="h-full overflow-hidden bg-black">
           <VideoPlayer streamUrl={camera.streamUrl} imageUrl={camera.imageUrl} cameraName={camera.location} hideControls />
         </div>
       ) : (
-        <div className="aspect-video overflow-hidden bg-black">
+        <div className="h-full overflow-hidden bg-black">
           <img src={camera.imageUrl} alt={camera.location} className="w-full h-full object-cover" loading="lazy" />
         </div>
       )}
@@ -63,102 +64,153 @@ function StableFeed({ camera, onClick }: { camera: RouteCamera; onClick?: () => 
   );
 }
 
-function FeedCard({ camera, routeDuration, onCameraFocus, onMarkPassed, onOpenDetail }: {
+/** Full-width CMS sign card — displayed as its own entity in the feed */
+function CMSFeedCard({ cms, camera }: { cms: any; camera: RouteCamera }) {
+  const allBlank = cms.phase1Lines.every((l: string) => !l.trim()) && (!cms.phase2Lines || cms.phase2Lines.every((l: string) => !l.trim()));
+  if (allBlank) return null;
+
+  return (
+    <div className="rounded-xl border border-amber-600/30 overflow-hidden bg-card hover:shadow-md transition-shadow">
+      <div className="flex flex-col md:flex-row md:h-[200px]">
+        {/* Sign display — fills the entire left area */}
+        <div className="md:w-[35%] shrink-0 bg-black flex items-center justify-center rounded-md border-2 border-amber-700/40 overflow-hidden">
+          <div className="w-full h-full flex flex-col items-center justify-center px-3 py-4">
+            {cms.phase1Lines.map((line: string, i: number) => (
+              <div key={i} className="text-center text-base md:text-lg font-mono font-bold tracking-widest text-amber-400 leading-relaxed uppercase">
+                {line || '\u00A0'}
+              </div>
+            ))}
+            {cms.phase2Lines && cms.phase2Lines.length > 0 && cms.phase2Lines.some((l: string) => l.trim()) && (
+              <>
+                <div className="my-2 w-3/4 border-t border-amber-700/30" />
+                {cms.phase2Lines.map((line: string, i: number) => (
+                  <div key={i} className="text-center text-base md:text-lg font-mono font-bold tracking-widest text-amber-400 leading-relaxed uppercase">
+                    {line || '\u00A0'}
+                  </div>
+                ))}
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Info panel */}
+        <div className="flex-1 min-w-0 flex flex-col p-2.5 md:p-3">
+          <div className="flex items-start justify-between gap-2">
+            <span className="inline-flex items-center gap-1 rounded-md bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 text-xs font-semibold text-amber-400 shrink-0">
+              Highway Sign
+            </span>
+            <RouteShield route={cms.route || camera.route} size="md" />
+          </div>
+
+          <p className="text-sm md:text-base font-bold mt-1.5">{cms.location}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{cms.direction || camera.direction} · {camera.city}</p>
+
+          <div className="flex-1" />
+
+          <div className="mt-auto pt-1.5 border-t border-border/30 flex items-center gap-1">
+            <a href={`https://www.google.com/maps?q=${cms.latitude},${cms.longitude}`} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[10px] text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+              <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
+              Maps
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FeedCard({ camera, routeDuration, cameraIndex, forcePlay, onCameraFocus, onMarkPassed, onOpenDetail }: {
   camera: RouteCamera;
   routeDuration: number;
+  cameraIndex?: number;
+  forcePlay?: boolean;
   onCameraFocus?: () => void;
   onMarkPassed?: () => void;
   onOpenDetail?: () => void;
 }) {
   const { isFavorite, toggle: toggleFavorite } = useFavorites();
   const etaMinutes = routeDuration > 0 && !isNaN(routeDuration) ? Math.round(camera.progressAlongRoute * (routeDuration / 60)) : null;
-  const hasIssues = camera.nearbyIncidents.length > 0 || camera.chainControls.length > 0 || camera.nearbyClosures.length > 0;
   const favorite = isFavorite(camera.id);
 
   return (
-    <div id={`feed-${camera.id}`} className={`rounded-xl border overflow-hidden bg-card transition-shadow flex-1 min-w-0 hover:shadow-md ${hasIssues ? 'border-red-500/30' : 'border-border/60'}`}>
-
-      {/* Mobile: stacked. Desktop: side by side */}
+    <div id={`feed-${camera.id}`} className="rounded-xl border border-border/60 overflow-hidden bg-card transition-shadow hover:shadow-md">
       <div className="flex flex-col md:flex-row">
-        {/* Feed — 35% on desktop so info panel has room to fill */}
-        <div className="md:w-[35%] shrink-0">
-          <StableFeed camera={camera} onClick={onOpenDetail} />
+        {/* Feed — 35% on desktop, fixed aspect ratio */}
+        <div className="md:w-[35%] shrink-0 overflow-hidden relative">
+          <div className="aspect-video md:aspect-auto md:h-[180px]">
+            <StableFeed camera={camera} onClick={onOpenDetail} forcePlay={forcePlay} />
+          </div>
+          {camera.hasVideo && camera.streamUrl && (
+            <span className="absolute top-1.5 right-1.5 flex items-center gap-1 rounded-md bg-black/70 px-1.5 py-0.5">
+              <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
+              <span className="text-[9px] font-bold text-white uppercase">Live</span>
+            </span>
+          )}
+          {cameraIndex != null && (
+            <span className="absolute top-1.5 left-1.5 w-7 h-7 rounded-full bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center shadow-md">
+              {cameraIndex}
+            </span>
+          )}
         </div>
 
-        {/* Info panel — clean, modern layout */}
-        <div className="flex-1 p-1.5 md:p-2.5 min-w-0 cursor-pointer" onClick={onCameraFocus}>
-          {/* Top: Location name + ETA badge */}
-          <div className="flex items-start gap-1.5 md:gap-2">
-            <div className="min-w-0 flex-1">
-              <p className="text-xs md:text-sm font-bold leading-tight truncate">{camera.location || camera.city}</p>
-              <div className="flex items-center gap-1 md:gap-1.5 mt-0.5">
-                <RouteShield route={camera.route} size="md" />
-                <span className="text-[10px] md:text-[11px] text-muted-foreground">{camera.direction}</span>
-                <span className="text-[9px] md:text-[10px] text-muted-foreground">· {camera.city}</span>
-              </div>
-            </div>
-            {/* ETA badge */}
-            <div className="flex flex-col items-end gap-1 shrink-0">
-              {etaMinutes != null && (
-                <span className="rounded-md bg-primary/10 border border-primary/20 px-2 py-0.5 text-[11px] font-semibold text-primary">
-                  {formatDuration(etaMinutes)}
-                </span>
-              )}
-            </div>
+        {/* Info panel — click opens detail popup */}
+        <div className="flex-1 min-w-0 flex flex-col p-2.5 md:p-3 cursor-pointer" onClick={onOpenDetail}>
+          {/* Top: route shield + camera name + condition icons */}
+          <div className="flex items-start gap-2">
+            <RouteShield route={camera.route} size="md" />
+            <h3 className="text-sm md:text-lg font-bold leading-tight truncate flex-1">{camera.location || camera.city}</h3>
+            <ConditionIcons
+              incidents={camera.nearbyIncidents}
+              chainControls={camera.chainControls}
+              travelTime={camera.travelTime}
+            />
           </div>
+          <p className="text-xs text-muted-foreground mt-0.5">{camera.direction} · {camera.city}, {camera.county} Co.</p>
 
-          {/* Details row */}
-          <div className="mt-1.5 text-[10px] text-muted-foreground">
-            {camera.county} County · District {camera.district} · PM {camera.postmile.toFixed(1)}
-          </div>
-
-          {/* Conditions */}
-          <div className="mt-1 md:mt-1.5 space-y-1 md:space-y-1.5">
-            <ConditionBadges chainControls={camera.chainControls} closures={camera.nearbyClosures} travelTime={camera.travelTime} />
-
-            {camera.nearbyIncidents.length > 0 && (
-              <div className="flex items-start gap-1.5 rounded-md bg-red-500/5 border border-red-500/20 p-1.5">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" className="shrink-0 mt-0.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/></svg>
-                <div>
-                  <span className="text-xs text-red-400 font-semibold">{camera.nearbyIncidents.map((inc) => inc.type).join(', ')}</span>
-                  {camera.nearbyIncidents[0]?.description && (
-                    <p className="text-[10px] text-red-400/70 mt-0.5">{camera.nearbyIncidents[0].description}</p>
-                  )}
-                </div>
-              </div>
+          {/* ETA + distance side by side */}
+          <div className="flex items-center gap-2 mt-1.5">
+            {etaMinutes != null && (
+              <span className="rounded-md bg-primary/10 border border-primary/20 px-2 py-0.5 text-[10px] font-semibold text-primary shrink-0">
+                {formatDuration(etaMinutes)} away
+              </span>
             )}
-
-            {/* CMS signs always shown */}
-            {camera.nearbyCMS.slice(0, 2).map((cms) => (
-              <CMSSign key={cms.id} phase1Lines={cms.phase1Lines} phase2Lines={cms.phase2Lines} location={cms.location} />
-            ))}
+            {camera.distanceToNext != null && (
+              <span className="text-[10px] text-muted-foreground">
+                {(() => {
+                  const miles = camera.distanceToNext * 0.621371;
+                  return miles < 0.1 ? `${Math.round(miles * 5280)} ft to next` : `${miles.toFixed(1)} mi to next`;
+                })()}
+              </span>
+            )}
           </div>
 
-          {/* Bottom: Actions bar */}
-          <div className="mt-1.5 md:mt-2 pt-1 md:pt-1.5 border-t border-border/30 flex items-center gap-1">
-            <a href={`https://www.google.com/maps?q=${camera.latitude},${camera.longitude}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+          <div className="flex-1" />
+
+          {/* Bottom: action buttons */}
+          <div className="mt-auto pt-1.5 border-t border-border/30 flex items-center gap-1">
+            <a href={`https://www.google.com/maps?q=${camera.latitude},${camera.longitude}`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[10px] text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
-              Google Maps
+              Maps
             </a>
-            <a href={`/camera/${camera.id}`} onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+            <a href={`/camera/${camera.id}`} onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[10px] text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
               <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
               Details
             </a>
             {onCameraFocus && (
-              <button onClick={(e) => { e.stopPropagation(); onCameraFocus(); }} className="inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px] text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
+              <button onClick={(e) => { e.stopPropagation(); onCameraFocus(); }} className="inline-flex items-center gap-1 rounded-md px-1.5 py-1 text-[10px] text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
                 <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M20 10c0 4.993-5.539 10.193-7.399 11.799a1 1 0 0 1-1.202 0C9.539 20.193 4 14.993 4 10a8 8 0 0 1 16 0"/><circle cx="12" cy="10" r="3"/></svg>
-                Show on Map
+                Zoom on Map
               </button>
             )}
             <span className="flex-1" />
-            <div className="flex items-center gap-0">
+            <div className="flex items-center gap-0.5">
               {onMarkPassed && (
-                <button onClick={(e) => { e.stopPropagation(); onMarkPassed(); }} className="p-1 rounded-md text-muted-foreground/30 hover:text-green-400 transition-colors" title="Mark as passed">
-                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6 9 17l-5-5"/></svg>
+                <button onClick={(e) => { e.stopPropagation(); onMarkPassed(); }} className="p-1.5 rounded-md text-muted-foreground/40 hover:text-green-400 hover:bg-green-500/10 transition-colors" title="Mark as passed">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M20 6 9 17l-5-5"/></svg>
                 </button>
               )}
-              <button onClick={(e) => { e.stopPropagation(); toggleFavorite(camera.id); }} className={`p-1 rounded-md transition-colors ${favorite ? 'text-yellow-400' : 'text-muted-foreground/30 hover:text-muted-foreground'}`} title="Favorite">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill={favorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+              <button onClick={(e) => { e.stopPropagation(); toggleFavorite(camera.id); }} className={`p-1.5 rounded-md transition-colors ${favorite ? 'text-yellow-400' : 'text-muted-foreground/40 hover:text-muted-foreground hover:bg-accent'}`} title="Favorite">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill={favorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
                   <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
                 </svg>
               </button>
@@ -166,7 +218,6 @@ function FeedCard({ camera, routeDuration, onCameraFocus, onMarkPassed, onOpenDe
           </div>
         </div>
       </div>
-
     </div>
   );
 }
@@ -186,11 +237,12 @@ function MiniCard({ camera, routeDuration }: { camera: RouteCamera; routeDuratio
 
 export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLocationChange }: RouteLiveViewProps) {
   const [passedIds, setPassedIds] = useState<Set<string>>(new Set());
+  const [playAll, setPlayAll] = useState(false);
   const [tracking, setTracking] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [trackingError, setTrackingError] = useState<string | null>(null);
   const [selectedCamera, setSelectedCamera] = useState<RouteCamera | null>(null);
-  const [hideUnavailable, setHideUnavailable] = useState(false);
+  const [hideUnavailable, setHideUnavailable] = useState(true); // Default: hide unavailable/construction
   const watchIdRef = useRef<number | null>(null);
 
   const sorted = [...cameras].sort((a, b) => a.progressAlongRoute - b.progressAlongRoute);
@@ -215,7 +267,7 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLoc
 
   // Auto-mark cameras as passed when tracking
   useEffect(() => {
-    if (!tracking || !userLocation || !userProgress) return;
+    if (!tracking || !userLocation || userProgress === null) return;
     const newPassed = new Set(passedIds);
     let changed = false;
     for (const cam of sorted) {
@@ -228,7 +280,7 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLoc
       }
     }
     if (changed) setPassedIds(newPassed);
-  }, [userLocation, userProgress, tracking, sorted]);
+  }, [userLocation, userProgress, tracking, sorted, passedIds]);
 
   const startTracking = useCallback(() => {
     if (!navigator.geolocation) {
@@ -237,6 +289,18 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLoc
     }
     setTrackingError(null);
     setTracking(true);
+
+    // Get initial position first (faster feedback), then start watching
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const loc = { lat: pos.coords.latitude, lon: pos.coords.longitude };
+        setUserLocation(loc);
+        onUserLocationChange?.(loc);
+      },
+      () => {}, // silently ignore — watchPosition will handle errors
+      { enableHighAccuracy: false, timeout: 5000 },
+    );
+
     watchIdRef.current = navigator.geolocation.watchPosition(
       (pos) => {
         const loc = { lat: pos.coords.latitude, lon: pos.coords.longitude };
@@ -245,13 +309,15 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLoc
       },
       (err) => {
         if (err.code === err.PERMISSION_DENIED) {
-          setTrackingError('Location permission denied');
+          setTrackingError('Location access denied — check browser permissions');
+        } else if (err.code === err.TIMEOUT) {
+          setTrackingError('Location timed out — try again');
         } else {
-          setTrackingError('Unable to get your location');
+          setTrackingError('Unable to get location');
         }
         setTracking(false);
       },
-      { enableHighAccuracy: true, maximumAge: 5000, timeout: 15000 },
+      { enableHighAccuracy: true, maximumAge: 10000, timeout: 30000 },
     );
   }, [onUserLocationChange]);
 
@@ -283,8 +349,30 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLoc
     return sorted.length;
   }, [userProgress, sorted]);
 
+  // Estimated time remaining to destination
+  const etaToDestination = useMemo(() => {
+    if (userProgress === null || routeDuration <= 0) return null;
+    const remainingSeconds = routeDuration * (1 - userProgress);
+    const remainingMinutes = Math.round(remainingSeconds / 60);
+    return remainingMinutes;
+  }, [userProgress, routeDuration]);
+
   return (
     <div>
+      {/* Live tracking banner with ETA to destination */}
+      {tracking && userLocation && etaToDestination != null && (
+        <div className="mb-2 flex items-center gap-3 rounded-lg border border-blue-500/30 bg-blue-500/10 px-3 py-2">
+          <span className="h-2.5 w-2.5 rounded-full bg-blue-400 animate-pulse shrink-0" />
+          <div className="flex-1 min-w-0">
+            <span className="text-xs font-semibold text-blue-300">Tracking your location</span>
+          </div>
+          <div className="text-right shrink-0">
+            <span className="text-sm font-bold text-blue-300">{formatDuration(etaToDestination)}</span>
+            <span className="text-[10px] text-blue-400/70 ml-1">to destination</span>
+          </div>
+        </div>
+      )}
+
       <div className="mb-2 flex items-center gap-2 flex-wrap">
         {passedIds.size > 0 && (
           <p className="text-[10px] text-muted-foreground">{passedIds.size} passed</p>
@@ -326,25 +414,42 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLoc
           {hideUnavailable ? 'Show All' : 'Hide N/A'}
         </button>
 
-        {/* Track My Location toggle */}
+        {/* Play All toggle */}
         <button
-          onClick={tracking ? stopTracking : startTracking}
-          className={`inline-flex items-center gap-1.5 rounded-lg border px-2 py-0.5 text-[10px] font-medium transition-colors ${
-            tracking
-              ? 'border-blue-500/50 bg-blue-500/10 text-blue-400'
+          onClick={() => setPlayAll(!playAll)}
+          className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-colors ${
+            playAll
+              ? 'border-green-500/50 bg-green-500/10 text-green-400'
               : 'border-border text-muted-foreground hover:bg-accent'
           }`}
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill={playAll ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          {playAll ? 'Stop All' : 'Play All'}
+        </button>
+
+        {/* Track My Location toggle */}
+        <button
+          onClick={tracking ? stopTracking : startTracking}
+          className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-colors ${
+            tracking && userLocation
+              ? 'border-blue-500/50 bg-blue-500/10 text-blue-400'
+              : tracking && !userLocation
+                ? 'border-blue-500/30 bg-blue-500/5 text-blue-400/60 animate-pulse'
+                : 'border-border text-muted-foreground hover:bg-accent'
+          }`}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="12" cy="12" r="3"/><path d="M12 2v4"/><path d="M12 18v4"/><path d="M2 12h4"/><path d="M18 12h4"/>
           </svg>
-          {tracking ? 'Stop' : 'Track'}
+          {tracking && userLocation ? 'Stop Tracking' : tracking ? 'Locating...' : 'Track My Location'}
         </button>
       </div>
 
       <div className="space-y-2">
         {sorted.map((camera, i) => {
-          const isUnavailable = !camera.imageUrl || camera.isStale;
+          const isUnavailable = !camera.imageUrl || camera.isStale || !camera.inService;
           const isPassed = passedIds.has(camera.id);
           const showUserDotBefore = tracking && userLocation && userDotInsertIndex === i;
 
@@ -392,21 +497,31 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLoc
           }
 
           return (
-            <div key={camera.id}>
+            <div key={camera.id} className="space-y-2">
               {userDotElement}
               <FeedCard
                 camera={camera}
                 routeDuration={routeDuration}
+                cameraIndex={i + 1}
+                forcePlay={playAll}
                 onCameraFocus={() => onCameraFocus?.(camera.id)}
                 onMarkPassed={() => setPassedIds((prev) => new Set(prev).add(camera.id))}
                 onOpenDetail={() => setSelectedCamera(camera)}
               />
 
-              {/* Distance to next available camera */}
+              {/* CMS signs as separate full-width cards */}
+              {camera.nearbyCMS.map((cms) => (
+                <CMSFeedCard key={cms.id} cms={cms} camera={camera} />
+              ))}
+
+              {/* Distance to next available camera (US units) */}
               {camera.distanceToNext != null && i < sorted.length - 1 && (
                 <div className="flex items-center justify-center py-0.5">
-                  <span className="text-[9px] text-muted-foreground/40">
-                    {camera.distanceToNext < 1 ? `${Math.round(camera.distanceToNext * 1000)}m` : `${camera.distanceToNext.toFixed(1)}km`}
+                  <span className="text-[10px] text-muted-foreground">
+                    {(() => {
+                      const miles = camera.distanceToNext * 0.621371;
+                      return miles < 0.1 ? `${Math.round(miles * 5280)} ft` : `${miles.toFixed(1)} mi`;
+                    })()}
                   </span>
                 </div>
               )}
