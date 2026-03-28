@@ -1,8 +1,8 @@
 import { useMemo, useState } from 'react';
 import { FEATURED_CAMERAS, CATEGORY_LABELS } from '@/lib/featured-cameras';
 import type { FeaturedCamera } from '@/lib/featured-cameras';
-import type { Camera } from '@/lib/schemas';
-import { useCameras } from '@/hooks/use-cameras';
+import { useEnrichedCameras } from '@/hooks/use-enriched-cameras';
+import type { EnrichedCamera } from '@/hooks/use-enriched-cameras';
 import { VideoPlayer } from './VideoPlayer';
 
 type Category = FeaturedCamera['category'];
@@ -26,12 +26,14 @@ function RouteShield({ route, direction }: { route: string; direction?: string }
 }
 
 interface MatchedFeatured extends FeaturedCamera {
-  camera: Camera;
+  camera: EnrichedCamera;
 }
 
 export function FeaturedCameras() {
-  const { data: allCameras = [], isLoading } = useCameras(null);
+  const { cameras: allCameras, isLoading } = useEnrichedCameras(null);
   const [activeCategory, setActiveCategory] = useState<Category | 'all'>('all');
+  const [hideStatic, setHideStatic] = useState(false);
+  const [pauseAll, setPauseAll] = useState(false);
 
   const matchedFeatured = useMemo<MatchedFeatured[]>(() => {
     if (!allCameras.length) return [];
@@ -48,10 +50,15 @@ export function FeaturedCameras() {
     }).filter((f): f is MatchedFeatured => f !== null);
   }, [allCameras]);
 
+  const videoCount = matchedFeatured.filter((f) => f.camera.hasVideo).length;
+  const staticCount = matchedFeatured.length - videoCount;
+
   const filtered = useMemo(() => {
-    if (activeCategory === 'all') return matchedFeatured;
-    return matchedFeatured.filter((f) => f.category === activeCategory);
-  }, [matchedFeatured, activeCategory]);
+    let result = matchedFeatured;
+    if (activeCategory !== 'all') result = result.filter((f) => f.category === activeCategory);
+    if (hideStatic) result = result.filter((f) => f.camera.hasVideo);
+    return result;
+  }, [matchedFeatured, activeCategory, hideStatic]);
 
   return (
     <div className="space-y-6">
@@ -63,8 +70,8 @@ export function FeaturedCameras() {
         </p>
       </div>
 
-      {/* Category filter buttons */}
-      <div className="flex flex-wrap gap-2">
+      {/* Category filter buttons + video toggle */}
+      <div className="flex flex-wrap items-center gap-2">
         {ALL_CATEGORIES.map(({ key, label }) => (
           <button
             key={key}
@@ -78,6 +85,30 @@ export function FeaturedCameras() {
             {label}
           </button>
         ))}
+        <span className="mx-1 text-border">|</span>
+        <button
+          onClick={() => setHideStatic(!hideStatic)}
+          className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+            hideStatic
+              ? 'border-green-500/50 bg-green-500/10 text-green-400'
+              : 'border-border bg-muted text-muted-foreground hover:bg-accent'
+          }`}
+        >
+          {hideStatic ? 'Live Only' : 'All Feeds'} ({hideStatic ? videoCount : matchedFeatured.length})
+        </button>
+        {staticCount > 0 && !hideStatic && (
+          <span className="text-[10px] text-muted-foreground">{staticCount} static</span>
+        )}
+        <button
+          onClick={() => setPauseAll(!pauseAll)}
+          className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+            pauseAll
+              ? 'border-red-500/50 bg-red-500/10 text-red-400'
+              : 'border-green-500/50 bg-green-500/10 text-green-400'
+          }`}
+        >
+          {pauseAll ? 'Resume All' : 'All Playing'}
+        </button>
       </div>
 
       {/* Loading state */}
@@ -114,8 +145,15 @@ export function FeaturedCameras() {
             return (
               <div
                 key={featured.name}
-                className="group overflow-hidden rounded-lg border border-border bg-card transition-shadow hover:shadow-md"
+                className="group relative overflow-hidden rounded-lg border border-border bg-card transition-shadow hover:shadow-md"
               >
+                {/* Incident spotlight badge */}
+                {cam.nearbyIncidents && cam.nearbyIncidents.length > 0 && (
+                  <span className="absolute top-2 right-2 z-10 rounded-full bg-red-500 text-white text-[9px] font-bold px-2 py-0.5 animate-pulse">
+                    Happening Now
+                  </span>
+                )}
+
                 {/* Category badge */}
                 <div className="px-4 pt-3 pb-1">
                   <span
@@ -129,7 +167,7 @@ export function FeaturedCameras() {
                 <div className="px-4">
                   <div className="overflow-hidden rounded-md">
                     <VideoPlayer
-                      streamUrl={cam.streamUrl}
+                      streamUrl={pauseAll ? null : cam.streamUrl}
                       imageUrl={cam.imageUrl}
                       cameraName={featured.name}
                       hideControls
