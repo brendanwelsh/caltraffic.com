@@ -136,26 +136,42 @@ function AutocompleteInput({ ac, label, placeholder, onKeyDown }: {
 }
 
 const CA_CITIES = [
-  { label: 'Sacramento', lat: 38.581, lon: -121.494 },
-  { label: 'San Francisco', lat: 37.775, lon: -122.419 },
-  { label: 'Los Angeles', lat: 34.054, lon: -118.243 },
-  { label: 'San Diego', lat: 32.716, lon: -117.161 },
-  { label: 'San Jose', lat: 37.339, lon: -121.895 },
-  { label: 'Fresno', lat: 36.738, lon: -119.784 },
+  { label: 'Anaheim', lat: 33.836, lon: -117.914 },
   { label: 'Bakersfield', lat: 35.373, lon: -119.019 },
-  { label: 'Oakland', lat: 37.804, lon: -122.271 },
-  { label: 'Stockton', lat: 37.958, lon: -121.291 },
-  { label: 'Redding', lat: 40.587, lon: -122.392 },
-  { label: 'Santa Barbara', lat: 34.421, lon: -119.699 },
-  { label: 'Palm Springs', lat: 33.830, lon: -116.545 },
-  { label: 'Lake Tahoe', lat: 39.097, lon: -120.032 },
-  { label: 'Folsom', lat: 38.678, lon: -121.176 },
-  { label: 'Irvine', lat: 33.684, lon: -117.826 },
-  { label: 'Riverside', lat: 33.953, lon: -117.396 },
+  { label: 'Bishop', lat: 37.363, lon: -118.395 },
+  { label: 'Chico', lat: 39.729, lon: -121.837 },
   { label: 'Eureka', lat: 40.802, lon: -124.164 },
+  { label: 'Folsom', lat: 38.678, lon: -121.176 },
+  { label: 'Fresno', lat: 36.738, lon: -119.784 },
+  { label: 'Irvine', lat: 33.684, lon: -117.826 },
+  { label: 'Lake Tahoe', lat: 39.097, lon: -120.032 },
+  { label: 'Long Beach', lat: 33.770, lon: -118.194 },
+  { label: 'Los Angeles', lat: 34.054, lon: -118.243 },
+  { label: 'Mammoth Lakes', lat: 37.648, lon: -118.972 },
+  { label: 'Merced', lat: 37.302, lon: -120.483 },
   { label: 'Modesto', lat: 37.639, lon: -120.997 },
-  { label: 'Santa Cruz', lat: 36.974, lon: -122.031 },
   { label: 'Monterey', lat: 36.600, lon: -121.895 },
+  { label: 'Napa', lat: 38.297, lon: -122.286 },
+  { label: 'Oakland', lat: 37.804, lon: -122.271 },
+  { label: 'Oceanside', lat: 33.197, lon: -117.380 },
+  { label: 'Palm Springs', lat: 33.830, lon: -116.545 },
+  { label: 'Pasadena', lat: 34.148, lon: -118.144 },
+  { label: 'Redding', lat: 40.587, lon: -122.392 },
+  { label: 'Riverside', lat: 33.953, lon: -117.396 },
+  { label: 'Sacramento', lat: 38.581, lon: -121.494 },
+  { label: 'San Bernardino', lat: 34.108, lon: -117.289 },
+  { label: 'San Diego', lat: 32.716, lon: -117.161 },
+  { label: 'San Francisco', lat: 37.775, lon: -122.419 },
+  { label: 'San Jose', lat: 37.339, lon: -121.895 },
+  { label: 'San Luis Obispo', lat: 35.283, lon: -120.659 },
+  { label: 'Santa Barbara', lat: 34.421, lon: -119.699 },
+  { label: 'Santa Cruz', lat: 36.974, lon: -122.031 },
+  { label: 'Santa Rosa', lat: 38.441, lon: -122.714 },
+  { label: 'Stockton', lat: 37.958, lon: -121.291 },
+  { label: 'Temecula', lat: 33.494, lon: -117.148 },
+  { label: 'Truckee', lat: 39.328, lon: -120.183 },
+  { label: 'Visalia', lat: 36.330, lon: -119.292 },
+  { label: 'Yosemite', lat: 37.749, lon: -119.587 },
 ];
 
 export function RoutePlanner() {
@@ -175,6 +191,7 @@ export function RoutePlanner() {
   const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [pickStep, setPickStep] = useState<'from' | 'to' | null>('from');
   const [pickedFrom, setPickedFrom] = useState<typeof CA_CITIES[number] | null>(null);
+  const [citySearch, setCitySearch] = useState('');
   const [mobileTab, setMobileTab] = useState<'cameras' | 'map' | 'info'>('cameras');
 
   // Load route from URL params (permalink support)
@@ -200,6 +217,15 @@ export function RoutePlanner() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const pushRouteToUrl = useCallback((orig: GeocodeSuggestion, dest: GeocodeSuggestion) => {
+    const url = new URL(window.location.href);
+    url.searchParams.set('from', `${orig.lat},${orig.lon}`);
+    url.searchParams.set('to', `${dest.lat},${dest.lon}`);
+    url.searchParams.set('fromLabel', orig.label);
+    url.searchParams.set('toLabel', dest.label);
+    window.history.replaceState(null, '', url.toString());
+  }, []);
+
   const handlePlanRoute = useCallback(() => {
     setGeocodeError(null);
     if (!originAC.selected) {
@@ -212,7 +238,8 @@ export function RoutePlanner() {
     }
     setOrigin(originAC.selected);
     setDestination(destAC.selected);
-  }, [originAC.selected, destAC.selected, setOrigin, setDestination]);
+    pushRouteToUrl(originAC.selected, destAC.selected);
+  }, [originAC.selected, destAC.selected, setOrigin, setDestination, pushRouteToUrl]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter') handlePlanRoute();
@@ -225,6 +252,13 @@ export function RoutePlanner() {
     setGeocodeError(null);
     setPickStep('from');
     setPickedFrom(null);
+    // Clear URL params
+    const url = new URL(window.location.href);
+    url.searchParams.delete('from');
+    url.searchParams.delete('to');
+    url.searchParams.delete('fromLabel');
+    url.searchParams.delete('toLabel');
+    window.history.replaceState(null, '', url.toString());
   }, [clearRoute, originAC.clear, destAC.clear]);
 
   // No more default route — clean slate on load unless URL has params
@@ -267,6 +301,7 @@ export function RoutePlanner() {
                   destAC.select(tempOrigin);
                   setOrigin(tempDest);
                   setDestination(tempOrigin);
+                  pushRouteToUrl(tempDest, tempOrigin);
                 }
               }}
               className="hidden sm:flex h-9 w-9 items-center justify-center rounded-lg border border-border text-muted-foreground hover:bg-accent hover:text-foreground transition-colors shrink-0"
@@ -287,12 +322,7 @@ export function RoutePlanner() {
                 <>
                   <button
                     onClick={() => {
-                      const url = new URL(window.location.href);
-                      url.searchParams.set('from', `${origin!.lat},${origin!.lon}`);
-                      url.searchParams.set('to', `${destination!.lat},${destination!.lon}`);
-                      url.searchParams.set('fromLabel', origin!.label);
-                      url.searchParams.set('toLabel', destination!.label);
-                      navigator.clipboard.writeText(url.toString());
+                      navigator.clipboard.writeText(window.location.href);
                     }}
                     className="h-9 rounded-lg border border-border px-2.5 text-xs text-muted-foreground hover:bg-accent transition-colors"
                     title="Copy shareable link"
@@ -386,13 +416,13 @@ export function RoutePlanner() {
                 {routeView === 'list' ? (
                   <RouteLiveView cameras={routeCameras} routeDuration={routeDuration} onCameraFocus={setFocusedCameraId} onUserLocationChange={setUserLocation} />
                 ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pb-4">
+                  <div className={`grid grid-cols-1 sm:grid-cols-2 ${showMap ? 'lg:grid-cols-3' : 'lg:grid-cols-4'} gap-3 pb-4`}>
                     {routeCameras.map((camera) => {
                       const isUnavailable = !camera.imageUrl || camera.isStale;
                       if (isUnavailable) {
                         return (
-                          <div key={camera.id} className="rounded-xl border border-border/30 overflow-hidden bg-card/40 opacity-50">
-                            <div className="aspect-video bg-muted flex items-center justify-center">
+                          <div key={camera.id} className="rounded-xl border border-border/30 overflow-hidden bg-card/40 opacity-50 h-[220px] flex flex-col">
+                            <div className="h-[150px] bg-muted flex items-center justify-center">
                               <span className="text-[10px] text-muted-foreground italic">Unavailable</span>
                             </div>
                             <div className="px-2.5 py-1.5">
@@ -408,16 +438,18 @@ export function RoutePlanner() {
                       return (
                       <div
                         key={camera.id}
-                        className="rounded-xl border border-border/60 overflow-hidden bg-card cursor-pointer hover:shadow-md transition-shadow"
+                        className="rounded-xl border border-border/60 overflow-hidden bg-card cursor-pointer hover:shadow-md transition-shadow h-[220px] flex flex-col"
                         onClick={() => setSelectedCamera(camera)}
                       >
-                        <VideoPlayer streamUrl={camera.streamUrl} imageUrl={camera.imageUrl} cameraName={camera.location} hideControls />
-                        <div className="px-2.5 py-1.5">
-                          <div className="flex items-center gap-1.5">
+                        <div className="h-[150px] overflow-hidden bg-black">
+                          <VideoPlayer streamUrl={camera.streamUrl} imageUrl={camera.imageUrl} cameraName={camera.location} hideControls />
+                        </div>
+                        <div className="px-2.5 py-1.5 flex-1 min-h-0">
+                          <div className="flex items-center justify-between gap-1">
+                            <span className="text-xs font-medium truncate">{camera.location || camera.city}</span>
                             <RouteShield route={camera.route} size="sm" />
-                            <span className="text-xs font-medium truncate">{camera.direction}</span>
                           </div>
-                          <p className="text-[11px] text-muted-foreground truncate mt-0.5">{camera.location || camera.city}</p>
+                          <p className="text-[11px] text-muted-foreground truncate mt-0.5">{camera.direction} · {camera.city}</p>
                         </div>
                       </div>
                       );
@@ -439,25 +471,29 @@ export function RoutePlanner() {
                         destination={destination}
                         focusedCameraId={focusedCameraId}
                         userLocation={userLocation}
+                        onCameraClick={(cam) => {
+                          setFocusedCameraId(cam.id);
+                          document.getElementById(`feed-${cam.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }}
                       />
                     </div>
                   </Suspense>
 
-                  {/* Route summary */}
+                  {/* Route summary — each stat on its own line */}
                   <div className="rounded-lg border border-border bg-card p-3">
                     <h3 className="text-xs font-semibold mb-2">Route Overview</h3>
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
+                    <div className="space-y-1.5 text-xs">
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">Distance</span>
                         <span className="font-medium">{(routeDistance / 1609.34).toFixed(0)} mi</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Drive Time</span>
-                        <span className="font-medium">~{routeDuration > 0 ? (() => { const mins = Math.round(routeDuration / 60); const hrs = Math.floor(mins / 60); const remainder = mins % 60; return hrs > 0 ? `${hrs}h ${remainder}m` : `${mins}m`; })() : '—'}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">Cameras</span>
                         <span className="font-medium text-primary">{routeCameras.length}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Drive Time</span>
+                        <span className="font-medium">~{routeDuration > 0 ? (() => { const mins = Math.round(routeDuration / 60); const hrs = Math.floor(mins / 60); const remainder = mins % 60; return hrs > 0 ? `${hrs}h ${remainder}m` : `${mins}m`; })() : '—'}</span>
                       </div>
                       {totalIncidents > 0 && (
                         <div className="flex items-center justify-between">
@@ -486,7 +522,6 @@ export function RoutePlanner() {
                       <h3 className="text-xs font-semibold mb-2">Directions</h3>
                       <div className="space-y-0">
                         {routeSteps.map((step: any, i: number) => {
-                          // Find a camera on this road segment to focus when clicked
                           const matchingCamera = routeCameras.find((c) =>
                             c.route && step.name && (
                               c.location?.toLowerCase().includes(step.name.toLowerCase()) ||
@@ -520,6 +555,32 @@ export function RoutePlanner() {
                             </div>
                           );
                         })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Incident details */}
+                  {totalIncidents > 0 && (
+                    <div className="rounded-lg border border-red-500/20 bg-card p-3">
+                      <h3 className="text-xs font-semibold mb-2 text-red-400">Incidents ({totalIncidents})</h3>
+                      <div className="space-y-1.5">
+                        {routeCameras.flatMap(c => c.nearbyIncidents.map((inc: any) => ({ ...inc, camera: c }))).filter((inc, i, arr) => arr.findIndex(a => a.id === inc.id) === i).map((inc: any) => (
+                          <div
+                            key={inc.id}
+                            className="flex items-start gap-2 text-xs cursor-pointer hover:bg-accent/30 rounded-md -mx-1 px-1 py-1 transition-colors"
+                            onClick={() => {
+                              setFocusedCameraId(inc.camera.id);
+                              document.getElementById(`feed-${inc.camera.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                            }}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" className="shrink-0 mt-0.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/></svg>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium text-red-400">{inc.type}</p>
+                              {inc.description && <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{inc.description}</p>}
+                              <p className="text-[10px] text-muted-foreground/60">{inc.location || inc.camera.location}</p>
+                            </div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   )}
@@ -561,8 +622,8 @@ export function RoutePlanner() {
                         const isUnavailable = !camera.imageUrl || camera.isStale;
                         if (isUnavailable) {
                           return (
-                            <div key={camera.id} className="rounded-xl border border-border/30 overflow-hidden bg-card/40 opacity-50">
-                              <div className="aspect-video bg-muted flex items-center justify-center">
+                            <div key={camera.id} className="rounded-xl border border-border/30 overflow-hidden bg-card/40 opacity-50 h-[220px] flex flex-col">
+                              <div className="h-[150px] bg-muted flex items-center justify-center">
                                 <span className="text-[10px] text-muted-foreground italic">Unavailable</span>
                               </div>
                               <div className="px-2.5 py-1.5">
@@ -578,16 +639,18 @@ export function RoutePlanner() {
                         return (
                         <div
                           key={camera.id}
-                          className="rounded-xl border border-border/60 overflow-hidden bg-card cursor-pointer hover:shadow-md transition-shadow"
+                          className="rounded-xl border border-border/60 overflow-hidden bg-card cursor-pointer hover:shadow-md transition-shadow h-[220px] flex flex-col"
                           onClick={() => setSelectedCamera(camera)}
                         >
-                          <VideoPlayer streamUrl={camera.streamUrl} imageUrl={camera.imageUrl} cameraName={camera.location} hideControls />
-                          <div className="px-2.5 py-1.5">
-                            <div className="flex items-center gap-1.5">
+                          <div className="h-[150px] overflow-hidden bg-black">
+                            <VideoPlayer streamUrl={camera.streamUrl} imageUrl={camera.imageUrl} cameraName={camera.location} hideControls />
+                          </div>
+                          <div className="px-2.5 py-1.5 flex-1 min-h-0">
+                            <div className="flex items-center justify-between gap-1">
+                              <span className="text-xs font-medium truncate">{camera.location || camera.city}</span>
                               <RouteShield route={camera.route} size="sm" />
-                              <span className="text-xs font-medium truncate">{camera.direction}</span>
                             </div>
-                            <p className="text-[11px] text-muted-foreground truncate mt-0.5">{camera.location || camera.city}</p>
+                            <p className="text-[11px] text-muted-foreground truncate mt-0.5">{camera.direction} · {camera.city}</p>
                           </div>
                         </div>
                         );
@@ -608,6 +671,13 @@ export function RoutePlanner() {
                       destination={destination}
                       focusedCameraId={focusedCameraId}
                       userLocation={userLocation}
+                      onCameraClick={(cam) => {
+                        setFocusedCameraId(cam.id);
+                        setMobileTab('cameras');
+                        setTimeout(() => {
+                          document.getElementById(`feed-${cam.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        }, 100);
+                      }}
                     />
                   </div>
                 </Suspense>
@@ -615,21 +685,21 @@ export function RoutePlanner() {
 
               {mobileTab === 'info' && (
                 <div className="space-y-3">
-                  {/* Route summary */}
+                  {/* Route summary — individual lines */}
                   <div className="rounded-lg border border-border bg-card p-3">
                     <h3 className="text-xs font-semibold mb-2">Route Overview</h3>
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs">
+                    <div className="space-y-1.5 text-xs">
                       <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">Distance</span>
                         <span className="font-medium">{(routeDistance / 1609.34).toFixed(0)} mi</span>
                       </div>
                       <div className="flex items-center justify-between">
-                        <span className="text-muted-foreground">Drive Time</span>
-                        <span className="font-medium">~{routeDuration > 0 ? (() => { const mins = Math.round(routeDuration / 60); const hrs = Math.floor(mins / 60); const remainder = mins % 60; return hrs > 0 ? `${hrs}h ${remainder}m` : `${mins}m`; })() : '—'}</span>
-                      </div>
-                      <div className="flex items-center justify-between">
                         <span className="text-muted-foreground">Cameras</span>
                         <span className="font-medium text-primary">{routeCameras.length}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-muted-foreground">Drive Time</span>
+                        <span className="font-medium">~{routeDuration > 0 ? (() => { const mins = Math.round(routeDuration / 60); const hrs = Math.floor(mins / 60); const remainder = mins % 60; return hrs > 0 ? `${hrs}h ${remainder}m` : `${mins}m`; })() : '—'}</span>
                       </div>
                       {totalIncidents > 0 && (
                         <div className="flex items-center justify-between">
@@ -697,6 +767,35 @@ export function RoutePlanner() {
                       </div>
                     </div>
                   )}
+
+                  {/* Incident details */}
+                  {totalIncidents > 0 && (
+                    <div className="rounded-lg border border-red-500/20 bg-card p-3">
+                      <h3 className="text-xs font-semibold mb-2 text-red-400">Incidents ({totalIncidents})</h3>
+                      <div className="space-y-1.5">
+                        {routeCameras.flatMap(c => c.nearbyIncidents.map((inc: any) => ({ ...inc, camera: c }))).filter((inc, i, arr) => arr.findIndex(a => a.id === inc.id) === i).map((inc: any) => (
+                          <div
+                            key={inc.id}
+                            className="flex items-start gap-2 text-xs cursor-pointer hover:bg-accent/30 rounded-md -mx-1 px-1 py-1 transition-colors"
+                            onClick={() => {
+                              setFocusedCameraId(inc.camera.id);
+                              setMobileTab('cameras');
+                              setTimeout(() => {
+                                document.getElementById(`feed-${inc.camera.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                              }, 100);
+                            }}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5" className="shrink-0 mt-0.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/></svg>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium text-red-400">{inc.type}</p>
+                              {inc.description && <p className="text-[10px] text-muted-foreground mt-0.5 truncate">{inc.description}</p>}
+                              <p className="text-[10px] text-muted-foreground/60">{inc.location || inc.camera.location}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
@@ -750,22 +849,31 @@ export function RoutePlanner() {
           </div>
         )}
 
-        {/* Landing state — city picker with pick-two UX */}
+        {/* Landing state — city picker with pick-two UX + search */}
         {!hasRoute && !routeLoading && (
-          <div className="py-10 text-center max-w-2xl mx-auto">
+          <div className="py-10 text-center max-w-3xl mx-auto">
             <h2 className="text-xl font-bold mb-2">
-              {pickStep === 'from' ? 'Where are you going?' : pickStep === 'to' ? 'Where to?' : 'See what\'s ahead on your drive'}
+              {pickStep === 'from' ? 'Where are you starting?' : pickStep === 'to' ? 'Where to?' : 'See what\'s ahead on your drive'}
             </h2>
-            <p className="text-sm text-muted-foreground mb-6">
+            <p className="text-sm text-muted-foreground mb-4">
               {pickStep === 'from'
-                ? 'Pick your starting city'
+                ? 'Pick your starting city or type an address above'
                 : pickStep === 'to'
                   ? `From ${pickedFrom?.label} — now pick your destination`
                   : 'Enter an origin and destination above to view live traffic cameras along your route.'}
             </p>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 text-left">
-              {CA_CITIES.map((city) => {
+            {/* City search filter */}
+            <input
+              type="text"
+              placeholder="Search cities..."
+              value={citySearch}
+              onChange={(e) => setCitySearch(e.target.value)}
+              className="w-full max-w-sm mx-auto mb-4 h-9 rounded-lg border border-border bg-background px-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 text-left">
+              {CA_CITIES.filter((c) => !citySearch || c.label.toLowerCase().includes(citySearch.toLowerCase())).map((city) => {
                 const isPickedFrom = pickedFrom?.label === city.label;
                 return (
                   <button
@@ -774,6 +882,10 @@ export function RoutePlanner() {
                       if (pickStep === 'from') {
                         setPickedFrom(city);
                         setPickStep('to');
+                      } else if (pickStep === 'to' && isPickedFrom) {
+                        // Toggle: clicking the from city again deselects it
+                        setPickedFrom(null);
+                        setPickStep('from');
                       } else if (pickStep === 'to' && !isPickedFrom) {
                         const fromGeo = { lat: pickedFrom!.lat, lon: pickedFrom!.lon, label: pickedFrom!.label };
                         const toGeo = { lat: city.lat, lon: city.lon, label: city.label };
@@ -781,18 +893,20 @@ export function RoutePlanner() {
                         destAC.select(toGeo);
                         setOrigin(fromGeo);
                         setDestination(toGeo);
+                        pushRouteToUrl(fromGeo, toGeo);
                         setPickStep(null);
                       }
                     }}
-                    disabled={pickStep === 'to' && isPickedFrom}
-                    className={`rounded-lg border p-3 text-left transition-colors ${
+                    className={`rounded-lg border px-2.5 py-2 text-left transition-colors ${
                       isPickedFrom
                         ? 'border-green-500 bg-green-500/10 text-green-400'
                         : 'border-border bg-card hover:bg-accent hover:border-primary/30'
-                    } disabled:opacity-40 disabled:cursor-not-allowed`}
+                    }`}
                   >
-                    <p className="text-xs font-medium">{city.label}</p>
-                    {isPickedFrom && <p className="text-[10px] text-green-500 font-semibold mt-0.5">FROM</p>}
+                    <div className="flex items-center justify-between gap-1">
+                      <p className="text-xs font-medium">{city.label}</p>
+                      {isPickedFrom && <span className="text-[9px] text-green-500 font-bold uppercase tracking-wide">FROM</span>}
+                    </div>
                   </button>
                 );
               })}
@@ -805,8 +919,11 @@ export function RoutePlanner() {
                 Start over
               </button>
             )}
-            <p className="mt-4 text-[10px] text-muted-foreground/50">
-              or type any address above · 3,000+ cameras across all 12 Caltrans districts
+            <p className="mt-6 text-sm text-muted-foreground">
+              Or type any address in the search bar above
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground/50">
+              3,400+ cameras across all 12 Caltrans districts
             </p>
           </div>
         )}

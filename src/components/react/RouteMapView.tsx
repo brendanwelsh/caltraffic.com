@@ -78,6 +78,25 @@ export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, d
         weight: 4,
         opacity: 0.8,
       }).addTo(routeLayerRef.current);
+
+      // Direction arrows along route every ~50 points
+      const step = Math.max(1, Math.floor(latLngs.length / 20));
+      for (let i = step; i < latLngs.length - 1; i += step) {
+        const from = latLngs[i - 1];
+        const to = latLngs[i];
+        const angle = Math.atan2(to[1] - from[1], to[0] - from[0]) * (180 / Math.PI);
+        const arrowIcon = L.divIcon({
+          className: 'route-arrow',
+          html: `<div style="
+            width:12px;height:12px;display:flex;align-items:center;justify-content:center;
+            transform:rotate(${90 - angle}deg);color:#3b82f6;font-size:14px;font-weight:bold;
+            text-shadow:0 0 3px rgba(0,0,0,0.5);
+          ">&#9650;</div>`,
+          iconSize: [12, 12],
+          iconAnchor: [6, 6],
+        });
+        L.marker(to, { icon: arrowIcon, interactive: false }).addTo(routeLayerRef.current);
+      }
     }
 
     // Start/end markers
@@ -108,23 +127,39 @@ export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, d
     cameraLayerRef.current.clearLayers();
     cameraMarkersRef.current.clear();
 
-    cameras.forEach((camera, i) => {
-      if (camera.latitude === 0 && camera.longitude === 0) return;
+    // Scale marker size based on zoom level
+    const map = mapInstance.current;
+    const getMarkerSize = () => {
+      const zoom = map.getZoom();
+      if (zoom >= 12) return 24;
+      if (zoom >= 10) return 20;
+      if (zoom >= 8) return 16;
+      return 12;
+    };
 
-      const hasIssues = camera.nearbyIncidents.length > 0 || camera.chainControls.length > 0;
-      const color = hasIssues ? '#ef4444' : camera.hasVideo ? '#22c55e' : '#6b7280';
+    const buildMarkers = () => {
+      cameraLayerRef.current!.clearLayers();
+      cameraMarkersRef.current.clear();
+      const size = getMarkerSize();
+      const fontSize = Math.max(8, size * 0.45);
 
-      const icon = L.divIcon({
-        className: 'route-camera-marker',
-        html: `<div style="
-          width:16px;height:16px;border-radius:50%;background:${color};
-          border:1.5px solid white;box-shadow:0 0 3px rgba(0,0,0,0.3);
-          display:flex;align-items:center;justify-content:center;
-          font-size:8px;color:white;font-weight:bold;
-        ">${i + 1}</div>`,
-        iconSize: [16, 16],
-        iconAnchor: [8, 8],
-      });
+      cameras.forEach((camera, i) => {
+        if (camera.latitude === 0 && camera.longitude === 0) return;
+
+        const hasIssues = camera.nearbyIncidents.length > 0 || camera.chainControls.length > 0;
+        const color = hasIssues ? '#ef4444' : camera.hasVideo ? '#22c55e' : '#6b7280';
+
+        const icon = L.divIcon({
+          className: 'route-camera-marker',
+          html: `<div style="
+            width:${size}px;height:${size}px;border-radius:50%;background:${color};
+            border:2px solid white;box-shadow:0 0 4px rgba(0,0,0,0.3);
+            display:flex;align-items:center;justify-content:center;
+            font-size:${fontSize}px;color:white;font-weight:bold;
+          ">${i + 1}</div>`,
+          iconSize: [size, size],
+          iconAnchor: [size / 2, size / 2],
+        });
 
       const marker = L.marker([camera.latitude, camera.longitude], { icon });
 
@@ -141,13 +176,22 @@ export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, d
         </div>
       `, { maxWidth: 250 });
 
-      if (onCameraClick) {
-        marker.on('click', () => setTimeout(() => onCameraClick(camera), 100));
-      }
+        if (onCameraClick) {
+          marker.on('click', () => setTimeout(() => onCameraClick(camera), 100));
+        }
 
-      cameraLayerRef.current!.addLayer(marker);
-      cameraMarkersRef.current.set(camera.id, marker);
-    });
+        cameraLayerRef.current!.addLayer(marker);
+        cameraMarkersRef.current.set(camera.id, marker);
+      });
+    };
+
+    buildMarkers();
+
+    // Rebuild markers on zoom to scale sizes
+    const onZoom = () => buildMarkers();
+    map.on('zoomend', onZoom);
+
+    return () => { map.off('zoomend', onZoom); };
   }, [cameras, onCameraClick]);
 
   // Pan to focused camera and open its popup
@@ -209,6 +253,29 @@ export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, d
           <span className="text-[10px] text-muted-foreground">Route line loading...</span>
         </div>
       )}
+      {/* Map legend */}
+      <div className="absolute bottom-2 right-2 z-[1000] rounded-lg bg-card/95 backdrop-blur-sm border border-border px-3 py-2 text-[10px]">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="w-3 h-3 rounded-full bg-green-500 border border-white inline-block"></span>
+          <span>Camera (live)</span>
+        </div>
+        <div className="flex items-center gap-2 mb-1">
+          <span className="w-3 h-3 rounded-full bg-gray-500 border border-white inline-block"></span>
+          <span>Camera (still)</span>
+        </div>
+        <div className="flex items-center gap-2 mb-1">
+          <span className="w-3 h-3 rounded-full bg-red-500 border border-white inline-block"></span>
+          <span>Camera (incident)</span>
+        </div>
+        <div className="flex items-center gap-2 mb-1">
+          <span className="w-4 h-4 rounded-full bg-green-500 border-2 border-white text-[8px] text-white font-bold flex items-center justify-center">A</span>
+          <span>Start</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="w-4 h-4 rounded-full bg-red-500 border-2 border-white text-[8px] text-white font-bold flex items-center justify-center">B</span>
+          <span>End</span>
+        </div>
+      </div>
     </div>
   );
 }
