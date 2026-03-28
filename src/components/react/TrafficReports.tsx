@@ -21,6 +21,29 @@ const incidentSeverityColors: Record<string, string> = {
   '4': 'bg-blue-500',
 };
 
+// Context block rendered above the incident summary table
+function IncidentContext() {
+  return (
+    <div className="rounded-xl border border-border bg-card/50 p-4 space-y-3 text-sm text-muted-foreground">
+      <p>
+        <span className="font-semibold text-foreground">Incidents</span> — Reports from the CHP Computer-Aided Dispatch (CAD) system. Includes collisions, hazards, road work, debris, and full closures. Severity 1 (red) is highest priority; 4 (blue) is lowest. Incidents are logged as CHP dispatchers receive calls and are removed when cleared.
+      </p>
+      <p>
+        <span className="font-semibold text-foreground">Chain Controls</span> — Caltrans road condition reports for mountain passes and winter routes.{' '}
+        <span className="font-medium text-foreground">R1</span> = chains or snow tires required on drive wheels.{' '}
+        <span className="font-medium text-foreground">R2</span> = chains required on all vehicles, no exceptions.{' '}
+        <span className="font-medium text-foreground">R3</span> = highway closed to all traffic.
+      </p>
+      <p>
+        <span className="font-semibold text-foreground">Lane Closures</span> — Caltrans planned and active lane closures for construction and maintenance. May include scheduled windows or 24/7 work zones.
+      </p>
+      <p>
+        <span className="font-semibold text-foreground">CMS Signs</span> — Changeable Message Signs: electronic overhead highway signs displaying real-time travel times, incident alerts, speed advisories, and Amber alerts.
+      </p>
+    </div>
+  );
+}
+
 function IncidentSummary({ incidents }: { incidents: Incident[] }) {
   const byType = useMemo(() => {
     const map = new Map<string, number>();
@@ -139,10 +162,17 @@ function IncidentSummary({ incidents }: { incidents: Incident[] }) {
 }
 
 function WeatherAlertsSection({ alerts }: { alerts: WeatherAlert[] }) {
+  const contextNote = (
+    <p className="text-sm text-muted-foreground mb-4">
+      Issued by the <span className="font-medium text-foreground">National Weather Service (NWS)</span> for conditions affecting California highways — winter storms, high wind, fog, flood watches, and more. Alerts are updated as conditions change and expire automatically when the event ends.
+    </p>
+  );
+
   if (alerts.length === 0) {
     return (
       <section>
-        <h2 className="text-2xl font-semibold mb-4">Weather Alerts</h2>
+        <h2 className="text-2xl font-semibold mb-3">Weather Alerts</h2>
+        {contextNote}
         <p className="text-muted-foreground">No active weather alerts for California.</p>
       </section>
     );
@@ -150,7 +180,8 @@ function WeatherAlertsSection({ alerts }: { alerts: WeatherAlert[] }) {
 
   return (
     <section>
-      <h2 className="text-2xl font-semibold mb-4">Weather Alerts ({alerts.length})</h2>
+      <h2 className="text-2xl font-semibold mb-3">Weather Alerts ({alerts.length})</h2>
+      {contextNote}
       <div className="space-y-3">
         {alerts.map((alert) => {
           const style = severityColors[alert.severity] ?? severityColors.Unknown;
@@ -258,8 +289,11 @@ export function TrafficReports() {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold mb-2">Traffic Reports</h1>
-        <p className="text-muted-foreground text-lg">
+        <p className="text-muted-foreground text-lg mb-3">
           Live statewide traffic conditions for California highways.
+        </p>
+        <p className="text-sm text-muted-foreground">
+          Incident data comes from the California Highway Patrol (CHP) Computer-Aided Dispatch (CAD) system — the same feed dispatchers use statewide. Weather alerts are issued by the National Weather Service (NWS). All data refreshes automatically every 60–120 seconds.
         </p>
       </div>
 
@@ -294,6 +328,7 @@ export function TrafficReports() {
         </div>
       </section>
 
+      <IncidentContext />
       <IncidentSummary incidents={incidents} />
       <WeatherAlertsSection alerts={alerts} />
       <RecentIncidents incidents={incidents} />

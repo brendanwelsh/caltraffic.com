@@ -99,6 +99,95 @@ import Footer from '../components/astro/Footer.astro';
         </table>
       </div>
 
+      <!-- How the cameras work -->
+      <h2 class="text-2xl font-semibold mb-3">How the Cameras Work</h2>
+      <p class="text-sm text-muted-foreground mb-4">
+        Camera feeds come from the <a href="https://cwwp2.dot.ca.gov/" class="text-foreground underline hover:text-primary" target="_blank" rel="noopener">Caltrans Commercial Wholesale Web Portal (CWWP2)</a>, which aggregates traffic cameras from all 12 Caltrans districts.
+      </p>
+      <div class="space-y-3 text-sm mb-6">
+        <div class="rounded-lg border border-border bg-card p-3">
+          <p class="font-medium mb-1">Still images vs. live video</p>
+          <p class="text-muted-foreground">Most cameras provide static snapshots that update every 1–5 minutes depending on the district. Approximately 1,800 cameras also support real-time video streams — these are shown with a live video badge and play directly in the viewer.</p>
+        </div>
+        <div class="rounded-lg border border-border bg-card p-3">
+          <p class="font-medium mb-1">What "Stale" means</p>
+          <p class="text-muted-foreground">A camera is marked <strong>stale</strong> when its image hasn't updated in 15 or more minutes. This usually means the camera is offline, under maintenance, or experiencing a network issue on Caltrans's end. It is not an app error.</p>
+        </div>
+        <div class="rounded-lg border border-border bg-card p-3">
+          <p class="font-medium mb-1">Camera quality</p>
+          <p class="text-muted-foreground">Camera quality varies widely across the state. Newer installations are HD (1080p or better); many older units are low-resolution NTSC cameras from the early 2000s. Caltrans is gradually upgrading the fleet but the rollout is ongoing.</p>
+        </div>
+      </div>
+
+      <!-- Chain Control levels -->
+      <h2 class="text-2xl font-semibold mb-3">Chain Control Levels</h2>
+      <p class="text-sm text-muted-foreground mb-4">
+        Chain controls are issued by Caltrans field crews for mountain passes and winter routes. The three levels indicate increasing severity:
+      </p>
+      <div class="space-y-2 text-sm mb-10">
+        <div class="flex gap-3 rounded-lg border border-border bg-card p-3 items-start">
+          <span class="font-bold text-yellow-400 w-6 flex-shrink-0">R1</span>
+          <p class="text-muted-foreground">Chains or snow tires required on drive wheels. Vehicles with all-wheel drive and adequate tread may be exempt depending on conditions.</p>
+        </div>
+        <div class="flex gap-3 rounded-lg border border-border bg-card p-3 items-start">
+          <span class="font-bold text-orange-400 w-6 flex-shrink-0">R2</span>
+          <p class="text-muted-foreground">Chains required on all vehicles, no exceptions. Snow tires and AWD are not sufficient — physical chains must be installed on drive wheels.</p>
+        </div>
+        <div class="flex gap-3 rounded-lg border border-border bg-card p-3 items-start">
+          <span class="font-bold text-red-400 w-6 flex-shrink-0">R3</span>
+          <p class="text-muted-foreground">Highway closed to all traffic. The road is impassable and no vehicles are permitted through, including commercial trucks and emergency-equipped vehicles.</p>
+        </div>
+      </div>
+
+      <!-- Data freshness -->
+      <h2 class="text-2xl font-semibold mb-3">Data Freshness</h2>
+      <p class="text-sm text-muted-foreground mb-4">
+        All data is public and freely available from California state agencies and federal services. Here's how often each source updates:
+      </p>
+      <div class="overflow-x-auto mb-10">
+        <table class="w-full text-sm border border-border rounded-lg">
+          <thead>
+            <tr class="border-b border-border bg-muted/50">
+              <th class="px-3 py-2 text-left font-medium">Data Type</th>
+              <th class="px-3 py-2 text-left font-medium">Source</th>
+              <th class="px-3 py-2 text-left font-medium">Update Frequency</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="border-b border-border">
+              <td class="px-3 py-2 font-medium">Camera stills</td>
+              <td class="px-3 py-2 text-muted-foreground">Caltrans CWWP2</td>
+              <td class="px-3 py-2 text-muted-foreground">Near real-time (1–5 min lag)</td>
+            </tr>
+            <tr class="border-b border-border">
+              <td class="px-3 py-2 font-medium">Live video</td>
+              <td class="px-3 py-2 text-muted-foreground">Caltrans CWWP2</td>
+              <td class="px-3 py-2 text-muted-foreground">Real-time stream</td>
+            </tr>
+            <tr class="border-b border-border">
+              <td class="px-3 py-2 font-medium">Incident reports</td>
+              <td class="px-3 py-2 text-muted-foreground">CHP CAD system</td>
+              <td class="px-3 py-2 text-muted-foreground">Updated as dispatchers log events (~60s)</td>
+            </tr>
+            <tr class="border-b border-border">
+              <td class="px-3 py-2 font-medium">Chain controls</td>
+              <td class="px-3 py-2 text-muted-foreground">Caltrans field crews</td>
+              <td class="px-3 py-2 text-muted-foreground">Updated manually as conditions change</td>
+            </tr>
+            <tr class="border-b border-border">
+              <td class="px-3 py-2 font-medium">Lane closures</td>
+              <td class="px-3 py-2 text-muted-foreground">Caltrans CWWP2</td>
+              <td class="px-3 py-2 text-muted-foreground">Updated as work zones open/close</td>
+            </tr>
+            <tr>
+              <td class="px-3 py-2 font-medium">Weather alerts</td>
+              <td class="px-3 py-2 text-muted-foreground">National Weather Service API</td>
+              <td class="px-3 py-2 text-muted-foreground">Updated as conditions change (~5 min)</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
       <!-- Support -->
       <h2 class="text-2xl font-semibold mb-4">Support This Project</h2>
       <p class="text-muted-foreground mb-6">
