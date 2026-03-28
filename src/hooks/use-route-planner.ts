@@ -8,6 +8,7 @@ import { useClosures } from './use-closures';
 import { useTravelTimes } from './use-travel-times';
 import { useWeatherAlerts } from './use-weather';
 import { haversineDistance } from '@/lib/utils';
+import { findRouteDistricts } from '@/lib/district-lookup';
 import { matchCamerasToRoute } from '@/lib/route-matching';
 import {
   matchCMSToCamera,
@@ -120,7 +121,11 @@ export function useRoutePlanner(initialOrigin?: Location | null, initialDestinat
     { revalidateOnFocus: false, dedupingInterval: 120_000 },
   );
 
-  const { data: allCameras = [], isLoading: camerasLoading } = useCameras(null);
+  const corridorDistricts = origin && destination
+    ? findRouteDistricts(origin.lat, origin.lon, destination.lat, destination.lon)
+    : null;
+
+  const { data: allCameras = [], isLoading: camerasLoading } = useCameras(corridorDistricts);
   const { data: allCMS = [] } = useCMS(null);
   const { data: allIncidents = [] } = useIncidents();
   const { data: allChainControls = [] } = useChainControl(null);

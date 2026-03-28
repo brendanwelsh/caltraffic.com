@@ -65,6 +65,10 @@ function transformCameras(data: unknown, districtNum: number) {
           ? (Date.now() - new Date(lastUpdateField).getTime()) > 15 * 60 * 1000
           : false;
 
+        const elevRaw = (loc as Record<string, unknown>).elevation;
+        const elevation = elevRaw != null ? parseFloat(String(elevRaw)) : null;
+        const imageDesc = (item.cctv.imageData as Record<string, unknown>).imageDescription as string | undefined;
+
         return {
           id: `D${String(district).padStart(2, '0')}-${item.cctv.index}`,
           district,
@@ -77,6 +81,8 @@ function transformCameras(data: unknown, districtNum: number) {
           latitude: parseFloat(loc.latitude ?? '0'),
           longitude: parseFloat(loc.longitude ?? '0'),
           postmile: extractPostmile(loc.postmile),
+          elevation: isNaN(elevation ?? NaN) ? null : elevation,
+          imageDescription: imageDesc && imageDesc !== 'Not Reported' ? imageDesc : null,
           imageUrl: item.cctv.imageData.static.currentImageURL,
           historicalImages,
           streamUrl: hasVideo ? (item.cctv.imageData.streamingVideoURL ?? null) : null,
@@ -102,17 +108,6 @@ async function fetchDistrict(d: number) {
 
 export const GET: APIRoute = async ({ params }) => {
   const districtParam = params.district!;
-
-  if (districtParam === 'all') {
-    const districts = Array.from({ length: 12 }, (_, i) => i + 1);
-    const results = await Promise.allSettled(districts.map(fetchDistrict));
-    const all = results
-      .filter((r): r is PromiseFulfilledResult<unknown[]> => r.status === 'fulfilled')
-      .flatMap((r) => r.value);
-    return new Response(JSON.stringify(all), {
-      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=30' },
-    });
-  }
 
   const districtNum = parseInt(districtParam, 10);
   if (isNaN(districtNum) || districtNum < 1 || districtNum > 12) {
