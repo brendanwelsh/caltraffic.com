@@ -2,7 +2,8 @@ import { useState, useCallback, useMemo } from 'react';
 import { useStore } from '@nanostores/react';
 import {
   selectedDistrict, searchQuery, selectedRoute, selectedCity, selectedCounty, viewMode,
-  showVideoOnly, hideStale, hideUnavailable, unavailableCameras, showWithIncidents, showWithSigns,
+  feedType, filterIncidents, filterChains, filterDelays, playAllLive,
+  unavailableCameras, clearAllFilters,
 } from '@/stores/filters';
 import { gridDensity } from '@/stores/preferences';
 import { useEnrichedCameras } from '@/hooks/use-enriched-cameras';
@@ -31,11 +32,7 @@ const GRID_COLS_CLASS: Record<number, string> = {
   6: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6',
 };
 
-interface CameraGridProps {
-  showFavoritesOnly: boolean;
-}
-
-export function CameraGrid({ showFavoritesOnly }: CameraGridProps) {
+export function CameraGrid() {
   useUrlState();
   const district = useStore(selectedDistrict);
   const search = useStore(searchQuery);
@@ -43,12 +40,11 @@ export function CameraGrid({ showFavoritesOnly }: CameraGridProps) {
   const cityFilter = useStore(selectedCity);
   const countyFilter = useStore(selectedCounty);
   const view = useStore(viewMode);
-  const videoOnly = useStore(showVideoOnly);
-  const noStale = useStore(hideStale);
-  const noUnavailable = useStore(hideUnavailable);
+  const feed = useStore(feedType);
+  const showIncidents = useStore(filterIncidents);
+  const showChains = useStore(filterChains);
+  const showDelays = useStore(filterDelays);
   const brokenCameras = useStore(unavailableCameras);
-  const withIncidents = useStore(showWithIncidents);
-  const withSigns = useStore(showWithSigns);
   const columns = useStore(gridDensity);
   const [page, setPage] = useState(1);
   const [selectedCamera, setSelectedCamera] = useState<EnrichedCamera | null>(null);
@@ -60,18 +56,18 @@ export function CameraGrid({ showFavoritesOnly }: CameraGridProps) {
   const { data: chainControls = [] } = useChainControl(district);
   const { data: closures = [] } = useClosures(district);
 
-  // Filter cameras — signs and incidents are pure filters, not interspersed
+  // Filter cameras
   const filteredCameras = useMemo(() => {
     return cameras.filter((cam) => {
       if (routeFilter && cam.route !== routeFilter) return false;
       if (cityFilter && cam.city !== cityFilter) return false;
       if (countyFilter && cam.county !== countyFilter) return false;
-      if (videoOnly && !cam.hasVideo) return false;
-      if (noStale && cam.isStale) return false;
-      if (noUnavailable && brokenCameras.has(cam.id)) return false;
-      if (withIncidents && cam.nearbyIncidents.length === 0) return false;
-      if (withSigns && cam.nearbyCMS.length === 0) return false;
-      if (showFavoritesOnly && !isFavorite(cam.id)) return false;
+      if (feed === 'live' && (!cam.hasVideo || cam.isStale || !cam.inService)) return false;
+      if (feed === 'still' && cam.hasVideo) return false;
+      if (showIncidents && cam.nearbyIncidents.length === 0) return false;
+      if (showChains && cam.chainControls.length === 0) return false;
+      if (showDelays && (!cam.travelTime || cam.travelTime.delay <= 2)) return false;
+      if (brokenCameras.has(cam.id)) return false;
       if (search) {
         const q = search.toLowerCase();
         return (
@@ -89,9 +85,9 @@ export function CameraGrid({ showFavoritesOnly }: CameraGridProps) {
       if (a.isStale !== b.isStale) return a.isStale ? 1 : -1;
       return 0;
     });
-  }, [cameras, routeFilter, cityFilter, countyFilter, videoOnly, noStale, noUnavailable, brokenCameras, withIncidents, withSigns, showFavoritesOnly, search, isFavorite]);
+  }, [cameras, routeFilter, cityFilter, countyFilter, feed, showIncidents, showChains, showDelays, brokenCameras, search]);
 
-  // CMS signs for map view only (not interspersed in grid)
+  // CMS signs for map view only
   const filteredCMS = useMemo(() => {
     return cmsList.filter((cms) => {
       if (!cms.inService) return false;
@@ -147,18 +143,7 @@ export function CameraGrid({ showFavoritesOnly }: CameraGridProps) {
             {search ? `No results for "${search}"` : 'Try adjusting your filters.'}
           </p>
           <button
-            onClick={() => {
-              selectedDistrict.set(null);
-              selectedRoute.set(null);
-              selectedCity.set(null);
-              selectedCounty.set(null);
-              searchQuery.set('');
-              showVideoOnly.set(false);
-              hideStale.set(false);
-              hideUnavailable.set(true);
-              showWithIncidents.set(false);
-              showWithSigns.set(false);
-            }}
+            onClick={() => clearAllFilters()}
             className="mt-4 rounded-lg border border-border px-4 py-2 text-sm text-muted-foreground hover:bg-accent transition-colors"
           >
             Clear all filters
@@ -186,17 +171,19 @@ export function CameraGrid({ showFavoritesOnly }: CameraGridProps) {
             <p className="text-sm text-muted-foreground">
               {filteredCameras.length} cameras
             </p>
-            <button
-              onClick={() => mutate((key) => typeof key === 'string' && key.startsWith('/api/'), undefined, { revalidate: true })}
-              className="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-border text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-              title="Refresh data"
-              aria-label="Refresh data"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
-                <path d="M21 3v5h-5" />
-              </svg>
-            </button>
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => mutate((key) => typeof key === 'string' && key.startsWith('/api/'), undefined, { revalidate: true })}
+                className="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-border text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+                title="Refresh data"
+                aria-label="Refresh data"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                  <path d="M21 3v5h-5" />
+                </svg>
+              </button>
+            </div>
           </div>
 
           <div className={`grid gap-3 ${GRID_COLS_CLASS[columns]}`}>
