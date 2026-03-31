@@ -60,7 +60,7 @@ export function FilterBarV2({ cameraCount, availableCities = [] }: FilterBarV2Pr
     backgroundPosition: 'right 6px center',
   } as const;
 
-  const selectClass = 'h-8 rounded-lg border border-input bg-background px-2 pr-6 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-ring appearance-none';
+  const selectClass = 'h-8 rounded-md border border-input bg-background px-2 pr-6 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-ring appearance-none';
 
   return (
     <div className="space-y-2">
@@ -70,12 +70,12 @@ export function FilterBarV2({ cameraCount, availableCities = [] }: FilterBarV2Pr
         <button
           onClick={() => playAllLive.set(!playing)}
           className={cn(
-            'inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-xs font-medium transition-colors shrink-0 h-8',
+            'inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors shrink-0 h-8',
             playing
               ? 'border-green-500/50 bg-green-500/15 text-green-400'
               : 'border-border text-muted-foreground hover:bg-green-500/10 hover:text-green-400'
           )}
-          title="Play all live video streams"
+          title="Start playing all visible live camera feeds"
         >
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill={playing ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
             <polygon points="5 3 19 12 5 21 5 3"/>
@@ -93,18 +93,20 @@ export function FilterBarV2({ cameraCount, availableCities = [] }: FilterBarV2Pr
             placeholder="Search cameras..."
             value={searchInput}
             onChange={(e) => setSearchInput(e.target.value)}
-            className="h-8 w-full rounded-lg border border-input bg-background pl-8 pr-2 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+            className="h-8 w-full rounded-md border border-input bg-background pl-8 pr-2 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             title="Search by camera name, route, or city"
           />
         </div>
 
-        {/* Grid density */}
-        <div className="hidden sm:block" title="Adjust grid columns">
-          <GridDensityControl />
-        </div>
+        {/* Grid density — only in grid view, hidden on mobile */}
+        {view === 'grid' && (
+          <div className="hidden md:block" title="Adjust grid columns">
+            <GridDensityControl />
+          </div>
+        )}
 
         {/* View toggle (grid/map) */}
-        <div className="flex rounded-lg border border-input overflow-hidden shrink-0 h-8">
+        <div className="flex rounded-md border border-input overflow-hidden shrink-0 h-8">
           <button
             onClick={() => viewMode.set('grid')}
             className={cn('inline-flex items-center px-2.5 transition-colors', view === 'grid' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent')}
@@ -129,9 +131,16 @@ export function FilterBarV2({ cameraCount, availableCities = [] }: FilterBarV2Pr
       </div>
 
       {/* Row 2: Feed type segmented control, condition chips, dropdowns, clear */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none" style={{ maskImage: 'linear-gradient(to right, black calc(100% - 24px), transparent)', WebkitMaskImage: 'linear-gradient(to right, black calc(100% - 24px), transparent)' }}>
+      <div
+        className="flex items-center gap-1.5 overflow-x-auto pb-0.5 scrollbar-none"
+        style={{
+          WebkitOverflowScrolling: 'touch',
+          maskImage: 'linear-gradient(to right, transparent 0px, black 16px, black calc(100% - 24px), transparent)',
+          WebkitMaskImage: 'linear-gradient(to right, transparent 0px, black 16px, black calc(100% - 24px), transparent)',
+        }}
+      >
         {/* All / Live / Still segmented control */}
-        <div className="flex rounded-lg border border-input overflow-hidden shrink-0 h-7">
+        <div className="flex rounded-md border border-input overflow-hidden shrink-0 h-7">
           {(['all', 'live', 'still'] as const).map((type) => (
             <button
               key={type}
@@ -151,7 +160,7 @@ export function FilterBarV2({ cameraCount, availableCities = [] }: FilterBarV2Pr
         <button
           onClick={() => filterIncidents.set(!incidents)}
           className={cn(
-            'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium transition-all whitespace-nowrap shrink-0',
+            'inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-medium transition-all whitespace-nowrap shrink-0',
             incidents
               ? 'bg-red-500/15 border-red-500/40 text-red-400'
               : 'border-border text-muted-foreground hover:bg-red-500/10'
@@ -171,7 +180,7 @@ export function FilterBarV2({ cameraCount, availableCities = [] }: FilterBarV2Pr
         <button
           onClick={() => filterChains.set(!chains)}
           className={cn(
-            'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium transition-all whitespace-nowrap shrink-0',
+            'inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-medium transition-all whitespace-nowrap shrink-0',
             chains
               ? 'bg-blue-500/15 border-blue-500/40 text-blue-400'
               : 'border-border text-muted-foreground hover:bg-blue-500/10'
@@ -191,7 +200,7 @@ export function FilterBarV2({ cameraCount, availableCities = [] }: FilterBarV2Pr
         <button
           onClick={() => filterDelays.set(!delays)}
           className={cn(
-            'inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-medium transition-all whitespace-nowrap shrink-0',
+            'inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-medium transition-all whitespace-nowrap shrink-0',
             delays
               ? 'bg-amber-500/15 border-amber-500/40 text-amber-400'
               : 'border-border text-muted-foreground hover:bg-amber-500/10'
@@ -232,7 +241,7 @@ export function FilterBarV2({ cameraCount, availableCities = [] }: FilterBarV2Pr
 
         {/* Route filter — shown as dismissable chip when active */}
         {route && (
-          <button onClick={() => selectedRoute.set(null)} className="inline-flex items-center gap-1 rounded-full bg-primary/10 border border-primary/20 px-2 py-0.5 text-[10px] font-medium text-primary whitespace-nowrap shrink-0">
+          <button onClick={() => selectedRoute.set(null)} className="inline-flex items-center gap-1 rounded-md bg-primary/10 border border-primary/20 px-2 py-0.5 text-[10px] font-medium text-primary whitespace-nowrap shrink-0">
             {route}
             <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>
@@ -272,7 +281,7 @@ export function FilterBarV2({ cameraCount, availableCities = [] }: FilterBarV2Pr
         {hasAnyFilter && (
           <button
             onClick={() => { clearAllFilters(); setSearchInput(''); }}
-            className="inline-flex items-center gap-1 rounded-full border border-red-500/30 bg-red-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-red-400 hover:bg-red-500/20 transition-colors whitespace-nowrap shrink-0"
+            className="inline-flex items-center gap-1 rounded-md border border-red-500/30 bg-red-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-red-400 hover:bg-red-500/20 transition-colors whitespace-nowrap shrink-0"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
             Clear

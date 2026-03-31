@@ -70,7 +70,7 @@ function CMSFeedCard({ cms, camera }: { cms: any; camera: RouteCamera }) {
   if (allBlank) return null;
 
   return (
-    <div className="rounded-xl border border-amber-600/30 overflow-hidden bg-card hover:shadow-md transition-shadow">
+    <div className="rounded-lg border border-amber-600/30 overflow-hidden bg-card hover:shadow-md transition-shadow">
       <div className="flex flex-col md:flex-row md:h-[200px]">
         {/* Sign display — fills the entire left area */}
         <div className="md:w-[35%] shrink-0 bg-black flex items-center justify-center rounded-md border-2 border-amber-700/40 overflow-hidden">
@@ -133,7 +133,7 @@ function FeedCard({ camera, routeDuration, cameraIndex, forcePlay, onCameraFocus
   const favorite = isFavorite(camera.id);
 
   return (
-    <div id={`feed-${camera.id}`} className="rounded-xl border border-border/60 overflow-hidden bg-card transition-shadow hover:shadow-md">
+    <div id={`feed-${camera.id}`} className="rounded-lg border border-border/60 overflow-hidden bg-card transition-shadow hover:shadow-md">
       <div className="flex flex-col md:flex-row">
         {/* Feed — 35% on desktop, fixed aspect ratio */}
         <div className="md:w-[35%] shrink-0 overflow-hidden relative">
@@ -402,6 +402,7 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLoc
         {/* Hide unavailable cameras toggle */}
         <button
           onClick={() => setHideUnavailable((v) => !v)}
+          title="Toggle unavailable cameras"
           className={`inline-flex items-center gap-1.5 rounded-lg border px-2 py-0.5 text-[10px] font-medium transition-colors ${
             hideUnavailable
               ? 'border-orange-500/50 bg-orange-500/10 text-orange-400'
@@ -417,6 +418,7 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLoc
         {/* Play All toggle */}
         <button
           onClick={() => setPlayAll(!playAll)}
+          title="Play all live camera feeds"
           className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-colors ${
             playAll
               ? 'border-green-500/50 bg-green-500/10 text-green-400'
@@ -432,6 +434,7 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLoc
         {/* Track My Location toggle */}
         <button
           onClick={tracking ? stopTracking : startTracking}
+          title="Use GPS to track your position along the route"
           className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-colors ${
             tracking && userLocation
               ? 'border-blue-500/50 bg-blue-500/10 text-blue-400'

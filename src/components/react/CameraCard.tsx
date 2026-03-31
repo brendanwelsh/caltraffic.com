@@ -91,7 +91,7 @@ export function CameraCard({ camera, onClick, isFavorite = false, onToggleFavori
     <div
       ref={containerRef}
       className={cn(
-        'group relative cursor-pointer overflow-hidden rounded-xl border border-border/60 bg-card transition-all hover:shadow-lg hover:border-primary/40',
+        'group relative cursor-pointer overflow-hidden rounded-lg border border-border/60 bg-card transition-all hover:shadow-lg hover:border-primary/40',
         isPlaceholder && 'opacity-60',
       )}
       onClick={() => onClick?.(camera)}

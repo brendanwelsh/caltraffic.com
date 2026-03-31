@@ -341,7 +341,7 @@ export function RoutePlanner() {
 
         {/* Controls bar */}
         {hasRoute && routeCameras.length > 0 && (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 min-h-[40px]">
             <div className="flex-1" />
 
             {/* View toggle */}
@@ -852,7 +852,7 @@ export function RoutePlanner() {
         {/* Landing state — city picker with pick-two UX + search */}
         {!hasRoute && !routeLoading && (
           <div className="py-10 text-center max-w-3xl mx-auto">
-            <h2 className="text-xl font-bold mb-2">
+            <h2 className="text-xl font-bold mb-2 min-h-[28px]">
               {pickStep === 'from' ? 'Where are you starting?' : pickStep === 'to' ? 'Where to?' : 'See what\'s ahead on your drive'}
             </h2>
             <p className="text-sm text-muted-foreground mb-4">
@@ -872,7 +872,7 @@ export function RoutePlanner() {
               className="w-full max-w-sm mx-auto mb-4 h-9 rounded-lg border border-border bg-background px-3 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             />
 
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-2 text-left">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2 text-left">
               {CA_CITIES.filter((c) => !citySearch || c.label.toLowerCase().includes(citySearch.toLowerCase())).map((city) => {
                 const isPickedFrom = pickedFrom?.label === city.label;
                 return (
@@ -905,7 +905,9 @@ export function RoutePlanner() {
                   >
                     <div className="flex items-center justify-between gap-1">
                       <p className="text-xs font-medium">{city.label}</p>
-                      {isPickedFrom && <span className="text-[9px] text-green-500 font-bold uppercase tracking-wide">FROM</span>}
+                      {isPickedFrom && (
+                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="3"><path d="M20 6 9 17l-5-5"/></svg>
+                      )}
                     </div>
                   </button>
                 );
