@@ -243,6 +243,7 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLoc
   const [trackingError, setTrackingError] = useState<string | null>(null);
   const [selectedCamera, setSelectedCamera] = useState<RouteCamera | null>(null);
   const [hideUnavailable, setHideUnavailable] = useState(true); // Default: hide unavailable/construction
+  const { isFavorite, toggle: toggleFavorite } = useFavorites();
   const watchIdRef = useRef<number | null>(null);
 
   const sorted = [...cameras].sort((a, b) => a.progressAlongRoute - b.progressAlongRoute);
@@ -551,6 +552,8 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLoc
         <CameraDetailDialog
           camera={selectedCamera}
           onClose={() => setSelectedCamera(null)}
+          isFavorite={isFavorite(selectedCamera.id)}
+          onToggleFavorite={toggleFavorite}
         />
       )}
     </div>

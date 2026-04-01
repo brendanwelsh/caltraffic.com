@@ -44,6 +44,8 @@ export function useUrlState() {
 
     const viewParam = params.get('view');
     if (viewParam === 'map') viewMode.set('map');
+    else if (viewParam === 'grid') viewMode.set('grid');
+    else if (viewParam === 'tiles') viewMode.set('tiles');
 
     isInitialized.current = true;
   }, []);
@@ -59,7 +61,7 @@ export function useUrlState() {
     if (city) params.set('city', city);
     if (county) params.set('county', county);
     if (search) params.set('q', search);
-    if (view === 'map') params.set('view', 'map');
+    if (view !== 'tiles') params.set('view', view);
 
     const queryString = params.toString();
     const newUrl = queryString

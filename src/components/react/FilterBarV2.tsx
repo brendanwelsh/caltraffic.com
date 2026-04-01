@@ -320,10 +320,6 @@ export function FilterBarV2({ cameraCount, availableCities = [] }: FilterBarV2Pr
           Key
         </button>
 
-        {/* Camera count */}
-        <span className="text-[11px] text-muted-foreground whitespace-nowrap shrink-0">
-          {cameraCount} cameras
-        </span>
       </div>
 
       {/* Collapsible icon key */}
