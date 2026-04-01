@@ -44,6 +44,7 @@ export function CameraGrid() {
   const showIncidents = useStore(filterIncidents);
   const showChains = useStore(filterChains);
   const showDelays = useStore(filterDelays);
+  const playing = useStore(playAllLive);
   const brokenCameras = useStore(unavailableCameras);
   const columns = useStore(gridDensity);
   const [page, setPage] = useState(1);
@@ -149,6 +150,68 @@ export function CameraGrid() {
             Clear all filters
           </button>
         </div>
+      ) : view === 'tiles' ? (
+        /* Tiles view — compact image-only grid */
+        <div>
+          <div className="mb-3 flex items-center justify-between">
+            <p className="text-sm text-muted-foreground">{filteredCameras.length} cameras</p>
+            <button
+              onClick={() => mutate((key) => typeof key === 'string' && key.startsWith('/api/'), undefined, { revalidate: true })}
+              className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-border text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+              title="Refresh camera data"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" />
+              </svg>
+            </button>
+          </div>
+          <div className={`grid gap-1.5 ${GRID_COLS_CLASS[columns]}`}>
+            {displayed.map((camera) => (
+              <div
+                key={camera.id}
+                className="relative aspect-video overflow-hidden rounded-md bg-black cursor-pointer group"
+                onClick={() => handleCameraClick(camera)}
+              >
+                <img
+                  src={camera.imageUrl}
+                  alt={camera.location}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
+                {/* LIVE dot */}
+                {camera.hasVideo && (
+                  <div className="absolute top-1 left-1 flex items-center gap-0.5 rounded-sm bg-black/60 px-1 py-px">
+                    <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
+                    <span className="text-[7px] font-bold text-white uppercase">Live</span>
+                  </div>
+                )}
+                {/* Name overlay on hover */}
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-1.5 pb-1 pt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <p className="text-[10px] font-semibold text-white truncate">{camera.route} {camera.direction}</p>
+                  <p className="text-[9px] text-white/70 truncate">{camera.location || camera.city}</p>
+                </div>
+                {/* Condition icons */}
+                {(camera.nearbyIncidents.length > 0 || camera.chainControls.length > 0) && (
+                  <div className="absolute top-1 right-1 flex gap-0.5">
+                    {camera.nearbyIncidents.length > 0 && (
+                      <span className="w-4 h-4 rounded-sm bg-red-500/80 flex items-center justify-center text-[8px] font-bold text-white">{camera.nearbyIncidents.length}</span>
+                    )}
+                    {camera.chainControls.length > 0 && (
+                      <span className="w-4 h-4 rounded-sm bg-blue-500/80 flex items-center justify-center text-[7px] font-bold text-white">{camera.chainControls[0].level}</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          {hasMore && (
+            <div className="mt-6 flex justify-center">
+              <button onClick={() => setPage((p) => p + 1)} className="rounded-md border border-border bg-card px-6 py-2.5 text-sm font-medium hover:bg-accent transition-colors">
+                Load more
+              </button>
+            </div>
+          )}
+        </div>
       ) : view === 'map' ? (
         <div>
           <div className="mb-3">
@@ -166,24 +229,21 @@ export function CameraGrid() {
           />
         </div>
       ) : (
+        /* Grid view — cards with full info */
         <div>
           <div className="mb-3 flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
               {filteredCameras.length} cameras
             </p>
-            <div className="flex items-center gap-1.5">
-              <button
-                onClick={() => mutate((key) => typeof key === 'string' && key.startsWith('/api/'), undefined, { revalidate: true })}
-                className="inline-flex items-center justify-center h-8 w-8 rounded-lg border border-border text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-                title="Refresh camera data"
-                aria-label="Refresh camera data"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
-                  <path d="M21 3v5h-5" />
-                </svg>
-              </button>
-            </div>
+            <button
+              onClick={() => mutate((key) => typeof key === 'string' && key.startsWith('/api/'), undefined, { revalidate: true })}
+              className="inline-flex items-center justify-center h-8 w-8 rounded-md border border-border text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+              title="Refresh camera data"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" /><path d="M21 3v5h-5" />
+              </svg>
+            </button>
           </div>
 
           <div className={`grid gap-3 ${GRID_COLS_CLASS[columns]}`}>
@@ -194,6 +254,7 @@ export function CameraGrid() {
                 onClick={handleCameraClick}
                 isFavorite={isFavorite(camera.id)}
                 onToggleFavorite={toggleFavorite}
+                playAll={playing}
               />
             ))}
           </div>
@@ -202,7 +263,7 @@ export function CameraGrid() {
             <div className="mt-6 flex justify-center">
               <button
                 onClick={() => setPage((p) => p + 1)}
-                className="rounded-lg border border-border bg-card px-6 py-2.5 text-sm font-medium hover:bg-accent transition-colors"
+                className="rounded-md border border-border bg-card px-6 py-2.5 text-sm font-medium hover:bg-accent transition-colors"
               >
                 Load more
               </button>

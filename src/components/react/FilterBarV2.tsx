@@ -62,6 +62,8 @@ export function FilterBarV2({ cameraCount, availableCities = [] }: FilterBarV2Pr
 
   const selectClass = 'h-8 rounded-md border border-input bg-background px-2 pr-6 text-xs font-medium focus:outline-none focus:ring-2 focus:ring-ring appearance-none';
 
+  const [showKey, setShowKey] = useState(false);
+
   return (
     <div className="space-y-2">
       {/* Row 1: Play All, Search, Grid/Map toggle, Grid Density */}
@@ -98,33 +100,43 @@ export function FilterBarV2({ cameraCount, availableCities = [] }: FilterBarV2Pr
           />
         </div>
 
-        {/* Grid density — only in grid view, hidden on mobile */}
-        {view === 'grid' && (
+        {/* Grid density — only in tiles/grid view, hidden on mobile */}
+        {view !== 'map' && (
           <div className="hidden md:block" title="Adjust grid columns">
             <GridDensityControl />
           </div>
         )}
 
-        {/* View toggle (grid/map) */}
+        {/* View toggle (tiles/grid/map) */}
         <div className="flex rounded-md border border-input overflow-hidden shrink-0 h-8">
           <button
-            onClick={() => viewMode.set('grid')}
-            className={cn('inline-flex items-center px-2.5 transition-colors', view === 'grid' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent')}
-            aria-label="Grid view"
-            title="Grid view"
+            onClick={() => viewMode.set('tiles')}
+            className={cn('inline-flex items-center px-2.5 transition-colors', view === 'tiles' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent')}
+            aria-label="Tiles view"
+            title="Tiles — compact image grid"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <rect width="7" height="7" x="3" y="3" rx="1" /><rect width="7" height="7" x="14" y="3" rx="1" /><rect width="7" height="7" x="14" y="14" rx="1" /><rect width="7" height="7" x="3" y="14" rx="1" />
             </svg>
           </button>
           <button
+            onClick={() => viewMode.set('grid')}
+            className={cn('inline-flex items-center px-2.5 transition-colors border-l border-input', view === 'grid' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent')}
+            aria-label="Grid view"
+            title="Grid — cards with details"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect width="18" height="7" x="3" y="3" rx="1" /><rect width="18" height="7" x="3" y="14" rx="1" />
+            </svg>
+          </button>
+          <button
             onClick={() => viewMode.set('map')}
             className={cn('inline-flex items-center px-2.5 transition-colors border-l border-input', view === 'map' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent')}
             aria-label="Map view"
-            title="Map view"
+            title="Map — cameras on map"
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="m3 3 7 7" /><path d="m14 21-7-7" /><path d="m3 21 18-18" /><path d="M21 14v7h-7" /><path d="M3 10V3h7" />
+              <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"/><line x1="9" x2="9" y1="3" y2="18"/><line x1="15" x2="15" y1="6" y2="21"/>
             </svg>
           </button>
         </div>
@@ -291,11 +303,50 @@ export function FilterBarV2({ cameraCount, availableCities = [] }: FilterBarV2Pr
         {/* Spacer */}
         <div className="flex-1 min-w-[8px]" />
 
+        {/* Icon key toggle */}
+        <button
+          onClick={() => setShowKey(!showKey)}
+          className={cn(
+            'inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-medium transition-all whitespace-nowrap shrink-0',
+            showKey
+              ? 'bg-foreground/10 border-foreground/20 text-foreground/70'
+              : 'border-border text-muted-foreground hover:bg-accent'
+          )}
+          title="Show icon key"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+            <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
+          </svg>
+          Key
+        </button>
+
         {/* Camera count */}
         <span className="text-[11px] text-muted-foreground whitespace-nowrap shrink-0">
           {cameraCount} cameras
         </span>
       </div>
+
+      {/* Collapsible icon key */}
+      {showKey && (
+        <div className="flex items-center gap-4 text-[10px] text-muted-foreground border border-border/50 rounded-md px-2.5 py-1.5">
+          <span className="inline-flex items-center gap-1">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/></svg>
+            Incident
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/></svg>
+            Chain Control
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+            Delay
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <span className="h-1.5 w-1.5 rounded-full bg-red-500 inline-block"></span>
+            Live Feed
+          </span>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { RouteShield } from './RouteShield';
 import { ConditionIcons } from './ConditionIcons';
+import { VideoPlayer } from './VideoPlayer';
 import { cn } from '@/lib/utils';
 import { markUnavailable } from '@/stores/filters';
 import type { EnrichedCamera } from '@/hooks/use-enriched-cameras';
@@ -10,6 +11,7 @@ interface CameraCardProps {
   onClick?: (camera: EnrichedCamera) => void;
   isFavorite?: boolean;
   onToggleFavorite?: (id: string) => void;
+  playAll?: boolean;
 }
 
 /**
@@ -48,7 +50,7 @@ function detectPlaceholder(img: HTMLImageElement): boolean {
   }
 }
 
-export function CameraCard({ camera, onClick, isFavorite = false, onToggleFavorite }: CameraCardProps) {
+export function CameraCard({ camera, onClick, isFavorite = false, onToggleFavorite, playAll = false }: CameraCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [isPlaceholder, setIsPlaceholder] = useState(false);
@@ -100,9 +102,16 @@ export function CameraCard({ camera, onClick, isFavorite = false, onToggleFavori
       onKeyDown={(e) => e.key === 'Enter' && onClick?.(camera)}
       aria-label={`Camera: ${camera.location} on ${camera.route} ${camera.direction}`}
     >
-      {/* Camera Image */}
+      {/* Camera Image or Video */}
       <div className="relative aspect-video bg-black/40">
-        {!imageError ? (
+        {playAll && camera.hasVideo && camera.streamUrl ? (
+          <VideoPlayer
+            streamUrl={camera.streamUrl}
+            imageUrl={camera.imageUrl}
+            cameraName={camera.location}
+            hideControls
+          />
+        ) : !imageError ? (
           <img
             ref={imgRef}
             crossOrigin="anonymous"
@@ -121,12 +130,12 @@ export function CameraCard({ camera, onClick, isFavorite = false, onToggleFavori
             </svg>
           </div>
         )}
-        {!imageLoaded && !imageError && (
+        {!playAll && !imageLoaded && !imageError && (
           <div className="absolute inset-0 animate-pulse bg-muted/30" />
         )}
 
         {/* LIVE indicator — small red dot, top-left */}
-        {camera.hasVideo && imageLoaded && !isPlaceholder && (
+        {camera.hasVideo && (playAll || (imageLoaded && !isPlaceholder)) && (
           <div className="absolute top-1.5 left-1.5 flex items-center gap-1 rounded-full bg-black/50 px-1.5 py-0.5 backdrop-blur-sm">
             <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
             <span className="text-[9px] font-bold text-white/90">LIVE</span>
