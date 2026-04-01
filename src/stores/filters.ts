@@ -10,27 +10,57 @@ export const viewMode = atom<'tiles' | 'grid' | 'map'>('tiles');
 // Feed type: 'all' | 'live' | 'still' — replaces multiple toggle atoms
 export const feedType = atom<'all' | 'live' | 'still'>('live');
 
-// Condition filters — these match the ConditionIcons on cards
-export const filterIncidents = atom<boolean>(false);
-export const filterChains = atom<boolean>(false);
-export const filterDelays = atom<boolean>(false);
-
 // Favorites filter
 export const filterFavorites = atom<boolean>(false);
 
-// Play all state — action, not a filter
-export const playAllLive = atom<boolean>(false);
+// Play all state — on by default
+export const playAllLive = atom<boolean>(true);
 
-// Track cameras with broken/unavailable images (detected client-side)
-export const unavailableCameras = atom<Set<string>>(new Set());
+// Featured cameras page state
+export const featuredCategory = atom<string>('all');
+export const showDisabledFeatured = atom<boolean>(false);
+
+// Track cameras with broken/unavailable images (detected client-side, persisted to localStorage)
+const UNAVAILABLE_KEY = 'caltraffic-unavailable-cameras';
+const UNAVAILABLE_TTL = 1000 * 60 * 30; // 30 min — re-check after this
+
+function loadUnavailable(): Set<string> {
+  if (typeof window === 'undefined') return new Set();
+  try {
+    const raw = localStorage.getItem(UNAVAILABLE_KEY);
+    if (!raw) return new Set();
+    const { ids, ts } = JSON.parse(raw);
+    if (Date.now() - ts > UNAVAILABLE_TTL) {
+      localStorage.removeItem(UNAVAILABLE_KEY);
+      return new Set();
+    }
+    return new Set(ids);
+  } catch {
+    return new Set();
+  }
+}
+
+function persistUnavailable(ids: Set<string>) {
+  if (typeof window === 'undefined') return;
+  try {
+    localStorage.setItem(UNAVAILABLE_KEY, JSON.stringify({ ids: [...ids], ts: Date.now() }));
+  } catch { /* quota */ }
+}
+
+export const unavailableCameras = atom<Set<string>>(loadUnavailable());
+
 export function markUnavailable(id: string) {
   const current = unavailableCameras.get();
   if (!current.has(id)) {
     const next = new Set(current);
     next.add(id);
     unavailableCameras.set(next);
+    persistUnavailable(next);
   }
 }
+
+// Hide unavailable by default
+export const hideUnavailable = atom<boolean>(true);
 
 export function clearAllFilters() {
   selectedDistrict.set(null);
@@ -39,8 +69,7 @@ export function clearAllFilters() {
   selectedCounty.set(null);
   searchQuery.set('');
   feedType.set('live');
-  filterIncidents.set(false);
-  filterChains.set(false);
-  filterDelays.set(false);
   filterFavorites.set(false);
+  featuredCategory.set('all');
+  showDisabledFeatured.set(false);
 }

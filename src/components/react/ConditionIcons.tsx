@@ -28,7 +28,6 @@ export function ConditionIcons({ incidents = [], chainControls = [], travelTime 
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5">
             <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
-            <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
           </svg>
           <span className="text-[8px] font-bold text-red-400">{incidents.length}</span>
         </div>
@@ -39,7 +38,7 @@ export function ConditionIcons({ incidents = [], chainControls = [], travelTime 
           title={CHAIN_TOOLTIP[chainControls[0].level] || `Chain control: ${chainControls[0].level}`}
         >
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5">
-            <circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/>
+            <circle cx="12" cy="12" r="10"/>
           </svg>
           <span className="text-[8px] font-bold text-blue-400">{chainControls[0].level}</span>
         </div>

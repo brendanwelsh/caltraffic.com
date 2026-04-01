@@ -18,12 +18,21 @@ export function MainContent() {
     return [...cities].sort();
   }, [cameras]);
 
+  const availableRoutes = useMemo(() => {
+    const routes = new Set(cameras.map((c) => c.route).filter(Boolean));
+    return [...routes].sort((a, b) => {
+      const order = (r: string) => r.startsWith('I-') ? 0 : r.startsWith('US-') ? 1 : 2;
+      return order(a) - order(b) || a.localeCompare(b, undefined, { numeric: true });
+    });
+  }, [cameras]);
+
   return (
     <ErrorBoundary>
       <WeatherAlertBanner />
       <FilterBarV2
         cameraCount={cameras.length}
         availableCities={availableCities}
+        availableRoutes={availableRoutes}
       />
       <div className="mt-4">
         <CameraGrid />

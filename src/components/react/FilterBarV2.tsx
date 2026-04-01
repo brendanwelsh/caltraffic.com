@@ -3,11 +3,9 @@ import { useStore } from '@nanostores/react';
 import { GridDensityControl } from './GridDensityControl';
 import {
   feedType,
-  filterIncidents,
-  filterChains,
-  filterDelays,
   filterFavorites,
   playAllLive,
+  hideUnavailable,
   selectedDistrict,
   selectedRoute,
   selectedCity,
@@ -17,14 +15,16 @@ import {
   clearAllFilters,
 } from '@/stores/filters';
 import { DISTRICTS, getCountiesForDistrict } from '@/lib/constants';
+import { RouteDropdown } from './RouteDropdown';
 import { cn } from '@/lib/utils';
 
 interface FilterBarV2Props {
   cameraCount: number;
   availableCities?: string[];
+  availableRoutes?: string[];
 }
 
-export function FilterBarV2({ cameraCount, availableCities = [] }: FilterBarV2Props) {
+export function FilterBarV2({ cameraCount, availableCities = [], availableRoutes = [] }: FilterBarV2Props) {
   const district = useStore(selectedDistrict);
   const route = useStore(selectedRoute);
   const city = useStore(selectedCity);
@@ -32,11 +32,9 @@ export function FilterBarV2({ cameraCount, availableCities = [] }: FilterBarV2Pr
   const search = useStore(searchQuery);
   const view = useStore(viewMode);
   const feed = useStore(feedType);
-  const incidents = useStore(filterIncidents);
-  const chains = useStore(filterChains);
-  const delays = useStore(filterDelays);
   const favorites = useStore(filterFavorites);
   const playing = useStore(playAllLive);
+  const hideBroken = useStore(hideUnavailable);
 
   const [searchInput, setSearchInput] = useState(search);
   const availableCounties = useMemo(() => getCountiesForDistrict(district), [district]);
@@ -53,8 +51,8 @@ export function FilterBarV2({ cameraCount, availableCities = [] }: FilterBarV2Pr
   }, [searchInput]);
 
   const hasAnyFilter = useMemo(() => {
-    return feed !== 'live' || incidents || chains || delays || favorites || !!route || !!city || !!county || district !== null || search !== '';
-  }, [feed, incidents, chains, delays, favorites, route, city, county, district, search]);
+    return feed !== 'live' || favorites || !!route || !!city || !!county || district !== null || search !== '';
+  }, [feed, favorites, route, city, county, district, search]);
 
   const selectStyle = {
     backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'10\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23888\' stroke-width=\'2\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E")',
@@ -172,80 +170,41 @@ export function FilterBarV2({ cameraCount, availableCities = [] }: FilterBarV2Pr
           ))}
         </div>
 
-        {/* Condition chips */}
-        <button
-          onClick={() => filterIncidents.set(!incidents)}
-          className={cn(
-            'inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-medium transition-all whitespace-nowrap shrink-0',
-            incidents
-              ? 'bg-red-500/15 border-red-500/40 text-red-400'
-              : 'border-border text-muted-foreground hover:bg-red-500/10'
-          )}
-          title="Show only cameras near incidents"
-        >
-          {/* Red triangle icon */}
-          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>
-          </svg>
-          Incidents
-          {incidents && (
-            <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-          )}
-        </button>
-
-        <button
-          onClick={() => filterChains.set(!chains)}
-          className={cn(
-            'inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-medium transition-all whitespace-nowrap shrink-0',
-            chains
-              ? 'bg-blue-500/15 border-blue-500/40 text-blue-400'
-              : 'border-border text-muted-foreground hover:bg-blue-500/10'
-          )}
-          title="Show only cameras with chain controls"
-        >
-          {/* Blue circle icon */}
-          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <circle cx="12" cy="12" r="10"/>
-          </svg>
-          Chains
-          {chains && (
-            <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-          )}
-        </button>
-
-        <button
-          onClick={() => filterDelays.set(!delays)}
-          className={cn(
-            'inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-medium transition-all whitespace-nowrap shrink-0',
-            delays
-              ? 'bg-amber-500/15 border-amber-500/40 text-amber-400'
-              : 'border-border text-muted-foreground hover:bg-amber-500/10'
-          )}
-          title="Show only cameras with travel delays"
-        >
-          {/* Amber clock icon */}
-          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-          </svg>
-          Delays
-          {delays && (
-            <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-          )}
-        </button>
-
+        {/* Favorites filter — clear yellow star */}
         <button
           onClick={() => filterFavorites.set(!favorites)}
           className={cn(
-            'inline-flex items-center gap-1 rounded-md border px-2 py-0.5 text-[11px] font-medium transition-all whitespace-nowrap shrink-0',
+            'inline-flex items-center gap-1.5 rounded-md border px-2.5 py-0.5 text-[11px] font-medium transition-all whitespace-nowrap shrink-0',
             favorites
-              ? 'bg-yellow-500/15 border-yellow-500/30 text-yellow-400'
-              : 'border-border text-muted-foreground hover:bg-accent'
+              ? 'bg-yellow-500/15 border-yellow-500/40 text-yellow-400'
+              : 'border-border text-muted-foreground hover:bg-yellow-500/10 hover:text-yellow-400'
           )}
+          title="Show only your favorited cameras"
         >
-          <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill={favorites ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2.5">
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill={favorites ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
           </svg>
-          Favorites
+          My Favorites
+          {favorites && (
+            <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          )}
+        </button>
+
+        {/* Hide Unavailable toggle */}
+        <button
+          onClick={() => hideUnavailable.set(!hideBroken)}
+          className={cn(
+            'inline-flex items-center gap-1.5 rounded-md border px-2.5 py-0.5 text-[11px] font-medium transition-all whitespace-nowrap shrink-0',
+            hideBroken
+              ? 'bg-orange-500/15 border-orange-500/40 text-orange-400'
+              : 'border-border text-muted-foreground hover:bg-orange-500/10 hover:text-orange-400'
+          )}
+          title={hideBroken ? 'Show unavailable cameras' : 'Hide unavailable cameras'}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>
+          </svg>
+          {hideBroken ? 'Hiding N/A' : 'Show N/A'}
         </button>
 
         {/* District selector */}
@@ -270,13 +229,12 @@ export function FilterBarV2({ cameraCount, availableCities = [] }: FilterBarV2Pr
           ))}
         </select>
 
-        {/* Route filter — shown as dismissable chip when active */}
-        {route && (
-          <button onClick={() => selectedRoute.set(null)} className="inline-flex items-center gap-1 rounded-md bg-primary/10 border border-primary/20 px-2 py-0.5 text-[10px] font-medium text-primary whitespace-nowrap shrink-0">
-            {route}
-            <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
-          </button>
-        )}
+        {/* Route selector with shield icons */}
+        <RouteDropdown
+          routes={availableRoutes}
+          value={route}
+          onChange={(v) => selectedRoute.set(v)}
+        />
 
         {/* County selector */}
         <select
@@ -324,24 +282,19 @@ export function FilterBarV2({ cameraCount, availableCities = [] }: FilterBarV2Pr
 
       </div>
 
-      {/* Icon key — always visible */}
-      <div className="flex items-center gap-3 text-[9px] text-muted-foreground/70 px-1">
-        <span className="font-semibold text-muted-foreground uppercase tracking-wider">Key</span>
-        <span className="inline-flex items-center gap-1">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/></svg>
-          Incident
-        </span>
-        <span className="inline-flex items-center gap-1">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/></svg>
-          Chains
-        </span>
-        <span className="inline-flex items-center gap-1">
-          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
-          Delay
-        </span>
+      {/* Compact key */}
+      <div className="flex items-center gap-3 text-[9px] text-muted-foreground/60 px-1">
         <span className="inline-flex items-center gap-1">
           <span className="h-1.5 w-1.5 rounded-full bg-red-500 inline-block"></span>
           Live
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#ef4444" strokeWidth="2.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/></svg>
+          Incident nearby
+        </span>
+        <span className="inline-flex items-center gap-1">
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2.5"><circle cx="12" cy="12" r="10"/></svg>
+          Chain control
         </span>
       </div>
     </div>

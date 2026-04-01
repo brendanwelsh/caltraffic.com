@@ -32,10 +32,27 @@ export function matchClosuresToCamera(camera: Camera, closures: LaneClosure[]): 
   );
 }
 
+const CHAIN_CONTROL_DISTANCE_KM = 15; // Only match chain controls within 15km
+
 export function matchChainControlToCamera(camera: Camera, chains: ChainControl[]): ChainControl[] {
-  return chains.filter(
-    (cc) => cc.route === camera.route && cc.district === camera.district
-  );
+  const matched = chains.filter((cc) => {
+    // Must be same route
+    if (cc.route !== camera.route) return false;
+    // Use geographic distance instead of just district match
+    if (cc.latitude && cc.longitude && camera.latitude && camera.longitude) {
+      const dist = haversineDistance(camera.latitude, camera.longitude, cc.latitude, cc.longitude);
+      return dist <= CHAIN_CONTROL_DISTANCE_KM;
+    }
+    // Fallback: postmile proximity within same district
+    return cc.district === camera.district && Math.abs(cc.postmile - camera.postmile) <= 15;
+  });
+  // Deduplicate by level
+  const seen = new Set<string>();
+  return matched.filter((cc) => {
+    if (seen.has(cc.level)) return false;
+    seen.add(cc.level);
+    return true;
+  });
 }
 
 export function findNearestRWIS(camera: Camera, sensors: RWIS[]): RWIS | null {

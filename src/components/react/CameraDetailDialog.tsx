@@ -42,14 +42,18 @@ export function CameraDetailDialog({ camera, onClose, isFavorite = false, onTogg
         aria-label={`Camera detail: ${camera.location}`}
       >
         {/* Header */}
-        <div className="sticky top-0 z-10 flex items-center justify-between border-b border-border bg-card/95 backdrop-blur-sm px-4 py-3 rounded-t-xl">
+        <div className="flex items-center justify-between border-b border-border bg-card px-4 py-3 rounded-t-xl">
           <div className="flex items-center gap-3 min-w-0">
             <RouteShield route={camera.route} size="lg" />
             <div className="min-w-0">
               <h2 className="truncate text-base font-semibold">{camera.location || camera.city}</h2>
               <p className="truncate text-xs text-muted-foreground">
                 {camera.direction} — {camera.city}, {camera.county} — D{String(camera.district).padStart(2, '0')}
+                {camera.elevation != null && ` · ${camera.elevation.toLocaleString()} ft`}
               </p>
+              {camera.imageDescription && (
+                <p className="text-[10px] text-muted-foreground/60 truncate">{camera.imageDescription}</p>
+              )}
             </div>
           </div>
           <div className="flex items-center gap-1 ml-2 flex-shrink-0">
@@ -86,20 +90,13 @@ export function CameraDetailDialog({ camera, onClose, isFavorite = false, onTogg
               imageUrl={camera.imageUrl}
               cameraName={camera.location}
             />
-            <div className="flex flex-wrap gap-2 mt-2">
-              <span className={cn(
-                'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium',
-                camera.hasVideo ? 'bg-green-500/10 text-green-500' : 'bg-gray-500/10 text-gray-400'
-              )}>
-                <span className={cn('h-1.5 w-1.5 rounded-full', camera.hasVideo ? 'bg-green-500' : 'bg-gray-400')} />
-                {camera.hasVideo ? 'Live Stream' : 'Static Image'}
-              </span>
-              {camera.isStale && (
+            {camera.isStale && (
+              <div className="mt-2">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-500/10 px-2.5 py-1 text-xs font-medium text-yellow-500">
                   Feed may be delayed
                 </span>
-              )}
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Nearby CMS Signs */}

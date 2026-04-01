@@ -13,7 +13,7 @@ export const DISTRICTS: Record<number, { name: string; description: string }> = 
   12: { name: 'District 12', description: 'Irvine (Orange County)' },
 };
 
-export const PHOTO_ONLY_DISTRICTS = new Set([7, 8, 9, 10, 11, 12]);
+export const PHOTO_ONLY_DISTRICTS = new Set([9]); // Only D9 (Eastern Sierra) has no video URLs
 
 export const RWIS_DISTRICTS = new Set([2, 3, 6, 8, 9, 10]);
 export const TRAVEL_TIME_DISTRICTS = new Set([3, 8, 11, 12]);
@@ -25,12 +25,12 @@ export const DISTRICT_CAPABILITIES: Record<number, { cctv: boolean; cms: boolean
   4:  { cctv: true, cms: true, cc: true, lcs: true, rwis: false, tt: false, video: true },
   5:  { cctv: true, cms: true, cc: true, lcs: true, rwis: false, tt: false, video: true },
   6:  { cctv: true, cms: true, cc: true, lcs: true, rwis: true,  tt: false, video: true },
-  7:  { cctv: true, cms: true, cc: true, lcs: true, rwis: false, tt: false, video: false },
-  8:  { cctv: true, cms: true, cc: true, lcs: true, rwis: true,  tt: true,  video: false },
+  7:  { cctv: true, cms: true, cc: true, lcs: true, rwis: false, tt: false, video: true },
+  8:  { cctv: true, cms: true, cc: true, lcs: true, rwis: true,  tt: true,  video: true },
   9:  { cctv: true, cms: true, cc: true, lcs: true, rwis: true,  tt: false, video: false },
-  10: { cctv: true, cms: true, cc: true, lcs: true, rwis: true,  tt: false, video: false },
-  11: { cctv: true, cms: true, cc: true, lcs: true, rwis: false, tt: true,  video: false },
-  12: { cctv: true, cms: true, cc: true, lcs: true, rwis: false, tt: true,  video: false },
+  10: { cctv: true, cms: true, cc: true, lcs: true, rwis: true,  tt: false, video: true },
+  11: { cctv: true, cms: true, cc: true, lcs: true, rwis: false, tt: true,  video: true },
+  12: { cctv: true, cms: true, cc: true, lcs: true, rwis: false, tt: true,  video: true },
 };
 
 export const INTERSTATE_ROUTES = new Set([5, 8, 10, 15, 40, 80, 105, 110, 205, 210, 215, 238, 280, 380, 405, 505, 580, 605, 680, 710, 780, 805, 880, 980]);

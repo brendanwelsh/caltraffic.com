@@ -157,7 +157,20 @@ export function MapViewInner({ cameras, cmsSigns = [], incidents = [], chainCont
     closureLayerRef.current = L.layerGroup().addTo(map);
     mapInstance.current = map;
 
+    // Fix gray tiles — aggressive invalidation on resize and visibility
+    const invalidate = () => map.invalidateSize();
+    setTimeout(invalidate, 100);
+    setTimeout(invalidate, 500);
+    setTimeout(invalidate, 1500);
+    window.addEventListener('resize', invalidate);
+
+    // Also watch for container becoming visible (tab switches, etc)
+    const observer = new ResizeObserver(invalidate);
+    observer.observe(mapRef.current);
+
     return () => {
+      window.removeEventListener('resize', invalidate);
+      observer.disconnect();
       map.remove();
       mapInstance.current = null;
     };

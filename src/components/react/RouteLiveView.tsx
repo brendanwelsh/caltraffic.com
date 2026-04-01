@@ -1,4 +1,6 @@
 import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useStore } from '@nanostores/react';
+import { playAllLive } from '@/stores/filters';
 import { VideoPlayer } from './VideoPlayer';
 import { CMSSign } from './CMSSign';
 import { CameraDetailDialog } from './CameraDetailDialog';
@@ -237,7 +239,7 @@ function MiniCard({ camera, routeDuration }: { camera: RouteCamera; routeDuratio
 
 export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLocationChange }: RouteLiveViewProps) {
   const [passedIds, setPassedIds] = useState<Set<string>>(new Set());
-  const [playAll, setPlayAll] = useState(false);
+  const playAll = useStore(playAllLive);
   const [tracking, setTracking] = useState(false);
   const [userLocation, setUserLocation] = useState<{ lat: number; lon: number } | null>(null);
   const [trackingError, setTrackingError] = useState<string | null>(null);
@@ -418,7 +420,7 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLoc
 
         {/* Play All toggle */}
         <button
-          onClick={() => setPlayAll(!playAll)}
+          onClick={() => playAllLive.set(!playAll)}
           title="Play all live camera feeds"
           className={`inline-flex items-center gap-1.5 rounded-lg border px-2.5 py-1 text-[11px] font-medium transition-colors ${
             playAll

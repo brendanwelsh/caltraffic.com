@@ -41,8 +41,8 @@ export function WeatherAlertBanner() {
           className={cn(
             'flex items-start gap-3 rounded-lg border px-4 py-3 text-sm',
             alert.severity === 'Extreme'
-              ? 'border-red-500/30 bg-red-500/10 text-red-200'
-              : 'border-amber-500/30 bg-amber-500/10 text-amber-200'
+              ? 'border-red-500/40 bg-red-500/10 text-red-700 dark:text-red-300'
+              : 'border-amber-500/40 bg-amber-500/10 text-amber-800 dark:text-amber-300'
           )}
         >
           <span className="mt-0.5 flex-shrink-0">

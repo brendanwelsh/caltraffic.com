@@ -14,6 +14,8 @@ export const CameraSchema = z.object({
   latitude: z.number(),
   longitude: z.number(),
   postmile: z.number(),
+  elevation: z.number().nullable(),
+  imageDescription: z.string().nullable(),
   imageUrl: z.string().url(),
   historicalImages: z.array(z.string().url()),
   streamUrl: z.string().url().nullable(),

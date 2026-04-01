@@ -30,13 +30,13 @@ export type GridDensity = 1 | 2 | 3 | 4 | 5 | 6;
 const GRID_DENSITY_KEY = 'california-traffic-lens-grid-density';
 
 function loadDensity(): GridDensity {
-  if (typeof window === 'undefined') return 3;
+  if (typeof window === 'undefined') return 5;
   const saved = localStorage.getItem(GRID_DENSITY_KEY);
   if (saved) {
     const n = parseInt(saved, 10);
     if (n >= 1 && n <= 6) return n as GridDensity;
   }
-  return 3;
+  return 5;
 }
 
 export const gridDensity = atom<GridDensity>(loadDensity());

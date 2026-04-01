@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { useStore } from '@nanostores/react';
 import { gridDensity, type GridDensity } from '@/stores/preferences';
 
@@ -11,6 +12,8 @@ const DENSITY_OPTIONS: { value: GridDensity; label: string }[] = [
 
 export function GridDensityControl() {
   const density = useStore(gridDensity);
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   return (
     <div className="flex items-center gap-1.5 shrink-0">
@@ -26,7 +29,7 @@ export function GridDensityControl() {
             key={value}
             onClick={() => gridDensity.set(value)}
             className={`px-2 text-xs font-medium transition-colors ${
-              density === value
+              mounted && density === value
                 ? 'bg-primary text-primary-foreground'
                 : 'hover:bg-accent text-muted-foreground'
             }`}

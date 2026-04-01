@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef, useEffect } from 'react';
+import { useMemo, useState, useRef, useEffect, useCallback } from 'react';
 import { useStore } from '@nanostores/react';
 import { FEATURED_CAMERAS, CATEGORY_LABELS } from '@/lib/featured-cameras';
 import type { FeaturedCamera } from '@/lib/featured-cameras';
@@ -8,23 +8,26 @@ import { VideoPlayer } from './VideoPlayer';
 import { ConditionIcons } from './ConditionIcons';
 import { RouteShield } from './RouteShield';
 import { CameraDetailDialog } from './CameraDetailDialog';
-import { gridDensity } from '@/stores/preferences';
-import { unavailableCameras } from '@/stores/filters';
-import { GridDensityControl } from './GridDensityControl';
+import { RouteDropdown } from './RouteDropdown';
+import { unavailableCameras, markUnavailable, playAllLive } from '@/stores/filters';
 import { useFavorites } from '@/hooks/use-favorites';
 
 type Category = FeaturedCamera['category'];
+type SortMode = 'default' | 'shuffle' | 'route' | 'category';
 
-/** Only mount VideoPlayer when the card scrolls into view. Hide if image fails. */
-function LazyFeaturedFeed({ streamUrl, imageUrl, cameraName, paused }: {
+/** Lazy feed — probes image for placeholder detection, then upgrades to video */
+function LazyFeed({ streamUrl, imageUrl, cameraName, cameraId, paused, offline }: {
   streamUrl: string | null;
   imageUrl: string;
   cameraName: string;
+  cameraId: string;
   paused: boolean;
+  offline?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
   const [visible, setVisible] = useState(false);
-  const [imgError, setImgError] = useState(false);
+  const [checked, setChecked] = useState(false);
+  const [broken, setBroken] = useState(false);
 
   useEffect(() => {
     if (!ref.current || visible) return;
@@ -36,14 +39,49 @@ function LazyFeaturedFeed({ streamUrl, imageUrl, cameraName, paused }: {
     return () => observer.disconnect();
   }, [visible]);
 
-  if (imgError) return null; // Hide entirely if image fails
+  const handleLoad = useCallback((e: React.SyntheticEvent<HTMLImageElement>) => {
+    try {
+      const img = e.currentTarget;
+      const canvas = document.createElement('canvas');
+      canvas.width = 32; canvas.height = 32;
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        ctx.drawImage(img, 0, 0, 32, 32);
+        const data = ctx.getImageData(0, 0, 32, 32).data;
+        let total = 0, count = 0;
+        for (let i = 0; i < data.length; i += 16) { total += (data[i] + data[i+1] + data[i+2]) / 3; count++; }
+        if (total / count > 210) { setBroken(true); markUnavailable(cameraId); return; }
+      }
+    } catch { /* CORS — ignore */ }
+    setChecked(true);
+  }, [cameraId]);
+
+  if (offline || broken) {
+    return (
+      <div ref={ref} className="aspect-video overflow-hidden bg-muted/30 rounded-md flex items-center justify-center">
+        <span className="text-xs text-muted-foreground/50 font-medium">Offline</span>
+      </div>
+    );
+  }
+
+  const showVideo = checked && !paused && !!streamUrl;
 
   return (
-    <div ref={ref}>
-      {visible ? (
-        <VideoPlayer streamUrl={paused ? null : streamUrl} imageUrl={imageUrl} cameraName={cameraName} hideControls />
+    <div ref={ref} className="aspect-video overflow-hidden bg-black rounded-md">
+      {!visible ? (
+        <div className="w-full h-full animate-pulse bg-muted/20" />
+      ) : showVideo ? (
+        <VideoPlayer streamUrl={streamUrl} imageUrl={imageUrl} cameraName={cameraName} hideControls />
       ) : (
-        <div className="aspect-video bg-muted/30 animate-pulse rounded-md" />
+        <img
+          src={imageUrl}
+          alt={cameraName}
+          className="w-full h-full object-cover"
+          loading="lazy"
+          crossOrigin="anonymous"
+          onLoad={handleLoad}
+          onError={() => { setBroken(true); markUnavailable(cameraId); }}
+        />
       )}
     </div>
   );
@@ -58,27 +96,35 @@ const ALL_CATEGORIES: Array<{ key: Category | 'all'; label: string }> = [
   { key: 'remote', label: 'Remote' },
 ];
 
-
 interface MatchedFeatured extends FeaturedCamera {
   camera: EnrichedCamera;
+  isOffline: boolean;
 }
 
-const GRID_COLS: Record<number, string> = {
-  2: 'grid-cols-1 sm:grid-cols-2',
-  3: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
-  4: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
-  5: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5',
-  6: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6',
-};
+/** Fisher-Yates shuffle with seed for stable per-session randomization */
+function shuffleArray<T>(arr: T[], seed: number): T[] {
+  const shuffled = [...arr];
+  let m = shuffled.length, t, i;
+  let s = seed;
+  while (m) {
+    s = (s * 1103515245 + 12345) & 0x7fffffff;
+    i = s % m--;
+    t = shuffled[m]; shuffled[m] = shuffled[i]; shuffled[i] = t;
+  }
+  return shuffled;
+}
+
+// Stable session seed — changes per page load for variety
+const SESSION_SEED = Date.now();
 
 export function FeaturedCameras() {
   const { cameras: allCameras, isLoading } = useEnrichedCameras(null);
   const [activeCategory, setActiveCategory] = useState<Category | 'all'>('all');
-  const [hideStatic, setHideStatic] = useState(true);
-  const [pauseAll, setPauseAll] = useState(false);
-  const [featuredView, setFeaturedView] = useState<'tiles' | 'cards'>('cards');
+  const [activeRoute, setActiveRoute] = useState<string | null>(null);
+  const [sortMode, setSortMode] = useState<SortMode>('shuffle');
   const [selectedCamera, setSelectedCamera] = useState<EnrichedCamera | null>(null);
-  const columns = useStore(gridDensity);
+  const [visibleCount, setVisibleCount] = useState(18);
+  const playing = useStore(playAllLive);
   const broken = useStore(unavailableCameras);
   const { isFavorite, toggle: toggleFavorite } = useFavorites();
 
@@ -93,25 +139,51 @@ export function FeaturedCameras() {
               cam.city?.toLowerCase().includes(term.toLowerCase())
           ) && cam.district === featured.district
       );
-      return match ? { ...featured, camera: match } : null;
+      if (!match) return null;
+      const isOffline = !match.inService || match.isStale || !match.imageUrl || broken.has(match.id) || !match.hasVideo || !match.streamUrl;
+      return { ...featured, camera: match, isOffline };
     }).filter((f): f is MatchedFeatured => f !== null);
-  }, [allCameras]);
+  }, [allCameras, broken]);
 
-  const videoCount = matchedFeatured.filter((f) => f.camera.hasVideo).length;
-  const staticCount = matchedFeatured.length - videoCount;
+  // Unique routes for the route filter
+  const availableRoutes = useMemo(() => {
+    const routes = [...new Set(matchedFeatured.map((f) => f.route))];
+    return routes.sort((a, b) => {
+      // Sort: I- first, then US-, then SR-
+      const order = (r: string) => r.startsWith('I-') ? 0 : r.startsWith('US-') ? 1 : 2;
+      return order(a) - order(b) || a.localeCompare(b, undefined, { numeric: true });
+    });
+  }, [matchedFeatured]);
 
   const filtered = useMemo(() => {
     let result = matchedFeatured;
-    // Always filter out unavailable/stale cameras
-    result = result.filter((f) => f.camera.inService && !f.camera.isStale && f.camera.imageUrl && !broken.has(f.camera.id));
     if (activeCategory !== 'all') result = result.filter((f) => f.category === activeCategory);
-    if (hideStatic) result = result.filter((f) => f.camera.hasVideo && f.camera.streamUrl);
-    return result;
-  }, [matchedFeatured, activeCategory, hideStatic, broken]);
+    if (activeRoute) result = result.filter((f) => f.route === activeRoute);
+
+    // Sort
+    switch (sortMode) {
+      case 'shuffle':
+        result = shuffleArray(result, SESSION_SEED);
+        break;
+      case 'route':
+        result = [...result].sort((a, b) => a.route.localeCompare(b.route, undefined, { numeric: true }));
+        break;
+      case 'category':
+        result = [...result].sort((a, b) => a.category.localeCompare(b.category));
+        break;
+      default: // 'default' — original order
+        break;
+    }
+
+    // Always push offline to the end
+    return result.sort((a, b) => (a.isOffline === b.isOffline ? 0 : a.isOffline ? 1 : -1));
+  }, [matchedFeatured, activeCategory, activeRoute, sortMode]);
+
+  const liveCount = filtered.filter((f) => !f.isOffline).length;
 
   return (
-    <div className="space-y-6">
-      {/* Page heading */}
+    <div className="space-y-4">
+      {/* Header */}
       <div>
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Featured Cameras</h1>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -119,80 +191,76 @@ export function FeaturedCameras() {
         </p>
       </div>
 
-      {/* Controls bar — Camera Viewer style */}
-      <div className="space-y-2">
-        {/* Row 1: Play/Pause + View toggle + Density */}
-        <div className="flex items-center gap-1.5">
-          <button
-            onClick={() => setPauseAll(!pauseAll)}
-            className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors shrink-0 h-8 ${
-              pauseAll
-                ? 'border-border text-muted-foreground hover:bg-green-500/10 hover:text-green-400'
-                : 'border-green-500/50 bg-green-500/15 text-green-400'
-            }`}
-            title={pauseAll ? 'Resume all live feeds' : 'Pause all live feeds'}
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill={pauseAll ? 'none' : 'currentColor'} stroke="currentColor" strokeWidth="2">
-              <polygon points="5 3 19 12 5 21 5 3"/>
-            </svg>
-            {pauseAll ? 'Play All' : 'Playing'}
-          </button>
+      {/* Row 1: Play/Stop + Sort + Route filter */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <button
+          onClick={() => playAllLive.set(!playing)}
+          className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors shrink-0 h-8 ${
+            playing
+              ? 'border-green-500/50 bg-green-500/15 text-green-400'
+              : 'border-border text-muted-foreground hover:bg-green-500/10 hover:text-green-400'
+          }`}
+          title={playing ? 'Stop all live feeds' : 'Play all live feeds'}
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill={playing ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+            <polygon points="5 3 19 12 5 21 5 3"/>
+          </svg>
+          {playing ? 'Stop All' : 'Play All'}
+        </button>
 
-          <button
-            onClick={() => setHideStatic(!hideStatic)}
-            className={`inline-flex items-center gap-1 rounded-md border px-2.5 py-1 text-xs font-medium transition-colors h-8 ${
-              hideStatic
-                ? 'border-green-500/50 bg-green-500/10 text-green-400'
-                : 'border-border text-muted-foreground hover:bg-accent'
-            }`}
-          >
-            {hideStatic ? 'Live Only' : 'All Feeds'}
-          </button>
+        <span className="text-border mx-0.5">|</span>
 
-          <div className="flex-1" />
-
-          <div className="flex rounded-md border border-input overflow-hidden shrink-0 h-8">
-            <button
-              onClick={() => setFeaturedView('tiles')}
-              className={`inline-flex items-center px-2.5 transition-colors ${featuredView === 'tiles' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
-              title="Tiles"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg>
-            </button>
-            <button
-              onClick={() => setFeaturedView('cards')}
-              className={`inline-flex items-center px-2.5 transition-colors border-l border-input ${featuredView === 'cards' ? 'bg-primary text-primary-foreground' : 'hover:bg-accent'}`}
-              title="Cards"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect width="18" height="7" x="3" y="3" rx="1"/><rect width="18" height="7" x="3" y="14" rx="1"/></svg>
-            </button>
-          </div>
-
-          <div className="hidden md:block">
-            <GridDensityControl />
-          </div>
-        </div>
-
-        {/* Row 2: Category chips */}
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5" style={{ WebkitOverflowScrolling: 'touch' }}>
-          {ALL_CATEGORIES.map(({ key, label }) => (
+        {/* Sort selector */}
+        <div className="flex rounded-md border border-input overflow-hidden shrink-0 h-7">
+          {([
+            { key: 'shuffle' as SortMode, label: 'Shuffle' },
+            { key: 'route' as SortMode, label: 'By Route' },
+            { key: 'category' as SortMode, label: 'By Type' },
+          ]).map(({ key, label }) => (
             <button
               key={key}
-              onClick={() => setActiveCategory(key)}
-              className={`rounded-md border px-2.5 py-1 text-xs font-medium transition-colors shrink-0 ${
-                activeCategory === key
-                  ? 'border-primary bg-primary text-primary-foreground'
-                  : 'border-border text-muted-foreground hover:bg-accent'
-              }`}
+              onClick={() => setSortMode(key)}
+              className={`px-2.5 text-[11px] font-medium transition-colors ${
+                key !== 'shuffle' ? 'border-l border-input' : ''
+              } ${sortMode === key ? 'bg-primary text-primary-foreground' : 'hover:bg-accent text-muted-foreground'}`}
             >
               {label}
             </button>
           ))}
-          <span className="text-xs text-muted-foreground ml-auto shrink-0">{filtered.length} cameras</span>
         </div>
+
+        <span className="text-border mx-0.5">|</span>
+
+        {/* Route filter with shield icons */}
+        <RouteDropdown
+          routes={availableRoutes}
+          value={activeRoute}
+          onChange={setActiveRoute}
+        />
+
+        <span className="text-xs text-muted-foreground ml-auto shrink-0">
+          {liveCount} live · {filtered.length} total
+        </span>
       </div>
 
-      {/* Loading state */}
+      {/* Row 2: Category chips */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5" style={{ WebkitOverflowScrolling: 'touch' }}>
+        {ALL_CATEGORIES.map(({ key, label }) => (
+          <button
+            key={key}
+            onClick={() => setActiveCategory(key)}
+            className={`rounded-md border px-2.5 py-1 text-xs font-medium transition-colors shrink-0 ${
+              activeCategory === key
+                ? 'border-primary bg-primary text-primary-foreground'
+                : 'border-border text-muted-foreground hover:bg-accent'
+            }`}
+          >
+            {label}
+          </button>
+        ))}
+      </div>
+
+      {/* Loading */}
       {isLoading && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -200,7 +268,6 @@ export function FeaturedCameras() {
               <div className="aspect-video rounded-md bg-muted" />
               <div className="mt-3 h-5 w-2/3 rounded bg-muted" />
               <div className="mt-2 h-4 w-full rounded bg-muted" />
-              <div className="mt-2 h-4 w-1/2 rounded bg-muted" />
             </div>
           ))}
         </div>
@@ -209,89 +276,97 @@ export function FeaturedCameras() {
       {/* No results */}
       {!isLoading && filtered.length === 0 && (
         <p className="text-sm text-muted-foreground">
-          {allCameras.length === 0
-            ? 'Loading camera data...'
-            : 'No featured cameras matched in this category.'}
+          {allCameras.length === 0 ? 'Loading camera data...' : 'No featured cameras matched.'}
         </p>
       )}
 
-      {/* Camera display */}
-      {!isLoading && filtered.length > 0 && featuredView === 'tiles' ? (
-        /* Tiles view — compact, Camera Viewer style */
-        <div className={`grid gap-1.5 ${GRID_COLS[columns] || GRID_COLS[4]}`}>
-          {filtered.map((featured) => {
+      {/* Cards with descriptions — route shield is central */}
+      {!isLoading && filtered.length > 0 && (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.slice(0, visibleCount).map((featured) => {
             const cam = featured.camera;
             const cat = CATEGORY_LABELS[featured.category];
-            return (
-              <div
-                key={featured.name}
-                className="relative aspect-video overflow-hidden rounded-md bg-black cursor-pointer group"
-                onClick={() => setSelectedCamera(cam)}
-              >
-                <LazyFeaturedFeed streamUrl={cam.streamUrl} imageUrl={cam.imageUrl} cameraName={featured.name} paused={pauseAll} />
-                {cam.hasVideo && (
-                  <div className="absolute top-1 left-1 flex items-center gap-0.5 rounded-sm bg-black/60 px-1 py-px">
-                    <span className="h-1.5 w-1.5 rounded-full bg-red-500 animate-pulse" />
-                    <span className="text-[7px] font-bold text-white uppercase">Live</span>
-                  </div>
-                )}
-                {cam.nearbyIncidents && cam.nearbyIncidents.length > 0 && (
-                  <span className="absolute top-1 right-1 rounded-sm bg-red-500 text-white text-[7px] font-bold px-1 py-px animate-pulse">Active</span>
-                )}
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-1.5 pb-1 pt-4 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <div className="flex items-center gap-1">
-                    <span className={`text-[7px] font-semibold px-1 py-px rounded-sm border ${cat.color}`}>{cat.label}</span>
-                  </div>
-                  <p className="text-[10px] font-semibold text-white truncate mt-0.5">{featured.name}</p>
-                  <p className="text-[8px] text-white/70 truncate">{cam.route} {cam.direction} · {cam.city}</p>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      ) : !isLoading && filtered.length > 0 ? (
-        /* Cards view — storytelling with descriptions */
-        <div className={`grid gap-3 ${GRID_COLS[columns] || GRID_COLS[3]}`}>
-          {filtered.map((featured) => {
-            const cam = featured.camera;
-            const cat = CATEGORY_LABELS[featured.category];
+            const offline = featured.isOffline;
 
             return (
               <div
                 key={featured.name}
-                className="group relative overflow-hidden rounded-lg border border-border/60 bg-card transition-shadow hover:shadow-md cursor-pointer"
-                onClick={() => setSelectedCamera(cam)}
+                className={`group relative overflow-hidden rounded-lg border bg-card transition-all cursor-pointer ${
+                  offline
+                    ? 'border-border/30 opacity-50 grayscale hover:opacity-70 hover:grayscale-0'
+                    : 'border-border/60 hover:shadow-md'
+                }`}
+                onClick={() => !offline && setSelectedCamera(cam)}
               >
-                {cam.nearbyIncidents && cam.nearbyIncidents.length > 0 && (
+                {/* Active incident badge */}
+                {!offline && cam.nearbyIncidents && cam.nearbyIncidents.length > 0 && (
                   <span className="absolute top-2 right-2 z-10 rounded-md bg-red-500 text-white text-[9px] font-bold px-2 py-0.5 animate-pulse">
                     Active Incident
                   </span>
                 )}
 
-                <div className="aspect-video overflow-hidden">
-                  <LazyFeaturedFeed streamUrl={cam.streamUrl} imageUrl={cam.imageUrl} cameraName={featured.name} paused={pauseAll} />
-                </div>
+                {/* Camera feed */}
+                <LazyFeed
+                  streamUrl={cam.streamUrl}
+                  imageUrl={cam.imageUrl}
+                  cameraName={featured.name}
+                  cameraId={cam.id}
+                  paused={!playing}
+                  offline={offline}
+                />
 
-                <div className="p-3 space-y-1.5">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-1.5">
+                {/* Info — route shield BIG on the left */}
+                <div className="p-3">
+                  <div className="flex items-start gap-3">
+                    {/* Big route shield */}
+                    <div className="shrink-0 mt-0.5">
+                      <RouteShield route={featured.route} size="lg" />
+                    </div>
+
+                    {/* Name + meta */}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5 mb-0.5">
                         <span className={`inline-block rounded-md border px-1.5 py-0.5 text-[8px] font-semibold uppercase tracking-wider ${cat.color}`}>{cat.label}</span>
-                        <RouteShield route={featured.route} size="sm" />
+                        {offline && <span className="text-[8px] text-muted-foreground/50 font-medium">OFFLINE</span>}
                       </div>
-                      <h3 className="text-sm font-bold leading-tight mt-1 truncate">{featured.name}</h3>
+                      <h3 className="text-sm font-bold leading-tight">{featured.name}</h3>
                       <p className="text-[10px] text-muted-foreground mt-0.5">{cam.direction} · {cam.city}</p>
                     </div>
-                    <ConditionIcons incidents={cam.nearbyIncidents} chainControls={cam.chainControls} travelTime={cam.travelTime} />
+
+                    {/* Actions */}
+                    <div className="flex items-center gap-1 shrink-0">
+                      {!offline && <ConditionIcons incidents={cam.nearbyIncidents} chainControls={cam.chainControls} travelTime={cam.travelTime} />}
+                      <button
+                        onClick={(e) => { e.stopPropagation(); toggleFavorite(cam.id); }}
+                        className={`rounded-full p-1 transition-all ${
+                          isFavorite(cam.id) ? 'text-yellow-400' : 'text-muted-foreground/30 hover:text-yellow-400'
+                        }`}
+                        title={isFavorite(cam.id) ? 'Remove from favorites' : 'Add to favorites'}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill={isFavorite(cam.id) ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+                        </svg>
+                      </button>
+                    </div>
                   </div>
-                  <p className="text-[11px] leading-relaxed text-muted-foreground line-clamp-2">{featured.description}</p>
+                  <p className="text-[11px] leading-relaxed text-muted-foreground mt-1.5">{featured.description}</p>
                 </div>
               </div>
             );
           })}
         </div>
-      ) : null}
+      )}
 
+      {/* Load more */}
+      {visibleCount < filtered.length && (
+        <div className="flex justify-center">
+          <button onClick={() => setVisibleCount((v) => v + 18)} className="rounded-md border border-border px-6 py-2 text-sm font-medium hover:bg-accent transition-colors">
+            Load more ({filtered.length - visibleCount} remaining)
+          </button>
+        </div>
+      )}
+
+      {/* Camera detail dialog */}
       {selectedCamera && (
         <CameraDetailDialog
           camera={selectedCamera}

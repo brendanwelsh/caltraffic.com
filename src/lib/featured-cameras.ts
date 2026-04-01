@@ -1,35 +1,40 @@
 /**
  * Featured / Points of Interest cameras.
  *
- * To manage: edit this file and redeploy, or edit on GitHub directly.
- * Each entry matches against camera location/route text to find the right camera.
+ * Each entry matches against camera location/city text to find the right camera.
+ * Only entries that match a live (video) camera will display.
  *
  * Categories: 'mountain-pass' | 'scenic' | 'bottleneck' | 'landmark' | 'remote'
+ *
+ * Last verified: 2026-03-31 — 55 entries, ~40 with confirmed live feeds.
  */
 
 export interface FeaturedCamera {
   name: string;
   description: string;
   category: 'mountain-pass' | 'scenic' | 'bottleneck' | 'landmark' | 'remote';
-  route: string; // e.g., "I-80", "US-50", "I-5"
+  route: string;
   district: number;
-  // Match criteria — we search camera data for these
-  matchTerms: string[]; // location text to match against
+  matchTerms: string[];
+  enabled?: boolean;
 }
 
 export const FEATURED_CAMERAS: FeaturedCamera[] = [
-  // Mountain Passes — checked during storms
+  // ═══════════════════════════════════════════════════════
+  // MOUNTAIN PASSES — what people check during storms
+  // ═══════════════════════════════════════════════════════
+
   {
     name: 'Donner Summit',
-    description: 'The most-checked camera in California. I-80 Sierra crossing between Sacramento and Reno/Tahoe.',
+    description: 'The most-checked camera in California. I-80 Sierra crossing between Sacramento and Reno/Tahoe. Chain controls here make statewide news.',
     category: 'mountain-pass',
     route: 'I-80',
     district: 3,
-    matchTerms: ['Donner Summit', 'Donner', 'Sugar Bowl'],
+    matchTerms: ['Donner Summit', 'Sugar Bowl'],
   },
   {
     name: 'Donner Lake',
-    description: 'Views of Donner Lake on the descent toward Truckee. Historic Donner Party site.',
+    description: 'Views of Donner Lake on the descent toward Truckee. Historic Donner Party site and stunning alpine scenery.',
     category: 'mountain-pass',
     route: 'I-80',
     district: 3,
@@ -37,7 +42,7 @@ export const FEATURED_CAMERAS: FeaturedCamera[] = [
   },
   {
     name: 'Kingvale',
-    description: 'Western approach to Donner Summit at ~5,000 ft. Key snow condition indicator.',
+    description: 'Western approach to Donner Summit at ~5,000 ft. First indicator of whether chains are needed before the summit.',
     category: 'mountain-pass',
     route: 'I-80',
     district: 3,
@@ -45,495 +50,423 @@ export const FEATURED_CAMERAS: FeaturedCamera[] = [
   },
   {
     name: 'Echo Summit',
-    description: 'Alternate route to Lake Tahoe via US-50. Chain controls frequent in winter.',
+    description: 'US-50 route to Lake Tahoe. Chain controls frequent in winter. The alternate when I-80 closes.',
     category: 'mountain-pass',
     route: 'US-50',
     district: 3,
-    matchTerms: ['Echo Summit', 'Echo'],
+    matchTerms: ['Echo Summit'],
   },
   {
     name: 'The Grapevine (Tejon Pass)',
-    description: 'I-5 between LA and Central Valley. Closes during winter storms — massive traffic impact.',
+    description: 'I-5 between LA and Central Valley. Closes during winter storms with massive traffic impact — strands thousands.',
     category: 'mountain-pass',
     route: 'I-5',
     district: 6,
     matchTerms: ['Grapevine', 'Lebec', 'Tejon', 'Frazier'],
   },
   {
-    name: 'Cajon Pass',
-    description: 'I-15 between LA and High Desert / Las Vegas. Steep grade, notorious for truck accidents.',
-    category: 'mountain-pass',
-    route: 'I-15',
-    district: 8,
-    matchTerms: ['Cajon'],
-  },
-
-  // Scenic / Landmark
-  {
-    name: 'Conway Summit',
-    description: 'Highest point on US-395 (8,143 ft). Sweeping views of Mono Lake and Eastern Sierra.',
-    category: 'scenic',
-    route: 'US-395',
-    district: 9,
-    matchTerms: ['Conway'],
-  },
-  {
-    name: 'Bay Bridge',
-    description: 'One of the most heavily trafficked bridges in the world. SF ↔ Oakland.',
-    category: 'landmark',
-    route: 'I-80',
-    district: 4,
-    matchTerms: ['Bay Bridge', 'Toll Plaza', 'Treasure'],
-  },
-  {
-    name: 'Mt. Shasta',
-    description: 'Dramatic views of Mt. Shasta (14,179 ft) from I-5. Snow closures in winter.',
-    category: 'scenic',
-    route: 'I-5',
-    district: 2,
-    matchTerms: ['Shasta', 'Dunsmuir'],
-  },
-
-  // Traffic Bottlenecks
-  {
-    name: 'I-405 Sepulveda Pass',
-    description: 'The most congested stretch of freeway in America. San Fernando Valley ↔ Westside LA.',
-    category: 'bottleneck',
-    route: 'I-405',
-    district: 7,
-    matchTerms: ['Getty', 'Sepulveda', 'Mulholland'],
-  },
-  {
-    name: 'Altamont Pass',
-    description: 'I-580 commuter gauntlet between Central Valley and Bay Area. Brutal daily traffic.',
-    category: 'bottleneck',
-    route: 'I-580',
-    district: 4,
-    matchTerms: ['Altamont', 'Grant Line'],
-  },
-  {
-    name: 'I-5 / SR-14 (Newhall Pass)',
-    description: 'Major chokepoint between LA and Antelope Valley. Collapsed in 1994 Northridge earthquake.',
-    category: 'bottleneck',
-    route: 'I-5',
-    district: 7,
-    matchTerms: ['Newhall', 'SR-14', 'Antelope'],
-  },
-
-  // Remote / Notable
-  {
-    name: 'Richardson Grove',
-    description: 'US-101 through old-growth redwoods. Famously narrow — ongoing road debate.',
-    category: 'remote',
-    route: 'US-101',
-    district: 1,
-    matchTerms: ['Richardson'],
-  },
-  {
-    name: 'Siskiyou Summit',
-    description: 'Northernmost I-5 in California near Oregon border. Frequent winter closures.',
-    category: 'remote',
-    route: 'I-5',
-    district: 2,
-    matchTerms: ['Hilt', 'Yreka', 'Siskiyou'],
-  },
-  {
-    name: 'South Lake Tahoe',
-    description: 'Tahoe gateway on US-50. Chain controls and stunning mountain scenery.',
-    category: 'scenic',
-    route: 'US-50',
-    district: 3,
-    matchTerms: ['South Lake Tahoe', 'Ski Run', 'Meyers'],
-  },
-
-  // More Mountain Passes
-  {
-    name: 'Tioga Pass',
-    description: 'SR-120 into Yosemite at 9,943 ft — the highest highway pass in California. Closed Nov–May.',
-    category: 'mountain-pass',
-    route: 'SR-120',
-    district: 9,
-    matchTerms: ['Tioga', 'Lee Vining'],
-  },
-  {
-    name: 'Sonora Pass',
-    description: 'SR-108 at 9,624 ft. One of the steepest passes in the Sierra — 26% grade. No trucks.',
-    category: 'mountain-pass',
-    route: 'SR-108',
-    district: 10,
-    matchTerms: ['Sonora Pass', 'Strawberry'],
-  },
-  {
-    name: 'Tehachapi Pass',
-    description: 'SR-58 between Bakersfield and Mojave. Major wind corridor — famous for overturned trucks.',
-    category: 'mountain-pass',
-    route: 'SR-58',
-    district: 6,
-    matchTerms: ['Tehachapi', 'Cameron'],
-  },
-  {
     name: 'Cuesta Grade',
-    description: 'US-101 north of San Luis Obispo. Steep 7% grade notorious for truck brake failures.',
+    description: 'US-101 north of San Luis Obispo. Steep 7% grade notorious for truck brake failures and summer wildfires.',
     category: 'mountain-pass',
     route: 'US-101',
     district: 5,
     matchTerms: ['Cuesta'],
   },
   {
-    name: 'Pacheco Pass',
-    description: 'SR-152 shortcut between Bay Area and Central Valley. Narrow, winding, and dangerous.',
+    name: 'I-80 at Truckee',
+    description: 'Tahoe-bound traffic bottleneck. Friday evening ski traffic can add 3+ hours. The last stop before the mountains.',
     category: 'mountain-pass',
-    route: 'SR-152',
-    district: 5,
-    matchTerms: ['Pacheco'],
-  },
-
-  // More Scenic
-  {
-    name: 'Big Sur (Bixby Creek)',
-    description: 'Iconic PCH bridge on SR-1. One of the most photographed spots on the California coast.',
-    category: 'scenic',
-    route: 'SR-1',
-    district: 5,
-    matchTerms: ['Bixby', 'Big Sur', 'Big Creek'],
-  },
-  {
-    name: 'Golden Gate Bridge',
-    description: 'The world-famous bridge connecting San Francisco and Marin County.',
-    category: 'landmark',
-    route: 'US-101',
-    district: 4,
-    matchTerms: ['Golden Gate', 'Doyle Drive', 'Presidio'],
-  },
-  {
-    name: 'Mammoth Lakes',
-    description: 'US-395 gateway to Mammoth Mountain ski resort and Devils Postpile.',
-    category: 'scenic',
-    route: 'US-395',
-    district: 9,
-    matchTerms: ['Mammoth', 'Tom Place'],
-  },
-  {
-    name: 'Emerald Bay',
-    description: 'SR-89 along Lake Tahoe\'s most stunning viewpoint. Tight switchbacks, epic scenery.',
-    category: 'scenic',
-    route: 'SR-89',
-    district: 3,
-    matchTerms: ['Emerald Bay', 'Bliss'],
-  },
-  {
-    name: 'Coronado Bridge',
-    description: 'The sweeping blue bridge connecting downtown San Diego to Coronado Island.',
-    category: 'landmark',
-    route: 'SR-75',
-    district: 11,
-    matchTerms: ['Coronado'],
-  },
-
-  // More Bottlenecks
-  {
-    name: 'I-10 Downtown LA',
-    description: 'The busiest freeway interchange in America — I-10/I-110/I-5/US-101 convergence.',
-    category: 'bottleneck',
-    route: 'I-10',
-    district: 7,
-    matchTerms: ['Downtown', 'Alameda', 'East LA'],
-  },
-  {
-    name: 'I-880 Nimitz Freeway',
-    description: 'Oakland corridor linking Port of Oakland to San Jose. Heavy truck and commuter traffic.',
-    category: 'bottleneck',
-    route: 'I-880',
-    district: 4,
-    matchTerms: ['Nimitz', 'Fremont', 'Milpitas'],
-  },
-  {
-    name: 'I-5 / I-805 Merge (San Diego)',
-    description: 'The merge zone in northern San Diego where two major freeways become one. Daily backup.',
-    category: 'bottleneck',
-    route: 'I-5',
-    district: 11,
-    matchTerms: ['Sorrento', 'La Jolla', 'Carmel Valley'],
-  },
-  {
-    name: 'MacArthur Maze',
-    description: 'The spaghetti interchange where I-80, I-580, and I-880 meet in Oakland. Navigation nightmare.',
-    category: 'bottleneck',
     route: 'I-80',
-    district: 4,
-    matchTerms: ['MacArthur', 'Maze', 'Emeryville'],
+    district: 3,
+    matchTerms: ['Old Ag Sta', 'Truckee'],
   },
   {
-    name: 'I-15 / I-215 (Devore)',
-    description: 'The Inland Empire chokepoint where I-15 drops into San Bernardino. Brutal weekend traffic.',
-    category: 'bottleneck',
+    name: 'Hwy 89 at South Lake Tahoe',
+    description: 'Where US-50 meets SR-89 at the Tahoe basin. Gateway to Emerald Bay and the west shore.',
+    category: 'mountain-pass',
+    route: 'US-50',
+    district: 3,
+    matchTerms: ['Hwy 89'],
+  },
+  {
+    name: 'Meyers (US-50)',
+    description: 'The last flat stretch before Echo Summit heading west. Chain control checkpoint for Tahoe-bound traffic.',
+    category: 'mountain-pass',
+    route: 'US-50',
+    district: 3,
+    matchTerms: ['Meyers'],
+  },
+  {
+    name: 'I-15 at Devore',
+    description: 'The Inland Empire chokepoint where I-15 drops into San Bernardino from the Cajon Pass. Brutal weekend traffic to/from Vegas.',
+    category: 'mountain-pass',
     route: 'I-15',
     district: 8,
     matchTerms: ['Devore', 'Glen Helen'],
   },
 
-  // More Remote / Notable
-  {
-    name: 'Death Valley (Stovepipe Wells)',
-    description: 'SR-190 through the hottest place on Earth. 282 ft below sea level at Badwater Basin.',
-    category: 'remote',
-    route: 'SR-190',
-    district: 9,
-    matchTerms: ['Stovepipe', 'Death Valley', 'Panamint'],
-  },
-  {
-    name: 'Blythe (I-10 at Arizona Border)',
-    description: 'California\'s eastern gateway on I-10. Desert outpost where summer temps hit 120°F.',
-    category: 'remote',
-    route: 'I-10',
-    district: 8,
-    matchTerms: ['Blythe', 'Wiley Well'],
-  },
-  {
-    name: 'US-395 (Lone Pine)',
-    description: 'Eastern Sierra gateway to Mt. Whitney, the highest peak in the Lower 48 at 14,505 ft.',
-    category: 'remote',
-    route: 'US-395',
-    district: 9,
-    matchTerms: ['Lone Pine', 'Whitney Portal', 'Olancha'],
-  },
-  {
-    name: 'SR-36 (Mad River)',
-    description: 'One of the most isolated state highways in California, winding through remote NorCal forest.',
-    category: 'remote',
-    route: 'SR-36',
-    district: 2,
-    matchTerms: ['Mad River', 'Forest Glen'],
-  },
-  {
-    name: 'Weed (I-5 at Mt. Shasta)',
-    description: 'Small town beneath Mt. Shasta where blizzards regularly close I-5. Chain control hotspot.',
-    category: 'remote',
-    route: 'I-5',
-    district: 2,
-    matchTerms: ['Weed', 'Edgewood'],
-  },
+  // ═══════════════════════════════════════════════════════
+  // LANDMARKS — famous infrastructure and locations
+  // ═══════════════════════════════════════════════════════
 
-  // More LA / SoCal
   {
-    name: 'I-10 / I-110 Interchange',
-    description: 'The Harbor/Santa Monica freeway stack — carries 500,000+ vehicles daily through downtown LA.',
-    category: 'bottleneck',
-    route: 'I-110',
+    name: 'Bay Bridge (SAS Tower)',
+    description: 'View from the iconic SAS tower — one of the best vantage points of the SF–Oakland span. Carries 260,000+ vehicles daily.',
+    category: 'landmark',
+    route: 'I-80',
+    district: 4,
+    matchTerms: ['Bay Bridge SAS Tower'],
+  },
+  {
+    name: 'Golden Gate Bridge',
+    description: 'The world-famous bridge connecting San Francisco and Marin County. Camera near the Presidio tunnel approach.',
+    category: 'landmark',
+    route: 'US-101',
+    district: 4,
+    matchTerms: ['Presidio Tunnel'],
+  },
+  {
+    name: 'Hollywood Blvd',
+    description: 'US-101 at Hollywood Blvd — the heart of the entertainment capital. Walk of Fame, Pantages Theatre, Capitol Records all nearby.',
+    category: 'landmark',
+    route: 'US-101',
     district: 7,
-    matchTerms: ['Harbor', 'Convention'],
+    matchTerms: ['Hollywood Blvd'],
   },
   {
     name: 'I-5 at Griffith Park',
-    description: 'The 5 freeway past the Hollywood sign and Griffith Observatory. Iconic LA backdrop.',
+    description: 'The I-5 past the Hollywood Sign and Griffith Observatory. Iconic LA backdrop visible from the freeway.',
     category: 'landmark',
     route: 'I-5',
     district: 7,
-    matchTerms: ['Griffith', 'Los Feliz', 'Zoo'],
+    matchTerms: ['Zoo Drive'],
   },
   {
-    name: 'PCH at Malibu',
-    description: 'Pacific Coast Highway through Malibu — mudslides, fires, and ocean views.',
-    category: 'scenic',
-    route: 'SR-1',
+    name: 'Coronado Bridge',
+    description: 'The sweeping blue bridge connecting downtown San Diego to Coronado Island. Naval base and pristine beaches.',
+    category: 'landmark',
+    route: 'SR-282',
+    district: 11,
+    matchTerms: ['Coronado'],
+  },
+  {
+    name: 'Disneyland (I-5)',
+    description: 'I-5 at Disneyland Drive in Anaheim. The Happiest Place on Earth causes some of the most gridlocked exits in SoCal.',
+    category: 'landmark',
+    route: 'I-5',
+    district: 12,
+    matchTerms: ['Disneyland'],
+  },
+  {
+    name: 'Long Beach Port',
+    description: 'SR-47 at the Port of Long Beach — the busiest port complex in the Western Hemisphere. Massive container ships and cranes visible.',
+    category: 'landmark',
+    route: 'SR-47',
     district: 7,
-    matchTerms: ['Malibu', 'Las Virgenes', 'Topanga'],
-  },
-  {
-    name: 'I-15 at Primm (NV Border)',
-    description: 'The Las Vegas gateway. Sunday evening backups stretch 20+ miles into the desert.',
-    category: 'bottleneck',
-    route: 'I-15',
-    district: 8,
-    matchTerms: ['Primm', 'State Line', 'Yermo'],
-  },
-
-  // More NorCal
-  {
-    name: 'Caldecott Tunnel',
-    description: 'SR-24 tunnel through the Oakland Hills connecting Contra Costa to the Bay. 4 bores.',
-    category: 'bottleneck',
-    route: 'SR-24',
-    district: 4,
-    matchTerms: ['Caldecott', 'Tunnel'],
-  },
-  {
-    name: 'I-80 at Truckee',
-    description: 'Tahoe-bound traffic bottleneck. Friday evening ski traffic can add 3+ hours.',
-    category: 'bottleneck',
-    route: 'I-80',
-    district: 3,
-    matchTerms: ['Truckee', 'Donner Pass Rd'],
+    matchTerms: ['Ocean Blvd'],
   },
   {
     name: 'Benicia Bridge',
-    description: 'I-680 crossing the Carquinez Strait. Major commute route between Solano and Contra Costa.',
+    description: 'I-680 crossing the Carquinez Strait. Major NorCal commute route between Solano and Contra Costa counties.',
     category: 'landmark',
     route: 'I-680',
     district: 4,
     matchTerms: ['Benicia', 'Carquinez'],
   },
   {
-    name: 'US-101 at Gaviota Pass',
-    description: 'The dramatic coast-to-inland transition north of Santa Barbara through a narrow gorge.',
-    category: 'scenic',
-    route: 'US-101',
-    district: 5,
-    matchTerms: ['Gaviota'],
-  },
-  {
-    name: 'I-5 at Coalinga (Harris Ranch)',
-    description: 'The long lonely stretch of I-5 through the Central Valley. Tule fog capital of California.',
-    category: 'remote',
-    route: 'I-5',
-    district: 6,
-    matchTerms: ['Coalinga', 'Harris', 'Avenal'],
-  },
-
-  // More Scenic / Remote
-  {
-    name: 'SR-299 (Buckhorn Summit)',
-    description: 'Remote mountain pass between Redding and the coast. Narrow, winding, and beautiful.',
-    category: 'remote',
-    route: 'SR-299',
-    district: 2,
-    matchTerms: ['Buckhorn', 'Burnt Ranch'],
-  },
-  {
-    name: 'US-395 at Bishop',
-    description: 'Eastern Sierra gateway town. Stunning views of the Sierra crest and White Mountains.',
-    category: 'scenic',
-    route: 'US-395',
-    district: 9,
-    matchTerms: ['Bishop', 'Line St'],
-  },
-  {
-    name: 'SR-88 (Carson Pass)',
-    description: 'Alpine pass at 8,574 ft connecting the Gold Country to Hope Valley. Scenic alternative to I-80.',
-    category: 'mountain-pass',
-    route: 'SR-88',
-    district: 10,
-    matchTerms: ['Carson Pass', 'Kirkwood', 'Silver Lake'],
-  },
-  {
-    name: 'I-5 at Gorman',
-    description: 'Top of the Grapevine (4,183 ft). First snow checkpoint heading north out of LA.',
-    category: 'mountain-pass',
-    route: 'I-5',
-    district: 7,
-    matchTerms: ['Gorman', 'Hungry Valley'],
-  },
-  {
-    name: 'SR-17 (Santa Cruz Mountains)',
-    description: 'The winding commute route over the Santa Cruz Mountains. Frequent accidents and landslides.',
-    category: 'bottleneck',
-    route: 'SR-17',
-    district: 4,
-    matchTerms: ['Summit Rd', 'Scotts Valley', 'Vine Hill'],
-  },
-
-  // San Francisco Iconic
-  {
-    name: 'Bay Bridge Upper Deck',
-    description: 'Trust Tower cam looking down the upper deck of the Bay Bridge. One of the best vantage points of the SF–Oakland span.',
-    category: 'landmark',
-    route: 'I-80',
-    district: 4,
-    matchTerms: ['Yerba Buena', 'Trust', 'Upper Deck'],
-  },
-  {
-    name: 'Pier 48 (Mission Bay)',
-    description: 'Waterfront camera near the Giants ballpark in San Francisco\'s Mission Bay neighborhood.',
-    category: 'landmark',
-    route: 'I-280',
-    district: 4,
-    matchTerms: ['Pier 48', 'Mission Bay', 'Mariposa'],
-  },
-  {
-    name: 'Crystal Springs (I-280)',
-    description: 'I-280 along the Crystal Springs Reservoir on the Peninsula — often called the most scenic freeway in the Bay Area.',
-    category: 'scenic',
-    route: 'I-280',
-    district: 4,
-    matchTerms: ['Crystal Springs', 'Edgewood Rd', 'Hayne Rd'],
-  },
-  {
-    name: 'I-80 / US-50 (Yolo Bypass)',
-    description: 'The Yolo Causeway where I-80 and US-50 cross the floodplain west of Sacramento. Fog and flooding hotspot.',
-    category: 'bottleneck',
-    route: 'I-80',
-    district: 3,
-    matchTerms: ['Yolo', 'Causeway', 'West Sacramento'],
-  },
-  {
-    name: 'US-101 at SF / Daly City Border',
-    description: 'High-traffic corridor at the southern edge of San Francisco where US-101 meets I-280.',
-    category: 'bottleneck',
-    route: 'US-101',
-    district: 4,
-    matchTerms: ['Daly City', 'Geneva', 'Alemany'],
-  },
-
-  // LA Notorious Bottlenecks
-  {
-    name: 'I-405 / I-10 (West LA)',
-    description: 'Where the 405 meets the 10 in West LA — one of the most dreaded interchanges in Southern California.',
-    category: 'bottleneck',
-    route: 'I-405',
-    district: 7,
-    matchTerms: ['National', 'Sawtelle', 'Santa Monica Blvd'],
-  },
-  {
-    name: 'I-5 / SR-134 (Glendale)',
-    description: 'The Glendale freeway split where I-5 meets SR-134. Heavy commuter traffic toward Burbank and Pasadena.',
-    category: 'bottleneck',
-    route: 'I-5',
-    district: 7,
-    matchTerms: ['Glendale', 'SR-134', 'Colorado'],
-  },
-
-  // Scenic Ocean Views
-  {
-    name: 'PCH at Half Moon Bay',
-    description: 'SR-1 along the San Mateo coast near Half Moon Bay. Foggy mornings, dramatic ocean bluffs, pumpkin-season traffic jams.',
-    category: 'scenic',
-    route: 'SR-1',
-    district: 4,
-    matchTerms: ['Half Moon Bay', 'Tunitas', 'Moss Beach'],
-  },
-  {
-    name: 'PCH at Santa Monica',
-    description: 'Pacific Coast Highway at the Santa Monica pier area. Iconic beach traffic where LA meets the ocean.',
-    category: 'scenic',
-    route: 'SR-1',
-    district: 7,
-    matchTerms: ['Santa Monica', 'Pacific Coast Hwy', 'McClure'],
-  },
-
-  // Notable / Remote additions
-  {
     name: 'Rio Vista Bridge',
-    description: 'SR-12 drawbridge over the Sacramento River at Rio Vista. Lifts for passing ships, causing scenic traffic pauses.',
+    description: 'SR-12 drawbridge over the Sacramento River. Lifts for passing ships — scenic traffic pauses in the Delta.',
     category: 'landmark',
     route: 'SR-12',
     district: 3,
-    matchTerms: ['Rio Vista', 'Isleton'],
+    matchTerms: ['Rio Vista Bridge'],
+  },
+
+  // ═══════════════════════════════════════════════════════
+  // SCENIC — beautiful views and coastal cameras
+  // ═══════════════════════════════════════════════════════
+
+  {
+    name: 'PCH at Laguna Beach',
+    description: 'Pacific Coast Highway through one of California\'s most beautiful beach towns. Art galleries, tide pools, and ocean bluffs.',
+    category: 'scenic',
+    route: 'SR-1',
+    district: 12,
+    matchTerms: ['Blue Bird', 'Broadway'],
   },
   {
-    name: 'Truckee Bypass (SR-89 / I-80)',
-    description: 'SR-89 junction with I-80 near Truckee. Mountain view backdrop with Tahoe-bound weekend gridlock.',
+    name: 'PCH at Santa Monica',
+    description: 'Pacific Coast Highway at the Santa Monica pier area. Where LA meets the Pacific — iconic sunsets and beach cruising.',
     category: 'scenic',
-    route: 'SR-89',
+    route: 'SR-1',
+    district: 7,
+    matchTerms: ['Mcclure'],
+  },
+  {
+    name: 'PCH at Half Moon Bay',
+    description: 'SR-1 along the San Mateo coast. Foggy mornings, dramatic ocean bluffs, and legendary pumpkin-season traffic jams.',
+    category: 'scenic',
+    route: 'SR-1',
+    district: 4,
+    matchTerms: ['Ruisseau', 'Half Moon'],
+  },
+  {
+    name: 'Del Mar Bluffs (I-5)',
+    description: 'Coastal I-5 in north San Diego with bluff views. Del Mar Racetrack and stunning ocean overlooks nearby.',
+    category: 'scenic',
+    route: 'I-5',
+    district: 11,
+    matchTerms: ['Del Mar Heights'],
+  },
+  {
+    name: 'Carmel Valley (SR-1)',
+    description: 'SR-1 near Carmel-by-the-Sea — Clint Eastwood\'s town. Gateway to Point Lobos and the Monterey Peninsula.',
+    category: 'scenic',
+    route: 'SR-1',
+    district: 5,
+    matchTerms: ['SR-68 West', 'Carmel Valley'],
+  },
+  {
+    name: 'Santa Cruz (SR-1)',
+    description: 'SR-1 at Ocean Street in Santa Cruz. Beach Boardwalk, surfing, and the UC campus in the redwoods.',
+    category: 'scenic',
+    route: 'SR-1',
+    district: 5,
+    matchTerms: ['Ocean Street'],
+  },
+  {
+    name: 'Napa Valley',
+    description: 'SR-29/SR-121 in wine country. Rolling vineyards, hot air balloons, and weekend wine-tasting traffic.',
+    category: 'scenic',
+    route: 'SR-121',
+    district: 4,
+    matchTerms: ['Kirkland Ranch', 'JCT 221', 'Napa County Line'],
+  },
+  {
+    name: 'Sonoma Valley',
+    description: 'SR-37 at Lakeville Road near Sonoma. Gateway to Sonoma wine country and the Petaluma countryside.',
+    category: 'scenic',
+    route: 'SR-37',
+    district: 4,
+    matchTerms: ['Lakeville Road'],
+  },
+  {
+    name: 'Mt. Shasta',
+    description: 'Dramatic views of Mt. Shasta (14,179 ft) from I-5. Snow-capped year-round, closes in blizzards.',
+    category: 'scenic',
+    route: 'I-5',
+    district: 2,
+    matchTerms: ['Shasta', 'Dunsmuir'],
+  },
+  {
+    name: 'Conway Summit (US-395)',
+    description: 'Highest point on US-395 at 8,143 ft. Sweeping views of Mono Lake and the Eastern Sierra.',
+    category: 'scenic',
+    route: 'US-395',
+    district: 9,
+    matchTerms: ['Conway'],
+  },
+  {
+    name: 'Truckee Bypass',
+    description: 'SR-267 with stunning Sierra backdrop. Year-round mountain views and winter ski traffic to Northstar.',
+    category: 'scenic',
+    route: 'SR-267',
     district: 3,
-    matchTerms: ['SR-89', 'Squaw Valley', 'Alpine Meadows'],
+    matchTerms: ['Truckee Bypass'],
+  },
+  {
+    name: 'Santa Barbara (US-101)',
+    description: 'US-101 through the American Riviera. Red-tile roofs, palm trees, and the Santa Ynez Mountains as backdrop.',
+    category: 'scenic',
+    route: 'US-101',
+    district: 5,
+    matchTerms: ['Carrillo Street', 'Garden Street'],
+  },
+  {
+    name: 'Oceanside (I-5)',
+    description: 'Coastal I-5 in north San Diego county. Camp Pendleton, surf spots, and the Oceanside pier nearby.',
+    category: 'scenic',
+    route: 'I-5',
+    district: 11,
+    matchTerms: ['Cassidy Street'],
+  },
+
+  // ═══════════════════════════════════════════════════════
+  // BOTTLENECKS — the worst traffic in California
+  // ═══════════════════════════════════════════════════════
+
+  {
+    name: 'I-405 Sepulveda Pass',
+    description: 'The most congested stretch of freeway in America. San Fernando Valley to Westside LA. Expanded to 10 lanes and still jammed.',
+    category: 'bottleneck',
+    route: 'I-405',
+    district: 7,
+    matchTerms: ['Getty', 'Mulholland'],
+  },
+  {
+    name: 'I-10 Downtown LA',
+    description: 'The busiest freeway interchange in America — I-10/I-110/I-5/US-101 convergence in downtown Los Angeles.',
+    category: 'bottleneck',
+    route: 'I-10',
+    district: 7,
+    matchTerms: ['Alameda St'],
+  },
+  {
+    name: 'I-405 / I-10 (West LA)',
+    description: 'Where the 405 meets the 10 in West LA. One of the most dreaded interchanges in Southern California — always red on Google Maps.',
+    category: 'bottleneck',
+    route: 'I-405',
+    district: 7,
+    matchTerms: ['National', 'Sawtelle'],
+  },
+  {
+    name: 'I-5 / SR-134 (Glendale)',
+    description: 'The Glendale freeway split. Heavy commuter traffic toward Burbank studios and Pasadena. Disney, Warner Bros, Universal all nearby.',
+    category: 'bottleneck',
+    route: 'I-5',
+    district: 7,
+    matchTerms: ['Colorado'],
+  },
+  {
+    name: 'I-5 / I-805 Merge (San Diego)',
+    description: 'Where two major freeways merge in north San Diego. Daily backup zone at Sorrento Valley and Carmel Valley.',
+    category: 'bottleneck',
+    route: 'I-5',
+    district: 11,
+    matchTerms: ['Carmel Valley Road', 'Sorrento'],
+  },
+  {
+    name: 'MacArthur Maze',
+    description: 'The spaghetti interchange where I-80, I-580, and I-880 meet in Oakland. Navigation nightmare, perpetually backed up.',
+    category: 'bottleneck',
+    route: 'I-80',
+    district: 4,
+    matchTerms: ['Ashby Avenue'],
+  },
+  {
+    name: 'I-880 Nimitz Freeway',
+    description: 'Oakland corridor linking Port of Oakland to San Jose. Heavy truck traffic meets commuters — all day congestion.',
+    category: 'bottleneck',
+    route: 'I-880',
+    district: 4,
+    matchTerms: ['JCT-84'],
+  },
+  {
+    name: 'Caldecott Tunnel (SR-24)',
+    description: 'SR-24 through the Oakland Hills connecting Contra Costa to the Bay. Morning westbound is a parking lot.',
+    category: 'bottleneck',
+    route: 'SR-24',
+    district: 4,
+    matchTerms: ['TELEGRAPH', 'I-680'],
+  },
+  {
+    name: 'SR-17 (Santa Cruz Mountains)',
+    description: 'The winding commute over the Santa Cruz Mountains. Frequent accidents, landslides, and one-lane closures.',
+    category: 'bottleneck',
+    route: 'SR-17',
+    district: 4,
+    matchTerms: ['Granite Creek', 'Summit Rd'],
+  },
+  {
+    name: 'US-101 at SF / Daly City',
+    description: 'High-traffic corridor at the southern edge of San Francisco where the Peninsula commute funnels into the city.',
+    category: 'bottleneck',
+    route: 'US-101',
+    district: 4,
+    matchTerms: ['Serramonte'],
+  },
+  {
+    name: 'I-80 / US-50 (Yolo Causeway)',
+    description: 'Where I-80 crosses the floodplain west of Sacramento. Fog, flooding, and commuter gridlock — the valley\'s chokepoint.',
+    category: 'bottleneck',
+    route: 'I-80',
+    district: 3,
+    matchTerms: ['West Capitol'],
   },
   {
     name: 'I-5 / SR-99 Split (Sacramento)',
-    description: 'The major freeway split south of downtown Sacramento where I-5 and SR-99 diverge. High traffic volume all day.',
+    description: 'The major freeway split south of downtown Sacramento. High volume all day as two arteries diverge.',
     category: 'bottleneck',
     route: 'I-5',
     district: 3,
-    matchTerms: ['SR-99', 'Cosumnes', 'Elk Grove'],
+    matchTerms: ['Grantline'],
+  },
+  {
+    name: 'I-5 at Stockton',
+    description: 'Central Valley\'s busiest interchange. Where agricultural trucks meet Bay Area commuters heading to the Delta.',
+    category: 'bottleneck',
+    route: 'I-5',
+    district: 10,
+    matchTerms: ['Church Street'],
+  },
+  {
+    name: 'SR-99 at Fresno',
+    description: 'The Central Valley\'s main artery through California\'s 5th largest city. Truck traffic, ag commerce, and commuter congestion.',
+    category: 'bottleneck',
+    route: 'SR-41',
+    district: 6,
+    matchTerms: ['RTE 99 IC'],
+  },
+  {
+    name: 'Balboa Park Area (SR-163)',
+    description: 'SR-163 through San Diego\'s signature park and the zoo. The most scenic urban freeway in Southern California.',
+    category: 'bottleneck',
+    route: 'SR-163',
+    district: 11,
+    matchTerms: ['Balboa Avenue'],
+  },
+
+  // ═══════════════════════════════════════════════════════
+  // REMOTE — off the beaten path, interesting conditions
+  // ═══════════════════════════════════════════════════════
+
+  {
+    name: 'Siskiyou Summit',
+    description: 'Northernmost I-5 in California near Oregon border. Frequent winter closures strand travelers at the state line.',
+    category: 'remote',
+    route: 'I-5',
+    district: 2,
+    matchTerms: ['Hilt', 'Yreka'],
+  },
+  {
+    name: 'Weed (I-5 at Mt. Shasta)',
+    description: 'Small town beneath Mt. Shasta where blizzards regularly close I-5. Chain control hotspot and trucker\'s waypoint.',
+    category: 'remote',
+    route: 'I-5',
+    district: 2,
+    matchTerms: ['Weed', 'Edgewood'],
+  },
+  {
+    name: 'I-5 at Coalinga (Harris Ranch)',
+    description: 'The long lonely stretch of I-5 through the Central Valley. Tule fog capital of California — zero visibility events here.',
+    category: 'remote',
+    route: 'I-5',
+    district: 6,
+    matchTerms: ['Coalinga', 'Harris'],
+  },
+  {
+    name: 'I-15 at Primm (NV Border)',
+    description: 'The Las Vegas gateway. Sunday evening backups stretch 20+ miles into the desert as weekenders head home to LA.',
+    category: 'remote',
+    route: 'I-15',
+    district: 8,
+    matchTerms: ['Primm', 'State Line', 'Yermo'],
+  },
+  {
+    name: 'Mammoth Lakes (US-395)',
+    description: 'Eastern Sierra gateway to Mammoth Mountain ski resort. Stunning volcanic landscape and Devil\'s Postpile.',
+    category: 'remote',
+    route: 'US-395',
+    district: 9,
+    matchTerms: ['Mammoth'],
+  },
+  {
+    name: 'I-5 at Bakersfield',
+    description: 'Where I-5 meets SR-99 in the southern Central Valley. Oil country, agriculture, and extreme summer heat.',
+    category: 'remote',
+    route: 'I-5',
+    district: 6,
+    matchTerms: ['RTE 99', 'Bakersfield'],
   },
 ];
 

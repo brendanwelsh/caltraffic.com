@@ -29,9 +29,17 @@ export function HistoricalImages({ images, cameraName }: HistoricalImagesProps) 
             >
               Previous
             </button>
-            <span className="text-xs text-muted-foreground">
-              {selectedIndex + 1} of {images.length} captures ago
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">
+                {selectedIndex + 1} of {images.length}
+              </span>
+              <button
+                onClick={() => setSelectedIndex(null)}
+                className="rounded-md border border-input px-2 py-0.5 text-xs text-muted-foreground hover:bg-accent transition-colors"
+              >
+                Grid
+              </button>
+            </div>
             <button
               onClick={() => setSelectedIndex((i) => Math.min(images.length - 1, (i ?? 0) + 1))}
               disabled={selectedIndex === images.length - 1}
@@ -42,7 +50,17 @@ export function HistoricalImages({ images, cameraName }: HistoricalImagesProps) 
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <div className={`grid gap-1.5 ${
+          // Pick column count that divides evenly or minimizes orphans
+          (() => {
+            const n = images.length;
+            if (n <= 4) return 'grid-cols-2';
+            if (n % 4 === 0 || n >= 12) return 'grid-cols-4';
+            if (n % 3 === 0) return 'grid-cols-3';
+            if (n % 4 <= n % 3) return 'grid-cols-4';
+            return 'grid-cols-3';
+          })()
+        }`}>
           {images.map((url, i) => (
             <button
               key={i}

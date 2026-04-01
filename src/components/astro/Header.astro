@@ -11,18 +11,16 @@
     <!-- Desktop nav -->
     <div class="ml-auto hidden md:flex items-center gap-4">
       <a href="/" class="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-md" data-nav="/">
-        Route Viewer
+        Route Planner
       </a>
-      <a href="/cameras" class="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-md inline-flex items-center gap-1.5" data-nav="/cameras">
-        Camera Viewer
-        <span class="relative flex h-2 w-2">
-          <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-          <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-        </span>
+      <a href="/cameras" class="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-md" data-nav="/cameras">
+        All Cameras
       </a>
-      <a href="/featured" class="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-md inline-flex items-center gap-1.5" data-nav="/featured">
-        <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      <a href="/featured" class="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-md" data-nav="/featured">
         Featured
+      </a>
+      <a href="/favorites" class="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-md" data-nav="/favorites">
+        Custom Views
       </a>
       <a href="/reports" class="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-1.5 rounded-md" data-nav="/reports">
         Reports
@@ -81,18 +79,16 @@
   <!-- Mobile dropdown menu -->
   <div id="mobile-menu" class="hidden md:hidden border-t border-border bg-background px-4 pb-3 pt-2 space-y-1">
     <a href="/" class="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2 rounded-md" data-nav="/">
-      Route Viewer
+      Route Planner
     </a>
-    <a href="/cameras" class="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2 rounded-md inline-flex items-center gap-1.5" data-nav="/cameras">
-      Camera Viewer
-      <span class="relative flex h-2 w-2">
-        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-        <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
-      </span>
+    <a href="/cameras" class="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2 rounded-md" data-nav="/cameras">
+      All Cameras
     </a>
-    <a href="/featured" class="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2 rounded-md inline-flex items-center gap-1.5" data-nav="/featured">
-      <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="currentColor" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+    <a href="/featured" class="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2 rounded-md" data-nav="/featured">
       Featured
+    </a>
+    <a href="/favorites" class="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2 rounded-md" data-nav="/favorites">
+      Custom Views
     </a>
     <a href="/reports" class="block text-sm font-medium text-muted-foreground hover:text-foreground transition-colors px-3 py-2 rounded-md" data-nav="/reports">
       Reports
