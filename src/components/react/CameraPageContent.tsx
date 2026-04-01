@@ -1,15 +1,17 @@
-import { useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useCameras } from '@/hooks/use-cameras';
 import { useCMS } from '@/hooks/use-cms';
 import { useIncidents } from '@/hooks/use-incidents';
 import { useChainControl } from '@/hooks/use-chain-control';
 import { useClosures } from '@/hooks/use-closures';
 import { useTravelTimes } from '@/hooks/use-travel-times';
+import { useFavorites } from '@/hooks/use-favorites';
 import { VideoPlayer } from './VideoPlayer';
 import { CMSSign } from './CMSSign';
 import { RouteShield } from './RouteShield';
 import { ConditionBadges } from './ConditionBadges';
 import { HistoricalImages } from './HistoricalImages';
+import { cn } from '@/lib/utils';
 import {
   matchCMSToCamera,
   matchIncidentsToCamera,
@@ -30,6 +32,8 @@ export function CameraPageContent({ cameraId, district }: CameraPageContentProps
   const { data: chainControls = [] } = useChainControl(district);
   const { data: closures = [] } = useClosures(district);
   const { data: travelTimes = [] } = useTravelTimes(district);
+  const { isFavorite, toggle: toggleFavorite } = useFavorites();
+  const [copiedLink, setCopiedLink] = useState(false);
 
   const camera = useMemo(() => {
     const found = cameras.find((c) => c.id === cameraId || c.id === cameraId.replace(/-0+/, '-'));
@@ -67,24 +71,45 @@ export function CameraPageContent({ cameraId, district }: CameraPageContentProps
     );
   }
 
+  const favorite = isFavorite(camera.id);
+
   return (
     <div className="max-w-3xl mx-auto">
-      <div className="mb-4">
-        <a href="/cameras" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-          &larr; Back to cameras
-        </a>
+      <div className="mb-4 flex items-center gap-3">
+        <button
+          onClick={() => window.history.length > 1 ? window.history.back() : window.location.href = '/cameras'}
+          className="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6"/></svg>
+          Back
+        </button>
       </div>
 
       <div className="rounded-xl border border-border bg-card overflow-hidden">
         {/* Header */}
-        <div className="flex items-center gap-3 px-4 py-3 border-b border-border">
-          <RouteShield route={camera.route} size="lg" />
-          <div>
-            <h1 className="text-lg font-semibold">{camera.location || camera.city}</h1>
-            <p className="text-xs text-muted-foreground">
-              {camera.direction} — {camera.city}, {camera.county} — District {camera.district}
-            </p>
+        <div className="flex items-center justify-between border-b border-border bg-card px-4 py-3">
+          <div className="flex items-center gap-3 min-w-0">
+            <RouteShield route={camera.route} size="lg" />
+            <div className="min-w-0">
+              <h1 className="truncate text-lg font-semibold">{camera.location || camera.city}</h1>
+              <p className="truncate text-xs text-muted-foreground">
+                {camera.direction} — {camera.city}, {camera.county} — D{String(camera.district).padStart(2, '0')}
+                {camera.elevation != null && ` · ${camera.elevation.toLocaleString()} ft`}
+              </p>
+            </div>
           </div>
+          <button
+            onClick={() => toggleFavorite(camera.id)}
+            className={cn(
+              'rounded-md p-1.5 transition-colors flex-shrink-0',
+              favorite ? 'text-yellow-400 hover:bg-yellow-500/10' : 'text-muted-foreground hover:bg-accent'
+            )}
+            aria-label={favorite ? 'Remove from favorites' : 'Add to favorites'}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill={favorite ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="2">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+          </button>
         </div>
 
         <div className="p-4 space-y-5">
@@ -195,7 +220,10 @@ export function CameraPageContent({ cameraId, district }: CameraPageContentProps
           {/* Historical Images */}
           {camera.historicalImages && camera.historicalImages.length > 0 && (
             <div>
-              <h3 className="mb-2 text-sm font-semibold">History ({camera.historicalImages.length})</h3>
+              <h3 className="mb-2 text-sm font-semibold flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                History ({camera.historicalImages.length})
+              </h3>
               <HistoricalImages images={camera.historicalImages} cameraName={camera.location} />
             </div>
           )}
@@ -203,7 +231,11 @@ export function CameraPageContent({ cameraId, district }: CameraPageContentProps
           {/* Camera Details + Actions */}
           <div className="border-t border-border pt-4">
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm mb-4">
-              <div><span className="text-muted-foreground">Route:</span> {camera.route} {camera.direction}</div>
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground">Route:</span>
+                <RouteShield route={camera.route} size="sm" />
+                <span>{camera.direction}</span>
+              </div>
               <div><span className="text-muted-foreground">City:</span> {camera.city}</div>
               <div><span className="text-muted-foreground">County:</span> {camera.county}</div>
               <div><span className="text-muted-foreground">District:</span> D{String(camera.district).padStart(2, '0')}</div>
@@ -223,11 +255,13 @@ export function CameraPageContent({ cameraId, district }: CameraPageContentProps
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(window.location.href);
+                  setCopiedLink(true);
+                  setTimeout(() => setCopiedLink(false), 2000);
                 }}
                 className="inline-flex items-center gap-1.5 rounded-lg border border-input px-3 py-1.5 text-sm hover:bg-accent transition-colors"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-                Copy Link
+                {copiedLink ? 'Copied!' : 'Copy Link'}
               </button>
             </div>
           </div>

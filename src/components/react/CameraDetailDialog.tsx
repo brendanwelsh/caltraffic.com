@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { VideoPlayer } from './VideoPlayer';
 import { CMSSign } from './CMSSign';
 import { HistoricalImages } from './HistoricalImages';
@@ -16,6 +16,37 @@ interface CameraDetailDialogProps {
 
 export function CameraDetailDialog({ camera, onClose, isFavorite = false, onToggleFavorite }: CameraDetailDialogProps) {
   const [copiedLink, setCopiedLink] = useState(false);
+  const pushedRef = useRef(false);
+
+  // Push /camera/{id} URL when dialog opens, restore on close
+  useEffect(() => {
+    const cameraUrl = `/camera/${camera.id}`;
+    const previousUrl = window.location.pathname + window.location.search;
+
+    // Only push if we're not already on this camera URL
+    if (window.location.pathname !== cameraUrl) {
+      window.history.pushState({ cameraDialog: true, previousUrl }, '', cameraUrl);
+      pushedRef.current = true;
+    }
+
+    const handlePopState = (e: PopStateEvent) => {
+      // User pressed browser back — close the dialog
+      if (pushedRef.current) {
+        pushedRef.current = false;
+        onClose();
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      // If dialog is closing without popstate (e.g. X button), go back
+      if (pushedRef.current) {
+        pushedRef.current = false;
+        window.history.back();
+      }
+    };
+  }, [camera.id, onClose]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -29,6 +60,8 @@ export function CameraDetailDialog({ camera, onClose, isFavorite = false, onTogg
     document.body.style.overflow = 'hidden';
     return () => { document.body.style.overflow = ''; };
   }, []);
+
+  const permalinkUrl = `${typeof window !== 'undefined' ? window.location.origin : ''}/camera/${camera.id}`;
 
   return (
     <div
@@ -81,7 +114,7 @@ export function CameraDetailDialog({ camera, onClose, isFavorite = false, onTogg
           </div>
         </div>
 
-        {/* Single scrollable content - no tabs */}
+        {/* Single scrollable content */}
         <div className="p-4 space-y-5">
           {/* Live Feed */}
           <div>
@@ -90,14 +123,23 @@ export function CameraDetailDialog({ camera, onClose, isFavorite = false, onTogg
               imageUrl={camera.imageUrl}
               cameraName={camera.location}
             />
-            {camera.isStale && (
-              <div className="mt-2">
+            <div className="flex flex-wrap gap-2 mt-2">
+              <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium ${
+                camera.hasVideo ? 'bg-green-500/10 text-green-500' : 'bg-gray-500/10 text-gray-400'
+              }`}>
+                <span className={`h-1.5 w-1.5 rounded-full ${camera.hasVideo ? 'bg-green-500' : 'bg-gray-400'}`} />
+                {camera.hasVideo ? 'Live Stream' : 'Static Image'}
+              </span>
+              {camera.isStale && (
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-yellow-500/10 px-2.5 py-1 text-xs font-medium text-yellow-500">
                   Feed may be delayed
                 </span>
-              </div>
-            )}
+              )}
+            </div>
           </div>
+
+          {/* Conditions */}
+          <ConditionBadges chainControls={camera.chainControls} closures={camera.nearbyClosures} travelTime={camera.travelTime} />
 
           {/* Nearby CMS Signs */}
           {camera.nearbyCMS.length > 0 && (
@@ -228,7 +270,7 @@ export function CameraDetailDialog({ camera, onClose, isFavorite = false, onTogg
               </svg>
               Camera Details
             </h3>
-            <div className="grid grid-cols-2 gap-2 text-sm">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-sm">
               <div className="flex items-center gap-2">
                 <span className="text-muted-foreground">Route:</span>
                 <RouteShield route={camera.route} size="sm" />
@@ -252,8 +294,7 @@ export function CameraDetailDialog({ camera, onClose, isFavorite = false, onTogg
               </a>
               <button
                 onClick={() => {
-                  const url = `${window.location.origin}/camera/${camera.id}`;
-                  navigator.clipboard.writeText(url);
+                  navigator.clipboard.writeText(permalinkUrl);
                   setCopiedLink(true);
                   setTimeout(() => setCopiedLink(false), 2000);
                 }}
@@ -262,6 +303,13 @@ export function CameraDetailDialog({ camera, onClose, isFavorite = false, onTogg
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
                 {copiedLink ? 'Copied!' : 'Copy Link'}
               </button>
+              <a
+                href={permalinkUrl}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-input px-3 py-1.5 text-sm hover:bg-accent transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+                Full Page
+              </a>
             </div>
           </div>
         </div>
