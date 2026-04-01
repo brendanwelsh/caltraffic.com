@@ -1,4 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
+import { useStore } from '@nanostores/react';
+import { unavailableCameras } from '@/stores/filters';
 import { useWatchRoom } from '@/hooks/use-watch-room';
 import { useCameras } from '@/hooks/use-cameras';
 import { useFavorites } from '@/hooks/use-favorites';
@@ -46,7 +48,7 @@ export function WatchRoom() {
     if (!search || search.length < 2) return [];
     const q = search.toLowerCase();
     return allCameras
-      .filter((c) => c.inService && c.imageUrl)
+      .filter((c) => c.inService && c.imageUrl && !brokenCameras.has(c.id))
       .filter((c) =>
         c.location.toLowerCase().includes(q) ||
         c.city.toLowerCase().includes(q) ||
@@ -61,15 +63,17 @@ export function WatchRoom() {
     return allCameras.filter((c) => isFavorite(c.id) && c.inService && c.imageUrl);
   }, [allCameras, favorites]);
 
-  // Resolve camera IDs to Camera objects for slots
+  const brokenCameras = useStore(unavailableCameras);
+
+  // Resolve camera IDs to Camera objects for slots, excluding unavailable
   const slotCameras = useMemo(() => {
     if (!activeView) return [];
     return activeView.slots.map((slot) =>
       slot.cameras
         .map((id) => allCameras.find((c) => c.id === id))
-        .filter((c): c is Camera => c != null)
+        .filter((c): c is Camera => c != null && !brokenCameras.has(c.id))
     );
-  }, [activeView?.slots, allCameras]);
+  }, [activeView?.slots, allCameras, brokenCameras]);
 
   const handleAddToSlot = useCallback((cameraId: string) => {
     if (activeSlot !== null) addCameraToSlot(activeSlot, cameraId);
@@ -154,6 +158,19 @@ export function WatchRoom() {
                       );
                     })}
                     <span className="text-[9px] text-muted-foreground ml-auto">{filledSlots} cams</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 mt-2 pt-2 border-t border-border/30">
+                    <span className="text-[9px] text-muted-foreground/50 flex items-center gap-1">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                      Locked preset
+                    </span>
+                    <span className="flex-1" />
+                    <button
+                      onClick={(e) => { e.stopPropagation(); duplicateView(view.id, view.name + ' (Copy)'); setMode('setup'); }}
+                      className="text-[10px] text-primary hover:text-primary/80 font-medium transition-colors"
+                    >
+                      Clone & Edit
+                    </button>
                   </div>
                 </button>
               );
