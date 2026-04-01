@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { useStore } from '@nanostores/react';
 import {
   selectedDistrict, searchQuery, selectedRoute, selectedCity, selectedCounty, viewMode,
-  feedType, filterIncidents, filterChains, filterDelays, playAllLive,
+  feedType, filterIncidents, filterChains, filterDelays, filterFavorites, playAllLive,
   unavailableCameras, clearAllFilters,
 } from '@/stores/filters';
 import { gridDensity } from '@/stores/preferences';
@@ -45,6 +45,7 @@ export function CameraGrid() {
   const showChains = useStore(filterChains);
   const showDelays = useStore(filterDelays);
   const playing = useStore(playAllLive);
+  const showFavs = useStore(filterFavorites);
   const brokenCameras = useStore(unavailableCameras);
   const columns = useStore(gridDensity);
   const [page, setPage] = useState(1);
@@ -68,6 +69,7 @@ export function CameraGrid() {
       if (showIncidents && cam.nearbyIncidents.length === 0) return false;
       if (showChains && cam.chainControls.length === 0) return false;
       if (showDelays && (!cam.travelTime || cam.travelTime.delay <= 2)) return false;
+      if (showFavs && !isFavorite(cam.id)) return false;
       if (brokenCameras.has(cam.id)) return false;
       if (search) {
         const q = search.toLowerCase();
@@ -86,7 +88,7 @@ export function CameraGrid() {
       if (a.isStale !== b.isStale) return a.isStale ? 1 : -1;
       return 0;
     });
-  }, [cameras, routeFilter, cityFilter, countyFilter, feed, showIncidents, showChains, showDelays, brokenCameras, search]);
+  }, [cameras, routeFilter, cityFilter, countyFilter, feed, showIncidents, showChains, showDelays, showFavs, isFavorite, brokenCameras, search]);
 
   // CMS signs for map view only
   const filteredCMS = useMemo(() => {

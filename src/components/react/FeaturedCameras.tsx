@@ -9,6 +9,7 @@ import { ConditionIcons } from './ConditionIcons';
 import { RouteShield } from './RouteShield';
 import { CameraDetailDialog } from './CameraDetailDialog';
 import { gridDensity } from '@/stores/preferences';
+import { unavailableCameras } from '@/stores/filters';
 import { GridDensityControl } from './GridDensityControl';
 import { useFavorites } from '@/hooks/use-favorites';
 
@@ -78,6 +79,7 @@ export function FeaturedCameras() {
   const [featuredView, setFeaturedView] = useState<'tiles' | 'cards'>('cards');
   const [selectedCamera, setSelectedCamera] = useState<EnrichedCamera | null>(null);
   const columns = useStore(gridDensity);
+  const broken = useStore(unavailableCameras);
   const { isFavorite, toggle: toggleFavorite } = useFavorites();
 
   const matchedFeatured = useMemo<MatchedFeatured[]>(() => {
@@ -101,11 +103,11 @@ export function FeaturedCameras() {
   const filtered = useMemo(() => {
     let result = matchedFeatured;
     // Always filter out unavailable/stale cameras
-    result = result.filter((f) => f.camera.inService && !f.camera.isStale && f.camera.imageUrl);
+    result = result.filter((f) => f.camera.inService && !f.camera.isStale && f.camera.imageUrl && !broken.has(f.camera.id));
     if (activeCategory !== 'all') result = result.filter((f) => f.category === activeCategory);
-    if (hideStatic) result = result.filter((f) => f.camera.hasVideo);
+    if (hideStatic) result = result.filter((f) => f.camera.hasVideo && f.camera.streamUrl);
     return result;
-  }, [matchedFeatured, activeCategory, hideStatic]);
+  }, [matchedFeatured, activeCategory, hideStatic, broken]);
 
   return (
     <div className="space-y-6">
@@ -266,7 +268,7 @@ export function FeaturedCameras() {
                   </span>
                 )}
 
-                <div className="overflow-hidden">
+                <div className="aspect-video overflow-hidden">
                   <LazyFeaturedFeed streamUrl={cam.streamUrl} imageUrl={cam.imageUrl} cameraName={featured.name} paused={pauseAll} />
                 </div>
 
