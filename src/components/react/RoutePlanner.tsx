@@ -135,6 +135,40 @@ function AutocompleteInput({ ac, label, placeholder, onKeyDown }: {
   );
 }
 
+/** Popular end-to-end California routes — clicking loads the full route instantly */
+const POPULAR_ROUTES: { route: string; label: string; from: GeocodeSuggestion; to: GeocodeSuggestion }[] = [
+  { route: 'I-5', label: 'Mexico to Oregon',
+    from: { lat: 32.542, lon: -117.029, label: 'San Ysidro (Mexican Border)' },
+    to: { lat: 42.003, lon: -122.374, label: 'Hilt (Oregon Border)' } },
+  { route: 'I-80', label: 'SF to Nevada',
+    from: { lat: 37.816, lon: -122.477, label: 'San Francisco (Bay Bridge)' },
+    to: { lat: 39.499, lon: -120.006, label: 'Donner Summit / Truckee' } },
+  { route: 'US-101', label: 'LA to Eureka',
+    from: { lat: 34.058, lon: -118.300, label: 'Los Angeles (Hollywood Fwy)' },
+    to: { lat: 40.802, lon: -124.164, label: 'Eureka' } },
+  { route: 'I-15', label: 'San Diego to Barstow',
+    from: { lat: 32.834, lon: -117.122, label: 'San Diego (I-15 Start)' },
+    to: { lat: 35.028, lon: -116.972, label: 'Baker (I-15 / NV Border)' } },
+  { route: 'SR-99', label: 'Bakersfield to Sacramento',
+    from: { lat: 35.373, lon: -119.019, label: 'Bakersfield' },
+    to: { lat: 38.581, lon: -121.494, label: 'Sacramento' } },
+  { route: 'I-10', label: 'LA to Arizona',
+    from: { lat: 34.028, lon: -118.255, label: 'Los Angeles (Downtown)' },
+    to: { lat: 33.734, lon: -114.629, label: 'Blythe (Arizona Border)' } },
+  { route: 'I-405', label: 'Full Loop',
+    from: { lat: 33.641, lon: -117.839, label: 'Irvine (South End)' },
+    to: { lat: 34.319, lon: -118.478, label: 'San Fernando (North End)' } },
+  { route: 'SR-1', label: 'PCH: Malibu to Monterey',
+    from: { lat: 34.026, lon: -118.686, label: 'Malibu' },
+    to: { lat: 36.600, lon: -121.895, label: 'Monterey' } },
+  { route: 'I-580', label: 'Oakland to Tracy',
+    from: { lat: 37.817, lon: -122.258, label: 'Oakland' },
+    to: { lat: 37.741, lon: -121.427, label: 'Tracy' } },
+  { route: 'US-395', label: 'Ridgecrest to Topaz',
+    from: { lat: 35.623, lon: -117.670, label: 'Ridgecrest' },
+    to: { lat: 38.710, lon: -119.505, label: 'Topaz Lake' } },
+];
+
 const CA_CITIES = [
   { label: 'Anaheim', lat: 33.836, lon: -117.914 },
   { label: 'Bakersfield', lat: 35.373, lon: -119.019 },
@@ -921,10 +955,36 @@ export function RoutePlanner() {
                 Start over
               </button>
             )}
-            <p className="mt-6 text-sm text-muted-foreground">
-              Or type any address in the search bar above
-            </p>
-            <p className="mt-1 text-xs text-muted-foreground/50">
+
+            {/* Popular Routes — one-click highway shields */}
+            <div className="mt-8 border-t border-border pt-6">
+              <h3 className="text-sm font-semibold mb-1">Popular Routes</h3>
+              <p className="text-xs text-muted-foreground mb-4">Click a highway to view every camera end-to-end</p>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+                {POPULAR_ROUTES.map((r) => (
+                  <button
+                    key={r.route}
+                    onClick={() => {
+                      originAC.select(r.from);
+                      destAC.select(r.to);
+                      setOrigin(r.from);
+                      setDestination(r.to);
+                      pushRouteToUrl(r.from, r.to);
+                      setPickStep(null);
+                    }}
+                    className="flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2.5 hover:bg-accent hover:border-primary/30 transition-colors text-left"
+                  >
+                    <RouteShield route={r.route} size="md" />
+                    <div className="min-w-0">
+                      <p className="text-xs font-semibold truncate">{r.route}</p>
+                      <p className="text-[10px] text-muted-foreground truncate">{r.label}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <p className="mt-6 text-xs text-muted-foreground/50">
               3,400+ cameras across all 12 Caltrans districts
             </p>
           </div>
