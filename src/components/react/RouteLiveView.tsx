@@ -35,31 +35,93 @@ interface RouteLiveViewProps {
   onUserLocationChange?: (loc: { lat: number; lon: number } | null) => void;
 }
 
-/** Mount video once seen, keep mounted. Static images always show. */
+/** Max concurrent HLS streams — prevents bandwidth competition */
+const MAX_STREAMS = 4;
+const activeStreams = { count: 0 };
+
+/** Show static image immediately, mount video only when in viewport, unmount when scrolled away. */
 function StableFeed({ camera, onClick, forcePlay }: { camera: RouteCamera; onClick?: () => void; forcePlay?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [hasBeenSeen, setHasBeenSeen] = useState(false);
+  const [inViewport, setInViewport] = useState(false);
+  const [videoPlaying, setVideoPlaying] = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
+  const streamSlotRef = useRef(false);
 
+  // Viewport enter/exit observer
   useEffect(() => {
-    if (forcePlay) { setHasBeenSeen(true); return; }
-    if (!ref.current || !camera.streamUrl || hasBeenSeen) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) { setHasBeenSeen(true); observer.disconnect(); } },
-      { rootMargin: '300px' },
+    if (!forcePlay || !camera.streamUrl) return;
+    if (!ref.current) return;
+
+    const enterObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !streamSlotRef.current && activeStreams.count < MAX_STREAMS) {
+          streamSlotRef.current = true;
+          activeStreams.count++;
+          setInViewport(true);
+        }
+      },
+      { rootMargin: '400px' },
     );
-    observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [camera.streamUrl, hasBeenSeen, forcePlay]);
+
+    const exitObserver = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting && streamSlotRef.current) {
+          streamSlotRef.current = false;
+          activeStreams.count--;
+          setInViewport(false);
+          setVideoPlaying(false);
+        }
+      },
+      { rootMargin: '600px' },
+    );
+
+    enterObserver.observe(ref.current);
+    exitObserver.observe(ref.current);
+
+    return () => {
+      enterObserver.disconnect();
+      exitObserver.disconnect();
+      if (streamSlotRef.current) {
+        streamSlotRef.current = false;
+        activeStreams.count--;
+      }
+    };
+  }, [forcePlay, camera.streamUrl]);
+
+  // When Play All is off but camera has a stream, still use viewport observer for on-demand play
+  useEffect(() => {
+    if (forcePlay || !camera.streamUrl) return;
+    // No video — just show static image
+    setInViewport(false);
+    setVideoPlaying(false);
+  }, [forcePlay, camera.streamUrl]);
+
+  const showVideo = forcePlay && inViewport && camera.streamUrl;
 
   return (
-    <div ref={ref} onClick={(e) => { if (onClick) { e.stopPropagation(); onClick(); } }} className={`h-full ${onClick ? 'cursor-pointer' : ''}`}>
-      {hasBeenSeen && camera.streamUrl ? (
-        <div className="h-full overflow-hidden bg-black">
-          <VideoPlayer streamUrl={camera.streamUrl} imageUrl={camera.imageUrl} cameraName={camera.location} hideControls />
-        </div>
-      ) : (
-        <div className="h-full overflow-hidden bg-black">
-          <img src={camera.imageUrl} alt={camera.location} className="w-full h-full object-cover" loading="lazy" />
+    <div ref={ref} onClick={(e) => { if (onClick) { e.stopPropagation(); onClick(); } }} className={`h-full relative ${onClick ? 'cursor-pointer' : ''}`}>
+      {/* Base layer: static snapshot — always rendered */}
+      <img
+        src={camera.imageUrl}
+        alt={camera.location}
+        className={`w-full h-full object-cover transition-opacity duration-300 ${imgLoaded ? 'opacity-100' : 'opacity-0'}`}
+        loading="lazy"
+        onLoad={() => setImgLoaded(true)}
+      />
+      {/* Shimmer while image loads */}
+      {!imgLoaded && (
+        <div className="absolute inset-0 animate-pulse bg-muted/30" />
+      )}
+      {/* Video layer: mounted/unmounted based on viewport */}
+      {showVideo && (
+        <div className={`absolute inset-0 transition-opacity duration-300 ${videoPlaying ? 'opacity-100' : 'opacity-0'}`}>
+          <VideoPlayer
+            streamUrl={camera.streamUrl}
+            imageUrl={camera.imageUrl}
+            cameraName={camera.location}
+            hideControls
+            onPlaying={() => setVideoPlaying(true)}
+          />
         </div>
       )}
     </div>
