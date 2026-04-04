@@ -89,7 +89,11 @@ function AutocompleteInput({ ac, label, placeholder, onKeyDown }: {
 }) {
   return (
     <div className="relative flex-1">
-      <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-muted-foreground z-10">{label}</span>
+      <span className={`absolute left-2 top-1/2 -translate-y-1/2 z-10 text-[9px] font-bold tracking-wide rounded px-1.5 py-0.5 border ${
+        label === 'FROM'
+          ? 'text-green-400 bg-green-500/10 border-green-500/30'
+          : 'text-blue-400 bg-blue-500/10 border-blue-500/30'
+      }`}>{label}</span>
       <input
         type="search"
         role="combobox"
@@ -103,7 +107,7 @@ function AutocompleteInput({ ac, label, placeholder, onKeyDown }: {
         data-1p-ignore
         data-lpignore="true"
         data-form-type="other"
-        className={`h-9 w-full rounded-lg border bg-background pl-12 pr-8 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
+        className={`h-9 w-full rounded-lg border bg-background pl-14 pr-8 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring ${
           ac.selected ? 'border-green-500/50' : 'border-input'
         }`}
       />
