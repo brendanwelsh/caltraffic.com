@@ -28,7 +28,7 @@ export function CMSCard({ cms, onClick }: CMSCardProps) {
       <div className="relative aspect-video bg-[#080808] flex items-center justify-center px-5 py-4">
         <div className="w-full space-y-1">
           {cms.phase1Lines.filter((l) => l.trim()).map((line, i) => (
-            <p key={`p1-${i}`} className="text-center font-mono text-sm sm:text-base font-bold tracking-[0.15em] text-amber-300/90 leading-relaxed">
+            <p key={`p1-${i}`} className="text-center font-[sv170singlestroke,monospace] text-sm sm:text-base font-bold tracking-[0.15em] text-yellow-400 leading-relaxed">
               {line}
             </p>
           ))}
@@ -36,7 +36,7 @@ export function CMSCard({ cms, onClick }: CMSCardProps) {
             <>
               <div className="my-1.5 border-t border-amber-800/30 mx-4" />
               {cms.phase2Lines.filter((l) => l.trim()).map((line, i) => (
-                <p key={`p2-${i}`} className="text-center font-mono text-sm sm:text-base font-bold tracking-[0.15em] text-amber-300/90 leading-relaxed">
+                <p key={`p2-${i}`} className="text-center font-[sv170singlestroke,monospace] text-sm sm:text-base font-bold tracking-[0.15em] text-yellow-400 leading-relaxed">
                   {line}
                 </p>
               ))}

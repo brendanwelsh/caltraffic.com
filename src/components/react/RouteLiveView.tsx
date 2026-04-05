@@ -135,7 +135,7 @@ function CMSFeedCard({ cms, camera }: { cms: any; camera: RouteCamera }) {
         <div className="md:w-[35%] shrink-0 bg-black flex items-center justify-center rounded-md border-2 border-amber-700/40 overflow-hidden">
           <div className="w-full h-full flex flex-col items-center justify-center px-3 py-4">
             {cms.phase1Lines.map((line: string, i: number) => (
-              <div key={i} className="text-center text-base md:text-lg font-mono font-bold tracking-widest text-amber-400 leading-relaxed uppercase">
+              <div key={i} className="text-center text-base md:text-lg font-[sv170singlestroke,monospace] font-bold tracking-widest text-yellow-400 leading-relaxed uppercase">
                 {line || '\u00A0'}
               </div>
             ))}
@@ -143,7 +143,7 @@ function CMSFeedCard({ cms, camera }: { cms: any; camera: RouteCamera }) {
               <>
                 <div className="my-2 w-3/4 border-t border-amber-700/30" />
                 {cms.phase2Lines.map((line: string, i: number) => (
-                  <div key={i} className="text-center text-base md:text-lg font-mono font-bold tracking-widest text-amber-400 leading-relaxed uppercase">
+                  <div key={i} className="text-center text-base md:text-lg font-[sv170singlestroke,monospace] font-bold tracking-widest text-yellow-400 leading-relaxed uppercase">
                     {line || '\u00A0'}
                   </div>
                 ))}
