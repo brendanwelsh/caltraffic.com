@@ -17,6 +17,7 @@ export const PHOTO_ONLY_DISTRICTS = new Set([9]); // Only D9 (Eastern Sierra) ha
 
 export const RWIS_DISTRICTS = new Set([2, 3, 6, 8, 9, 10]);
 export const TRAVEL_TIME_DISTRICTS = new Set([3, 8, 11, 12]);
+export const PEMS_DISTRICTS = new Set([3, 4, 5, 6, 7, 8, 10, 11, 12]);
 
 export const DISTRICT_CAPABILITIES: Record<number, { cctv: boolean; cms: boolean; cc: boolean; lcs: boolean; rwis: boolean; tt: boolean; video: boolean }> = {
   1:  { cctv: true, cms: true, cc: true, lcs: true, rwis: false, tt: false, video: true },
@@ -100,4 +101,5 @@ export const CACHE_TTLS = {
   lcs: 60,
   rwis: 120,
   travelTimes: 60,
+  pems: 30,
 } as const;
