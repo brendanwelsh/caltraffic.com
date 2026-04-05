@@ -39,7 +39,8 @@ function checkPlaceholder(img: HTMLImageElement, cameraId: string) {
       total += (data[i] + data[i + 1] + data[i + 2]) / 3;
       count++;
     }
-    if (total / count > 210) markUnavailable(cameraId);
+    const mean = total / count;
+    if (mean > 210 || mean < 15) markUnavailable(cameraId);
   } catch {
     // CORS — silently ignore
   }
@@ -208,7 +209,7 @@ export function CameraGrid({ cameraFilter, overrideDistrict }: CameraGridProps =
             {displayed.map((camera) => (
               <div
                 key={camera.id}
-                className="relative aspect-video overflow-hidden rounded-md bg-black cursor-pointer group"
+                className="relative aspect-video overflow-hidden rounded-md bg-muted/50 cursor-pointer group"
                 onClick={() => handleCameraClick(camera)}
               >
                 {/* Play All: use VideoPlayer. Otherwise: static img with placeholder detection */}
@@ -220,7 +221,6 @@ export function CameraGrid({ cameraFilter, overrideDistrict }: CameraGridProps =
                     alt={camera.location}
                     className="w-full h-full object-cover"
                     loading="lazy"
-                    crossOrigin="anonymous"
                     onLoad={(e) => checkPlaceholder(e.currentTarget, camera.id)}
                   />
                 )}

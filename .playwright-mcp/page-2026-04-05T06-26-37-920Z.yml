@@ -1,0 +1,186 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "CalTraffic.com" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - img [ref=e6]
+          - generic [ref=e9]: CalTraffic.com
+        - generic [ref=e10]:
+          - link "Route Planner" [ref=e11] [cursor=pointer]:
+            - /url: /
+          - link "All Cameras" [ref=e12] [cursor=pointer]:
+            - /url: /cameras
+          - link "Featured" [ref=e13] [cursor=pointer]:
+            - /url: /featured
+          - link "Custom Views" [ref=e14] [cursor=pointer]:
+            - /url: /favorites
+          - link "Reports" [ref=e15] [cursor=pointer]:
+            - /url: /reports
+          - link "Stats" [ref=e16] [cursor=pointer]:
+            - /url: /stats
+          - link "About" [ref=e17] [cursor=pointer]:
+            - /url: /about
+          - button "Toggle theme" [ref=e18]:
+            - img [ref=e19]
+    - main [ref=e21]:
+      - generic [ref=e24]:
+        - generic [ref=e25]:
+          - button "Stop All" [ref=e26]:
+            - img [ref=e27]
+            - text: Stop All
+          - generic [ref=e29]:
+            - img
+            - textbox "Search by camera name, route, or city" [ref=e30]:
+              - /placeholder: Search cameras...
+          - generic "Adjust grid columns" [ref=e31]:
+            - generic [ref=e32]:
+              - img [ref=e33]
+              - generic [ref=e38]:
+                - button "2" [ref=e39]
+                - button "3" [ref=e40]
+                - button "4" [ref=e41]
+                - button "5" [ref=e42]
+                - button "6" [ref=e43]
+          - generic [ref=e44]:
+            - button "Tiles view" [ref=e45]:
+              - img [ref=e46]
+              - generic [ref=e51]: Tile
+            - button "Grid view" [ref=e52]:
+              - img [ref=e53]
+              - generic [ref=e56]: List
+            - button "Map view" [ref=e57]:
+              - img [ref=e58]
+              - generic [ref=e60]: Map
+        - generic [ref=e61]:
+          - generic [ref=e62]:
+            - button "All" [ref=e63]
+            - button "Live" [ref=e64]
+            - button "Still" [ref=e65]
+          - button "My Favorites" [ref=e66]:
+            - img [ref=e67]
+            - text: My Favorites
+          - button "Hiding N/A" [ref=e69]:
+            - img [ref=e70]
+            - text: Hiding N/A
+          - combobox "Filter by Caltrans district" [ref=e74]:
+            - option "All Districts" [selected]
+            - option "D1 — Eureka (North Coast)"
+            - option "D2 — Redding (North-eastern CA)"
+            - option "D3 — Marysville/Sacramento"
+            - option "D4 — Oakland/San Francisco (Bay Area)"
+            - option "D5 — San Luis Obispo (Central Coast)"
+            - option "D6 — Fresno (Central Valley)"
+            - option "D7 — Los Angeles"
+            - option "D8 — San Bernardino/Riverside (Inland Empire)"
+            - option "D9 — Bishop (Eastern Sierra)"
+            - option "D10 — Stockton (San Joaquin Valley)"
+            - option "D11 — San Diego"
+            - option "D12 — Irvine (Orange County)"
+          - button "Route" [ref=e76]:
+            - img [ref=e77]
+            - text: Route
+          - combobox "Filter by county" [ref=e80]:
+            - option "County" [selected]
+            - option "Alameda"
+            - option "Alpine"
+            - option "Amador"
+            - option "Butte"
+            - option "Calaveras"
+            - option "Colusa"
+            - option "Contra Costa"
+            - option "Del Norte"
+            - option "El Dorado"
+            - option "Fresno"
+            - option "Glenn"
+            - option "Humboldt"
+            - option "Imperial"
+            - option "Inyo"
+            - option "Kern"
+            - option "Kings"
+            - option "Lake"
+            - option "Lassen"
+            - option "Los Angeles"
+            - option "Madera"
+            - option "Marin"
+            - option "Mariposa"
+            - option "Mendocino"
+            - option "Merced"
+            - option "Modoc"
+            - option "Mono"
+            - option "Monterey"
+            - option "Napa"
+            - option "Nevada"
+            - option "Orange"
+            - option "Placer"
+            - option "Plumas"
+            - option "Riverside"
+            - option "Sacramento"
+            - option "San Benito"
+            - option "San Bernardino"
+            - option "San Diego"
+            - option "San Francisco"
+            - option "San Joaquin"
+            - option "San Luis Obispo"
+            - option "San Mateo"
+            - option "Santa Barbara"
+            - option "Santa Clara"
+            - option "Santa Cruz"
+            - option "Shasta"
+            - option "Sierra"
+            - option "Siskiyou"
+            - option "Solano"
+            - option "Sonoma"
+            - option "Stanislaus"
+            - option "Sutter"
+            - option "Tehama"
+            - option "Trinity"
+            - option "Tulare"
+            - option "Tuolumne"
+            - option "Ventura"
+            - option "Yolo"
+            - option "Yuba"
+        - generic [ref=e81]:
+          - generic [ref=e82]: Live
+          - generic [ref=e84]:
+            - img [ref=e85]
+            - text: Incident nearby
+          - generic [ref=e87]:
+            - img [ref=e88]
+            - text: Chain control
+    - contentinfo [ref=e176]:
+      - generic [ref=e177]:
+        - paragraph [ref=e178]:
+          - text: Data from
+          - link "Caltrans" [ref=e179] [cursor=pointer]:
+            - /url: https://dot.ca.gov
+          - text: ","
+          - link "CHP" [ref=e180] [cursor=pointer]:
+            - /url: https://www.chp.ca.gov
+          - text: ", and"
+          - link "NWS" [ref=e181] [cursor=pointer]:
+            - /url: https://www.weather.gov
+          - text: . Public domain data.
+        - generic [ref=e182]:
+          - generic [ref=e183]:
+            - text: Built by
+            - link "Brendan Welsh" [ref=e184] [cursor=pointer]:
+              - /url: https://linkedin.com/in/brendan-welsh
+            - text: ·
+            - link "GitHub" [ref=e185] [cursor=pointer]:
+              - /url: https://github.com/brendanwelsh
+          - link "Support this project" [ref=e186] [cursor=pointer]:
+            - /url: https://buymeacoffee.com/brendanwelsh
+  - generic [ref=e189]:
+    - button "Menu" [ref=e190]:
+      - img [ref=e192]
+      - generic: Menu
+    - button "Inspect" [ref=e196]:
+      - img [ref=e198]
+      - generic: Inspect
+    - button "Audit" [ref=e200]:
+      - img [ref=e202]
+      - generic: Audit
+    - button "Settings" [ref=e205]:
+      - img [ref=e207]
+      - generic: Settings

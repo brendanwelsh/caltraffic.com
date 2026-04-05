@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef, lazy, Suspense } from 'react';
 import { useRoutePlanner } from '@/hooks/use-route-planner';
+import { usePems } from '@/hooks/use-pems';
 import { RouteLiveView } from './RouteLiveView';
 import { CameraDetailDialog } from './CameraDetailDialog';
 import { VideoPlayer } from './VideoPlayer';
@@ -218,7 +219,9 @@ export function RoutePlanner() {
     routeLineCoords, routeLineLoading, hasRoute,
     routeCameras, routeLoading,
     routeDistance, routeDuration, routeSteps,
+    corridorDistricts,
   } = useRoutePlanner();
+  const { data: pemsData } = usePems(corridorDistricts);
   const originAC = useGeocodeAutocomplete();
   const destAC = useGeocodeAutocomplete();
   const [geocodeError, setGeocodeError] = useState<string | null>(null);
@@ -452,7 +455,7 @@ export function RoutePlanner() {
                 )}
 
                 {routeView === 'list' ? (
-                  <RouteLiveView cameras={routeCameras} routeDuration={routeDuration} onCameraFocus={setFocusedCameraId} onUserLocationChange={setUserLocation} />
+                  <RouteLiveView cameras={routeCameras} routeDuration={routeDuration} onCameraFocus={setFocusedCameraId} onUserLocationChange={setUserLocation} pemsStations={pemsData?.stations} />
                 ) : (
                   <div className={`grid grid-cols-1 sm:grid-cols-2 ${showMap ? 'lg:grid-cols-3' : 'lg:grid-cols-4'} gap-3 pb-4`}>
                     {routeCameras.map((camera) => {
@@ -509,6 +512,7 @@ export function RoutePlanner() {
                         destination={destination}
                         focusedCameraId={focusedCameraId}
                         userLocation={userLocation}
+                        pemsStations={pemsData?.stations}
                         onCameraClick={(cam) => {
                           setFocusedCameraId(cam.id);
                           document.getElementById(`feed-${cam.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -653,7 +657,7 @@ export function RoutePlanner() {
                   )}
 
                   {routeView === 'list' ? (
-                    <RouteLiveView cameras={routeCameras} routeDuration={routeDuration} onCameraFocus={setFocusedCameraId} onUserLocationChange={setUserLocation} />
+                    <RouteLiveView cameras={routeCameras} routeDuration={routeDuration} onCameraFocus={setFocusedCameraId} onUserLocationChange={setUserLocation} pemsStations={pemsData?.stations} />
                   ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-4">
                       {routeCameras.map((camera) => {
@@ -709,6 +713,7 @@ export function RoutePlanner() {
                       destination={destination}
                       focusedCameraId={focusedCameraId}
                       userLocation={userLocation}
+                      pemsStations={pemsData?.stations}
                       onCameraClick={(cam) => {
                         setFocusedCameraId(cam.id);
                         setMobileTab('cameras');

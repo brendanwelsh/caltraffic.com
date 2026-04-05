@@ -1,0 +1,191 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - link "CalTraffic.com" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img [ref=e6]
+        - generic [ref=e9]: CalTraffic.com
+      - generic [ref=e10]:
+        - link "Route Planner" [ref=e11] [cursor=pointer]:
+          - /url: /
+        - link "All Cameras" [ref=e12] [cursor=pointer]:
+          - /url: /cameras
+        - link "Featured" [ref=e13] [cursor=pointer]:
+          - /url: /featured
+        - link "Custom Views" [ref=e14] [cursor=pointer]:
+          - /url: /favorites
+        - link "Reports" [ref=e15] [cursor=pointer]:
+          - /url: /reports
+        - link "Stats" [ref=e16] [cursor=pointer]:
+          - /url: /stats
+        - link "About" [ref=e17] [cursor=pointer]:
+          - /url: /about
+        - button "Toggle theme" [ref=e18]:
+          - img [ref=e19]
+  - main [ref=e22]:
+    - generic [ref=e25]:
+      - generic [ref=e27]:
+        - generic [ref=e28]:
+          - generic [ref=e29]: FROM
+          - combobox "City, address, or landmark" [ref=e30]
+        - button "Swap origin and destination" [ref=e31]:
+          - img [ref=e32]
+        - generic [ref=e35]:
+          - generic [ref=e36]: TO
+          - combobox "City, address, or landmark" [ref=e37]
+        - button "View Route" [disabled] [ref=e39]
+      - generic [ref=e40]:
+        - heading "Where are you starting?" [level=2] [ref=e41]
+        - paragraph [ref=e42]: Pick your starting city or type an address above
+        - textbox "Search cities..." [ref=e43]
+        - generic [ref=e44]:
+          - button "Anaheim" [ref=e45]:
+            - paragraph [ref=e47]: Anaheim
+          - button "Bakersfield" [ref=e48]:
+            - paragraph [ref=e50]: Bakersfield
+          - button "Bishop" [ref=e51]:
+            - paragraph [ref=e53]: Bishop
+          - button "Chico" [ref=e54]:
+            - paragraph [ref=e56]: Chico
+          - button "Eureka" [ref=e57]:
+            - paragraph [ref=e59]: Eureka
+          - button "Folsom" [ref=e60]:
+            - paragraph [ref=e62]: Folsom
+          - button "Fresno" [ref=e63]:
+            - paragraph [ref=e65]: Fresno
+          - button "Irvine" [ref=e66]:
+            - paragraph [ref=e68]: Irvine
+          - button "Lake Tahoe" [ref=e69]:
+            - paragraph [ref=e71]: Lake Tahoe
+          - button "Long Beach" [ref=e72]:
+            - paragraph [ref=e74]: Long Beach
+          - button "Los Angeles" [ref=e75]:
+            - paragraph [ref=e77]: Los Angeles
+          - button "Mammoth Lakes" [ref=e78]:
+            - paragraph [ref=e80]: Mammoth Lakes
+          - button "Merced" [ref=e81]:
+            - paragraph [ref=e83]: Merced
+          - button "Modesto" [ref=e84]:
+            - paragraph [ref=e86]: Modesto
+          - button "Monterey" [ref=e87]:
+            - paragraph [ref=e89]: Monterey
+          - button "Napa" [ref=e90]:
+            - paragraph [ref=e92]: Napa
+          - button "Oakland" [ref=e93]:
+            - paragraph [ref=e95]: Oakland
+          - button "Oceanside" [ref=e96]:
+            - paragraph [ref=e98]: Oceanside
+          - button "Palm Springs" [ref=e99]:
+            - paragraph [ref=e101]: Palm Springs
+          - button "Pasadena" [ref=e102]:
+            - paragraph [ref=e104]: Pasadena
+          - button "Redding" [ref=e105]:
+            - paragraph [ref=e107]: Redding
+          - button "Riverside" [ref=e108]:
+            - paragraph [ref=e110]: Riverside
+          - button "Sacramento" [ref=e111]:
+            - paragraph [ref=e113]: Sacramento
+          - button "San Bernardino" [ref=e114]:
+            - paragraph [ref=e116]: San Bernardino
+          - button "San Diego" [ref=e117]:
+            - paragraph [ref=e119]: San Diego
+          - button "San Francisco" [ref=e120]:
+            - paragraph [ref=e122]: San Francisco
+          - button "San Jose" [ref=e123]:
+            - paragraph [ref=e125]: San Jose
+          - button "San Luis Obispo" [ref=e126]:
+            - paragraph [ref=e128]: San Luis Obispo
+          - button "Santa Barbara" [ref=e129]:
+            - paragraph [ref=e131]: Santa Barbara
+          - button "Santa Cruz" [ref=e132]:
+            - paragraph [ref=e134]: Santa Cruz
+          - button "Santa Rosa" [ref=e135]:
+            - paragraph [ref=e137]: Santa Rosa
+          - button "Stockton" [ref=e138]:
+            - paragraph [ref=e140]: Stockton
+          - button "Temecula" [ref=e141]:
+            - paragraph [ref=e143]: Temecula
+          - button "Truckee" [ref=e144]:
+            - paragraph [ref=e146]: Truckee
+          - button "Visalia" [ref=e147]:
+            - paragraph [ref=e149]: Visalia
+          - button "Yosemite" [ref=e150]:
+            - paragraph [ref=e152]: Yosemite
+        - generic [ref=e153]:
+          - heading "Popular Routes" [level=3] [ref=e154]
+          - paragraph [ref=e155]: Click a highway to view every camera end-to-end
+          - generic [ref=e156]:
+            - button "I-5 shield I-5 Mexico to Oregon" [ref=e157]:
+              - img "I-5 shield" [ref=e158]
+              - generic [ref=e159]:
+                - paragraph [ref=e160]: I-5
+                - paragraph [ref=e161]: Mexico to Oregon
+            - button "I-80 shield I-80 SF to Nevada" [ref=e162]:
+              - img "I-80 shield" [ref=e163]
+              - generic [ref=e164]:
+                - paragraph [ref=e165]: I-80
+                - paragraph [ref=e166]: SF to Nevada
+            - button "US-101 shield US-101 LA to Eureka" [ref=e167]:
+              - img "US-101 shield" [ref=e168]
+              - generic [ref=e169]:
+                - paragraph [ref=e170]: US-101
+                - paragraph [ref=e171]: LA to Eureka
+            - button "I-15 shield I-15 San Diego to Barstow" [ref=e172]:
+              - img "I-15 shield" [ref=e173]
+              - generic [ref=e174]:
+                - paragraph [ref=e175]: I-15
+                - paragraph [ref=e176]: San Diego to Barstow
+            - button "SR-99 shield SR-99 Bakersfield to Sacramento" [ref=e177]:
+              - img "SR-99 shield" [ref=e178]
+              - generic [ref=e179]:
+                - paragraph [ref=e180]: SR-99
+                - paragraph [ref=e181]: Bakersfield to Sacramento
+            - button "I-10 shield I-10 LA to Arizona" [ref=e182]:
+              - img "I-10 shield" [ref=e183]
+              - generic [ref=e184]:
+                - paragraph [ref=e185]: I-10
+                - paragraph [ref=e186]: LA to Arizona
+            - button "I-405 shield I-405 Full Loop" [ref=e187]:
+              - img "I-405 shield" [ref=e188]
+              - generic [ref=e189]:
+                - paragraph [ref=e190]: I-405
+                - paragraph [ref=e191]: Full Loop
+            - 'button "SR-1 shield SR-1 PCH: Malibu to Monterey" [ref=e192]':
+              - img "SR-1 shield" [ref=e193]
+              - generic [ref=e194]:
+                - paragraph [ref=e195]: SR-1
+                - paragraph [ref=e196]: "PCH: Malibu to Monterey"
+            - button "I-580 shield I-580 Oakland to Tracy" [ref=e197]:
+              - img "I-580 shield" [ref=e198]
+              - generic [ref=e199]:
+                - paragraph [ref=e200]: I-580
+                - paragraph [ref=e201]: Oakland to Tracy
+            - button "US-395 shield US-395 Ridgecrest to Topaz" [ref=e202]:
+              - img "US-395 shield" [ref=e203]
+              - generic [ref=e204]:
+                - paragraph [ref=e205]: US-395
+                - paragraph [ref=e206]: Ridgecrest to Topaz
+        - paragraph [ref=e207]: 3,400+ cameras across all 12 Caltrans districts
+  - contentinfo [ref=e208]:
+    - generic [ref=e209]:
+      - paragraph [ref=e210]:
+        - text: Data from
+        - link "Caltrans" [ref=e211] [cursor=pointer]:
+          - /url: https://dot.ca.gov
+        - text: ","
+        - link "CHP" [ref=e212] [cursor=pointer]:
+          - /url: https://www.chp.ca.gov
+        - text: ", and"
+        - link "NWS" [ref=e213] [cursor=pointer]:
+          - /url: https://www.weather.gov
+        - text: . Public domain data.
+      - generic [ref=e214]:
+        - generic [ref=e215]:
+          - text: Built by
+          - link "Brendan Welsh" [ref=e216] [cursor=pointer]:
+            - /url: https://linkedin.com/in/brendan-welsh
+          - text: ·
+          - link "GitHub" [ref=e217] [cursor=pointer]:
+            - /url: https://github.com/brendanwelsh
+        - link "Support this project" [ref=e218] [cursor=pointer]:
+          - /url: https://buymeacoffee.com/brendanwelsh

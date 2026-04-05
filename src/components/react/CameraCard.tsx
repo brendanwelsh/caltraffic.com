@@ -42,9 +42,9 @@ function detectPlaceholder(img: HTMLImageElement): boolean {
     // Placeholders: mean ~232 (white background with some colored text)
     const mean = samples.reduce((a, b) => a + b, 0) / samples.length;
 
-    // Mean brightness > 210 is almost certainly a white placeholder image
-    // Real traffic images never average that bright (even snowy scenes have shadows)
-    return mean > 210;
+    // Mean brightness > 210 = white "Temporarily Unavailable" placeholder
+    // Mean brightness < 15 = black/dark stale nighttime image with no useful content
+    return mean > 210 || mean < 15;
   } catch {
     return false;
   }
@@ -103,7 +103,7 @@ export function CameraCard({ camera, onClick, isFavorite = false, onToggleFavori
       aria-label={`Camera: ${camera.location} on ${camera.route} ${camera.direction}`}
     >
       {/* Camera Image or Video */}
-      <div className="relative aspect-video bg-black/40 overflow-hidden">
+      <div className="relative aspect-video bg-muted/50 overflow-hidden">
         {playAll && camera.hasVideo && camera.streamUrl ? (
           <VideoPlayer
             streamUrl={camera.streamUrl}
@@ -114,7 +114,6 @@ export function CameraCard({ camera, onClick, isFavorite = false, onToggleFavori
         ) : !imageError ? (
           <img
             ref={imgRef}
-            crossOrigin="anonymous"
             alt={`Traffic camera: ${camera.location}`}
             className={cn(
               'h-full w-full object-cover transition-opacity duration-300',

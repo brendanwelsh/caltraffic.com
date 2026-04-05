@@ -124,12 +124,12 @@ export const GET: APIRoute = async () => {
     const xmlText = await res.text();
     const incidents = transformIncidents(xmlText);
     return new Response(JSON.stringify(incidents), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=30, s-maxage=60' },
     });
   } catch (error) {
     return new Response(JSON.stringify({ error: 'upstream_error', message: String(error) }), {
       status: 502,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=10, s-maxage=15' },
     });
   }
 };

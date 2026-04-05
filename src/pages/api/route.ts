@@ -122,7 +122,7 @@ export const GET: APIRoute = async ({ url }) => {
   if (!from || !to) {
     return new Response(JSON.stringify({ error: 'Missing from and to parameters (lat,lon)' }), {
       status: 400,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=10, s-maxage=15' },
     });
   }
 
@@ -132,7 +132,7 @@ export const GET: APIRoute = async ({ url }) => {
   if ([fromLat, fromLon, toLat, toLon].some(isNaN)) {
     return new Response(JSON.stringify({ error: 'Invalid coordinates' }), {
       status: 400,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=10, s-maxage=15' },
     });
   }
 
@@ -142,7 +142,7 @@ export const GET: APIRoute = async ({ url }) => {
   if (!inCA(fromLat, fromLon) || !inCA(toLat, toLon)) {
     return new Response(JSON.stringify({ error: 'Coordinates must be within California' }), {
       status: 400,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=10, s-maxage=15' },
     });
   }
 
@@ -153,7 +153,7 @@ export const GET: APIRoute = async ({ url }) => {
   if (!result) {
     return new Response(JSON.stringify({ error: 'All routing services unavailable. Please try again.' }), {
       status: 502,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=10, s-maxage=15' },
     });
   }
 

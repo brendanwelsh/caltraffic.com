@@ -1,0 +1,1447 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "CalTraffic.com" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - img [ref=e6]
+          - generic [ref=e9]: CalTraffic.com
+        - generic [ref=e10]:
+          - link "Route Planner" [ref=e11] [cursor=pointer]:
+            - /url: /
+          - link "All Cameras" [ref=e12] [cursor=pointer]:
+            - /url: /cameras
+          - link "Featured" [ref=e13] [cursor=pointer]:
+            - /url: /featured
+          - link "Custom Views" [ref=e14] [cursor=pointer]:
+            - /url: /favorites
+          - link "Reports" [ref=e15] [cursor=pointer]:
+            - /url: /reports
+          - link "Stats" [ref=e16] [cursor=pointer]:
+            - /url: /stats
+          - link "About" [ref=e17] [cursor=pointer]:
+            - /url: /about
+          - button "Toggle theme" [ref=e18]:
+            - img [ref=e19]
+    - main [ref=e21]:
+      - generic [ref=e24]:
+        - generic [ref=e26]:
+          - generic [ref=e27]:
+            - generic [ref=e28]: FROM
+            - combobox "City, address, or landmark" [ref=e29]: Sacramento
+            - img [ref=e31]
+          - button "Swap origin and destination" [ref=e33]:
+            - img [ref=e34]
+          - generic [ref=e37]:
+            - generic [ref=e38]: TO
+            - combobox "City, address, or landmark" [ref=e39]: Stockton
+            - img [ref=e41]
+          - generic [ref=e43]:
+            - button "View Route" [ref=e44]
+            - button "Copy shareable link" [ref=e45]:
+              - img [ref=e46]
+            - button "Clear route" [ref=e49]:
+              - img [ref=e50]
+        - generic [ref=e53]:
+          - generic [ref=e54]:
+            - button "List" [ref=e55]
+            - button "Grid" [ref=e56]
+          - button "Hide map" [ref=e57]
+        - generic [ref=e58]:
+          - generic [ref=e60]:
+            - generic [ref=e61]:
+              - button "Show All" [ref=e62]:
+                - img [ref=e63]
+                - text: Show All
+              - button "Stop All" [ref=e67]:
+                - img [ref=e68]
+                - text: Stop All
+              - button "Track My Location" [ref=e70]:
+                - img [ref=e71]
+                - text: Track My Location
+            - generic [ref=e73]:
+              - generic [ref=e74]:
+                - generic [ref=e76]:
+                  - generic [ref=e77]:
+                    - img "P St" [ref=e80] [cursor=pointer]
+                    - generic [ref=e86]: Live
+                    - generic [ref=e87]: "1"
+                  - generic [ref=e88] [cursor=pointer]:
+                    - generic [ref=e89]:
+                      - img "I-5 shield" [ref=e90]
+                      - heading "P St" [level=3] [ref=e91]
+                    - paragraph [ref=e92]: South · Sacramento, Sacramento Co.
+                    - generic [ref=e93]:
+                      - generic [ref=e94]: 1m away
+                      - generic [ref=e95]: 0.6 mi to next
+                    - generic [ref=e97]:
+                      - link "Maps" [ref=e98]:
+                        - /url: https://www.google.com/maps?q=38.577828,-121.507587
+                        - img [ref=e99]
+                        - text: Maps
+                      - link "Details" [ref=e102]:
+                        - /url: /camera/D03-12
+                        - img [ref=e103]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e107]:
+                        - img [ref=e108]
+                        - text: Zoom on Map
+                      - generic [ref=e111]:
+                        - button "Mark as passed" [ref=e112]:
+                          - img [ref=e113]
+                        - button "Favorite" [ref=e115]:
+                          - img [ref=e116]
+                - generic [ref=e119]:
+                  - generic [ref=e121]:
+                    - generic [ref=e122]: GUSTY
+                    - generic [ref=e123]: WIND
+                    - generic [ref=e124]: WARNING
+                    - generic [ref=e126]: OVER
+                    - generic [ref=e127]: PACHECO
+                    - generic [ref=e128]: PASS
+                  - generic [ref=e129]:
+                    - generic [ref=e130]:
+                      - generic [ref=e131]: Highway Sign
+                      - img "I-5 shield" [ref=e132]
+                    - paragraph [ref=e133]: SB I-5 N/O 33 (Santa Nella)
+                    - paragraph [ref=e134]: South · Sacramento
+                    - link "Maps" [ref=e137] [cursor=pointer]:
+                      - /url: https://www.google.com/maps?q=37.115404,-121.023155
+                      - img [ref=e138]
+                      - text: Maps
+                - generic [ref=e142]: 0.6 mi
+              - generic [ref=e143]:
+                - generic [ref=e145]:
+                  - generic [ref=e146]:
+                    - img "NB at W St slip on ramp" [ref=e149] [cursor=pointer]
+                    - generic [ref=e155]: Live
+                    - generic [ref=e156]: "2"
+                  - generic [ref=e157] [cursor=pointer]:
+                    - generic [ref=e158]:
+                      - img "I-5 shield" [ref=e159]
+                      - heading "NB at W St slip on ramp" [level=3] [ref=e160]
+                    - paragraph [ref=e161]: North · Sacramento, Sacramento Co.
+                    - generic [ref=e162]:
+                      - generic [ref=e163]: 2m away
+                      - generic [ref=e164]: 375 ft to next
+                    - generic [ref=e166]:
+                      - link "Maps" [ref=e167]:
+                        - /url: https://www.google.com/maps?q=38.56925,-121.5088
+                        - img [ref=e168]
+                        - text: Maps
+                      - link "Details" [ref=e171]:
+                        - /url: /camera/D03-355
+                        - img [ref=e172]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e176]:
+                        - img [ref=e177]
+                        - text: Zoom on Map
+                      - generic [ref=e180]:
+                        - button "Mark as passed" [ref=e181]:
+                          - img [ref=e182]
+                        - button "Favorite" [ref=e184]:
+                          - img [ref=e185]
+                - generic [ref=e188]:
+                  - generic [ref=e190]:
+                    - generic [ref=e191]: OLD RIVER BR
+                    - generic [ref=e192]: ONE WAY TRAFFIC
+                    - generic [ref=e193]: THRU NOV 2026
+                    - generic [ref=e195]: TRUCKS OVER 34FT
+                    - generic [ref=e196]: USE ALT ROUTE
+                    - generic [ref=e197]: TUNE TO 1670AM
+                  - generic [ref=e198]:
+                    - generic [ref=e199]:
+                      - generic [ref=e200]: Highway Sign
+                      - img "I-5 shield" [ref=e201]
+                    - paragraph [ref=e202]: NB I-5 N/O FRENCH CAMP
+                    - paragraph [ref=e203]: North · Sacramento
+                    - link "Maps" [ref=e206] [cursor=pointer]:
+                      - /url: https://www.google.com/maps?q=37.902583,-121.28547
+                      - img [ref=e207]
+                      - text: Maps
+                - generic [ref=e211]: 375 ft
+              - generic [ref=e212]:
+                - generic [ref=e214]:
+                  - generic [ref=e215]:
+                    - img "Hwy 50" [ref=e218] [cursor=pointer]
+                    - generic [ref=e224]: Live
+                    - generic [ref=e225]: "3"
+                  - generic [ref=e226] [cursor=pointer]:
+                    - generic [ref=e227]:
+                      - img "I-5 shield" [ref=e228]
+                      - heading "Hwy 50" [level=3] [ref=e229]
+                    - paragraph [ref=e230]: North · Sacramento, Sacramento Co.
+                    - generic [ref=e231]:
+                      - generic [ref=e232]: 2m away
+                      - generic [ref=e233]: 349 ft to next
+                    - generic [ref=e235]:
+                      - link "Maps" [ref=e236]:
+                        - /url: https://www.google.com/maps?q=38.568818,-121.509993
+                        - img [ref=e237]
+                        - text: Maps
+                      - link "Details" [ref=e240]:
+                        - /url: /camera/D03-11
+                        - img [ref=e241]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e245]:
+                        - img [ref=e246]
+                        - text: Zoom on Map
+                      - generic [ref=e249]:
+                        - button "Mark as passed" [ref=e250]:
+                          - img [ref=e251]
+                        - button "Favorite" [ref=e253]:
+                          - img [ref=e254]
+                - generic [ref=e257]:
+                  - generic [ref=e259]:
+                    - generic [ref=e260]: OLD RIVER BR
+                    - generic [ref=e261]: ONE WAY TRAFFIC
+                    - generic [ref=e262]: THRU NOV 2026
+                    - generic [ref=e264]: TRUCKS OVER 34FT
+                    - generic [ref=e265]: USE ALT ROUTE
+                    - generic [ref=e266]: TUNE TO 1670AM
+                  - generic [ref=e267]:
+                    - generic [ref=e268]:
+                      - generic [ref=e269]: Highway Sign
+                      - img "I-5 shield" [ref=e270]
+                    - paragraph [ref=e271]: NB I-5 N/O FRENCH CAMP
+                    - paragraph [ref=e272]: North · Sacramento
+                    - link "Maps" [ref=e275] [cursor=pointer]:
+                      - /url: https://www.google.com/maps?q=37.902583,-121.28547
+                      - img [ref=e276]
+                      - text: Maps
+                - generic [ref=e280]: 349 ft
+              - generic [ref=e281]:
+                - generic [ref=e283]:
+                  - generic [ref=e284]:
+                    - img "4th St" [ref=e287] [cursor=pointer]
+                    - generic [ref=e293]: Live
+                    - generic [ref=e294]: "4"
+                  - generic [ref=e295] [cursor=pointer]:
+                    - generic [ref=e296]:
+                      - img "US-50 shield" [ref=e297]
+                      - heading "4th St" [level=3] [ref=e298]
+                    - paragraph [ref=e299]: West · Sacramento, Sacramento Co.
+                    - generic [ref=e300]:
+                      - generic [ref=e301]: 2m away
+                      - generic [ref=e302]: 0.1 mi to next
+                    - generic [ref=e304]:
+                      - link "Maps" [ref=e305]:
+                        - /url: https://www.google.com/maps?q=38.56824,-121.50902
+                        - img [ref=e306]
+                        - text: Maps
+                      - link "Details" [ref=e309]:
+                        - /url: /camera/D03-20
+                        - img [ref=e310]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e314]:
+                        - img [ref=e315]
+                        - text: Zoom on Map
+                      - generic [ref=e318]:
+                        - button "Mark as passed" [ref=e319]:
+                          - img [ref=e320]
+                        - button "Favorite" [ref=e322]:
+                          - img [ref=e323]
+                - generic [ref=e326]: 0.1 mi
+              - generic [ref=e327]:
+                - generic [ref=e329]:
+                  - generic [ref=e330]:
+                    - img "Q St Ofr SAC5 NB 1" [ref=e333] [cursor=pointer]
+                    - generic [ref=e339]: Live
+                    - generic [ref=e340]: "5"
+                  - generic [ref=e341] [cursor=pointer]:
+                    - generic [ref=e342]:
+                      - img "I-5 shield" [ref=e343]
+                      - heading "Q St Ofr SAC5 NB 1" [level=3] [ref=e344]
+                    - paragraph [ref=e345]: North · Sacramento, Sacramento Co.
+                    - generic [ref=e346]:
+                      - generic [ref=e347]: 2m away
+                      - generic [ref=e348]: 0.6 mi to next
+                    - generic [ref=e350]:
+                      - link "Maps" [ref=e351]:
+                        - /url: https://www.google.com/maps?q=38.56753,-121.51112
+                        - img [ref=e352]
+                        - text: Maps
+                      - link "Details" [ref=e355]:
+                        - /url: /camera/D03-348
+                        - img [ref=e356]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e360]:
+                        - img [ref=e361]
+                        - text: Zoom on Map
+                      - generic [ref=e364]:
+                        - button "Mark as passed" [ref=e365]:
+                          - img [ref=e366]
+                        - button "Favorite" [ref=e368]:
+                          - img [ref=e369]
+                - generic [ref=e372]:
+                  - generic [ref=e374]:
+                    - generic [ref=e375]: OLD RIVER BR
+                    - generic [ref=e376]: ONE WAY TRAFFIC
+                    - generic [ref=e377]: THRU NOV 2026
+                    - generic [ref=e379]: TRUCKS OVER 34FT
+                    - generic [ref=e380]: USE ALT ROUTE
+                    - generic [ref=e381]: TUNE TO 1670AM
+                  - generic [ref=e382]:
+                    - generic [ref=e383]:
+                      - generic [ref=e384]: Highway Sign
+                      - img "I-5 shield" [ref=e385]
+                    - paragraph [ref=e386]: NB I-5 N/O FRENCH CAMP
+                    - paragraph [ref=e387]: North · Sacramento
+                    - link "Maps" [ref=e390] [cursor=pointer]:
+                      - /url: https://www.google.com/maps?q=37.902583,-121.28547
+                      - img [ref=e391]
+                      - text: Maps
+                - generic [ref=e395]: 0.6 mi
+              - generic [ref=e396]:
+                - generic [ref=e398]:
+                  - generic [ref=e399]:
+                    - img "Vallejo" [ref=e402] [cursor=pointer]
+                    - generic [ref=e405]: Live
+                    - generic [ref=e406]: "6"
+                  - generic [ref=e407] [cursor=pointer]:
+                    - generic [ref=e408]:
+                      - img "I-5 shield" [ref=e409]
+                      - heading "Vallejo" [level=3] [ref=e410]
+                    - paragraph [ref=e411]: North · Sacramento, Sacramento Co.
+                    - generic [ref=e412]:
+                      - generic [ref=e413]: 3m away
+                      - generic [ref=e414]: 0.6 mi to next
+                    - generic [ref=e416]:
+                      - link "Maps" [ref=e417]:
+                        - /url: https://www.google.com/maps?q=38.55934,-121.514
+                        - img [ref=e418]
+                        - text: Maps
+                      - link "Details" [ref=e421]:
+                        - /url: /camera/D03-296
+                        - img [ref=e422]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e426]:
+                        - img [ref=e427]
+                        - text: Zoom on Map
+                      - generic [ref=e430]:
+                        - button "Mark as passed" [ref=e431]:
+                          - img [ref=e432]
+                        - button "Favorite" [ref=e434]:
+                          - img [ref=e435]
+                - generic [ref=e438]: 0.6 mi
+              - generic [ref=e439]:
+                - generic [ref=e441]:
+                  - generic [ref=e442]:
+                    - img "6th Ave" [ref=e445] [cursor=pointer]
+                    - generic [ref=e448]: Live
+                    - generic [ref=e449]: "7"
+                  - generic [ref=e450] [cursor=pointer]:
+                    - generic [ref=e451]:
+                      - img "I-5 shield" [ref=e452]
+                      - heading "6th Ave" [level=3] [ref=e453]
+                    - paragraph [ref=e454]: North · Sacramento, Sacramento Co.
+                    - generic [ref=e455]:
+                      - generic [ref=e456]: 4m away
+                      - generic [ref=e457]: 0.7 mi to next
+                    - generic [ref=e459]:
+                      - link "Maps" [ref=e460]:
+                        - /url: https://www.google.com/maps?q=38.55161,-121.511
+                        - img [ref=e461]
+                        - text: Maps
+                      - link "Details" [ref=e464]:
+                        - /url: /camera/D03-297
+                        - img [ref=e465]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e469]:
+                        - img [ref=e470]
+                        - text: Zoom on Map
+                      - generic [ref=e473]:
+                        - button "Mark as passed" [ref=e474]:
+                          - img [ref=e475]
+                        - button "Favorite" [ref=e477]:
+                          - img [ref=e478]
+                - generic [ref=e481]: 0.7 mi
+              - generic [ref=e482]:
+                - generic [ref=e484]:
+                  - generic [ref=e485]:
+                    - img "Sutterville" [ref=e488] [cursor=pointer]
+                    - generic [ref=e491]: Live
+                    - generic [ref=e492]: "8"
+                  - generic [ref=e493] [cursor=pointer]:
+                    - generic [ref=e494]:
+                      - img "I-5 shield" [ref=e495]
+                      - heading "Sutterville" [level=3] [ref=e496]
+                    - paragraph [ref=e497]: Median · Sacramento, Sacramento Co.
+                    - generic [ref=e498]:
+                      - generic [ref=e499]: 4m away
+                      - generic [ref=e500]: 0.6 mi to next
+                    - generic [ref=e502]:
+                      - link "Maps" [ref=e503]:
+                        - /url: https://www.google.com/maps?q=38.540832,-121.510692
+                        - img [ref=e504]
+                        - text: Maps
+                      - link "Details" [ref=e507]:
+                        - /url: /camera/D03-7
+                        - img [ref=e508]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e512]:
+                        - img [ref=e513]
+                        - text: Zoom on Map
+                      - generic [ref=e516]:
+                        - button "Mark as passed" [ref=e517]:
+                          - img [ref=e518]
+                        - button "Favorite" [ref=e520]:
+                          - img [ref=e521]
+                - generic [ref=e524]: 0.6 mi
+              - generic [ref=e525]:
+                - generic [ref=e527]:
+                  - generic [ref=e528]:
+                    - img "25th" [ref=e531] [cursor=pointer]
+                    - generic [ref=e534]: Live
+                    - generic [ref=e535]: "9"
+                  - generic [ref=e536] [cursor=pointer]:
+                    - generic [ref=e537]:
+                      - img "I-5 shield" [ref=e538]
+                      - heading "25th" [level=3] [ref=e539]
+                    - paragraph [ref=e540]: · Sacramento, Sacramento Co.
+                    - generic [ref=e541]:
+                      - generic [ref=e542]: 5m away
+                      - generic [ref=e543]: 0.6 mi to next
+                    - generic [ref=e545]:
+                      - link "Maps" [ref=e546]:
+                        - /url: https://www.google.com/maps?q=38.53381,-121.51749
+                        - img [ref=e547]
+                        - text: Maps
+                      - link "Details" [ref=e550]:
+                        - /url: /camera/D03-132
+                        - img [ref=e551]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e555]:
+                        - img [ref=e556]
+                        - text: Zoom on Map
+                      - generic [ref=e559]:
+                        - button "Mark as passed" [ref=e560]:
+                          - img [ref=e561]
+                        - button "Favorite" [ref=e563]:
+                          - img [ref=e564]
+                - generic [ref=e567]: 0.6 mi
+              - generic [ref=e568]:
+                - generic [ref=e570]:
+                  - generic [ref=e571]:
+                    - img "Seamas" [ref=e574] [cursor=pointer]
+                    - generic [ref=e577]: Live
+                    - generic [ref=e578]: "10"
+                  - generic [ref=e579] [cursor=pointer]:
+                    - generic [ref=e580]:
+                      - img "I-5 shield" [ref=e581]
+                      - heading "Seamas" [level=3] [ref=e582]
+                    - paragraph [ref=e583]: South · Sacramento, Sacramento Co.
+                    - generic [ref=e584]:
+                      - generic [ref=e585]: 6m away
+                      - generic [ref=e586]: 0.7 mi to next
+                    - generic [ref=e588]:
+                      - link "Maps" [ref=e589]:
+                        - /url: https://www.google.com/maps?q=38.526032,-121.521413
+                        - img [ref=e590]
+                        - text: Maps
+                      - link "Details" [ref=e593]:
+                        - /url: /camera/D03-5
+                        - img [ref=e594]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e598]:
+                        - img [ref=e599]
+                        - text: Zoom on Map
+                      - generic [ref=e602]:
+                        - button "Mark as passed" [ref=e603]:
+                          - img [ref=e604]
+                        - button "Favorite" [ref=e606]:
+                          - img [ref=e607]
+                - generic [ref=e610]:
+                  - generic [ref=e612]:
+                    - generic [ref=e613]: GUSTY
+                    - generic [ref=e614]: WINDS
+                    - generic [ref=e615]: AHEAD
+                  - generic [ref=e616]:
+                    - generic [ref=e617]:
+                      - generic [ref=e618]: Highway Sign
+                      - img "I-5 shield" [ref=e619]
+                    - paragraph [ref=e620]: SB I-5 AT MILHAM AVE (PM 19.07)
+                    - paragraph [ref=e621]: South · Sacramento
+                    - link "Maps" [ref=e624] [cursor=pointer]:
+                      - /url: https://www.google.com/maps?q=36.008835,-119.989528
+                      - img [ref=e625]
+                      - text: Maps
+                - generic [ref=e629]: 0.7 mi
+              - generic [ref=e630]:
+                - generic [ref=e632]:
+                  - generic [ref=e633]:
+                    - img "43rd Ave" [ref=e636] [cursor=pointer]
+                    - generic [ref=e640]: Live
+                    - generic [ref=e641]: "11"
+                  - generic [ref=e642] [cursor=pointer]:
+                    - generic [ref=e643]:
+                      - img "I-5 shield" [ref=e644]
+                      - heading "43rd Ave" [level=3] [ref=e645]
+                    - paragraph [ref=e646]: North · Sacramento, Sacramento Co.
+                    - generic [ref=e647]:
+                      - generic [ref=e648]: 6m away
+                      - generic [ref=e649]: 0.4 mi to next
+                    - generic [ref=e651]:
+                      - link "Maps" [ref=e652]:
+                        - /url: https://www.google.com/maps?q=38.516437,-121.52178
+                        - img [ref=e653]
+                        - text: Maps
+                      - link "Details" [ref=e656]:
+                        - /url: /camera/D03-4
+                        - img [ref=e657]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e661]:
+                        - img [ref=e662]
+                        - text: Zoom on Map
+                      - generic [ref=e665]:
+                        - button "Mark as passed" [ref=e666]:
+                          - img [ref=e667]
+                        - button "Favorite" [ref=e669]:
+                          - img [ref=e670]
+                - generic [ref=e673]:
+                  - generic [ref=e675]:
+                    - generic [ref=e676]: DON'T DRINK
+                    - generic [ref=e677]: AND DRIVE
+                  - generic [ref=e678]:
+                    - generic [ref=e679]:
+                      - generic [ref=e680]: Highway Sign
+                      - img "I-5 shield" [ref=e681]
+                    - paragraph [ref=e682]: NB 5 @ OLD TOWN AVE
+                    - paragraph [ref=e683]: North · Sacramento
+                    - link "Maps" [ref=e686] [cursor=pointer]:
+                      - /url: https://www.google.com/maps?q=32.745031,-117.187446
+                      - img [ref=e687]
+                      - text: Maps
+                - generic [ref=e691]:
+                  - generic [ref=e693]:
+                    - generic [ref=e694]: N-405
+                    - generic [ref=e695]: AT IRVINE CENTER DR
+                    - generic [ref=e696]: LEFT LANES CLOSED
+                  - generic [ref=e697]:
+                    - generic [ref=e698]:
+                      - generic [ref=e699]: Highway Sign
+                      - img "I-5 shield" [ref=e700]
+                    - paragraph [ref=e701]: CMS 95 - EL TORO 18.59 N5
+                    - paragraph [ref=e702]: North · Sacramento
+                    - link "Maps" [ref=e705] [cursor=pointer]:
+                      - /url: https://www.google.com/maps?q=33.61379,-117.706026
+                      - img [ref=e706]
+                      - text: Maps
+                - generic [ref=e710]: 0.4 mi
+              - generic [ref=e711]:
+                - generic [ref=e713]:
+                  - generic [ref=e714]:
+                    - img "Gloria" [ref=e717] [cursor=pointer]
+                    - generic [ref=e721]: Live
+                    - generic [ref=e722]: "12"
+                  - generic [ref=e723] [cursor=pointer]:
+                    - generic [ref=e724]:
+                      - img "I-5 shield" [ref=e725]
+                      - heading "Gloria" [level=3] [ref=e726]
+                    - paragraph [ref=e727]: South · Sacramento, Sacramento Co.
+                    - generic [ref=e728]:
+                      - generic [ref=e729]: 7m away
+                      - generic [ref=e730]: 1.1 mi to next
+                    - generic [ref=e732]:
+                      - link "Maps" [ref=e733]:
+                        - /url: https://www.google.com/maps?q=38.509961,-121.522427
+                        - img [ref=e734]
+                        - text: Maps
+                      - link "Details" [ref=e737]:
+                        - /url: /camera/D03-3
+                        - img [ref=e738]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e742]:
+                        - img [ref=e743]
+                        - text: Zoom on Map
+                      - generic [ref=e746]:
+                        - button "Mark as passed" [ref=e747]:
+                          - img [ref=e748]
+                        - button "Favorite" [ref=e750]:
+                          - img [ref=e751]
+                - generic [ref=e754]:
+                  - generic [ref=e756]:
+                    - generic [ref=e757]: GUSTY
+                    - generic [ref=e758]: WINDS
+                    - generic [ref=e759]: AHEAD
+                  - generic [ref=e760]:
+                    - generic [ref=e761]:
+                      - generic [ref=e762]: Highway Sign
+                      - img "I-5 shield" [ref=e763]
+                    - paragraph [ref=e764]: SB I-5 AT MILHAM AVE (PM 19.07)
+                    - paragraph [ref=e765]: South · Sacramento
+                    - link "Maps" [ref=e768] [cursor=pointer]:
+                      - /url: https://www.google.com/maps?q=36.008835,-119.989528
+                      - img [ref=e769]
+                      - text: Maps
+                - generic [ref=e773]: 1.1 mi
+              - generic [ref=e774]:
+                - generic [ref=e776]:
+                  - generic [ref=e777]:
+                    - img "Florin" [ref=e780] [cursor=pointer]
+                    - generic [ref=e784]: Live
+                    - generic [ref=e785]: "13"
+                  - generic [ref=e786] [cursor=pointer]:
+                    - generic [ref=e787]:
+                      - img "I-5 shield" [ref=e788]
+                      - heading "Florin" [level=3] [ref=e789]
+                    - paragraph [ref=e790]: Median · Sacramento, Sacramento Co.
+                    - generic [ref=e791]:
+                      - generic [ref=e792]: 8m away
+                      - generic [ref=e793]: 1.0 mi to next
+                    - generic [ref=e795]:
+                      - link "Maps" [ref=e796]:
+                        - /url: https://www.google.com/maps?q=38.495353,-121.51647
+                        - img [ref=e797]
+                        - text: Maps
+                      - link "Details" [ref=e800]:
+                        - /url: /camera/D03-2
+                        - img [ref=e801]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e805]:
+                        - img [ref=e806]
+                        - text: Zoom on Map
+                      - generic [ref=e809]:
+                        - button "Mark as passed" [ref=e810]:
+                          - img [ref=e811]
+                        - button "Favorite" [ref=e813]:
+                          - img [ref=e814]
+                - generic [ref=e817]: 1.0 mi
+              - generic [ref=e818]:
+                - generic [ref=e820]:
+                  - generic [ref=e821]:
+                    - img "Pocket" [ref=e824] [cursor=pointer]
+                    - generic [ref=e828]: Live
+                    - generic [ref=e829]: "14"
+                  - generic [ref=e830] [cursor=pointer]:
+                    - generic [ref=e831]:
+                      - img "I-5 shield" [ref=e832]
+                      - heading "Pocket" [level=3] [ref=e833]
+                    - paragraph [ref=e834]: Median · Sacramento, Sacramento Co.
+                    - generic [ref=e835]:
+                      - generic [ref=e836]: 9m away
+                      - generic [ref=e837]: 1.3 mi to next
+                    - generic [ref=e839]:
+                      - link "Maps" [ref=e840]:
+                        - /url: https://www.google.com/maps?q=38.481128,-121.510528
+                        - img [ref=e841]
+                        - text: Maps
+                      - link "Details" [ref=e844]:
+                        - /url: /camera/D03-1
+                        - img [ref=e845]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e849]:
+                        - img [ref=e850]
+                        - text: Zoom on Map
+                      - generic [ref=e853]:
+                        - button "Mark as passed" [ref=e854]:
+                          - img [ref=e855]
+                        - button "Favorite" [ref=e857]:
+                          - img [ref=e858]
+                - generic [ref=e861]: 1.3 mi
+              - generic [ref=e862]:
+                - generic [ref=e864]:
+                  - generic [ref=e865]:
+                    - img "Cosumnes" [ref=e868] [cursor=pointer]
+                    - generic [ref=e872]: Live
+                    - generic [ref=e873]: "15"
+                  - generic [ref=e874] [cursor=pointer]:
+                    - generic [ref=e875]:
+                      - img "I-5 shield" [ref=e876]
+                      - heading "Cosumnes" [level=3] [ref=e877]
+                    - paragraph [ref=e878]: · Sacramento, Sacramento Co.
+                    - generic [ref=e879]:
+                      - generic [ref=e880]: 10m away
+                      - generic [ref=e881]: 2.0 mi to next
+                    - generic [ref=e883]:
+                      - link "Maps" [ref=e884]:
+                        - /url: https://www.google.com/maps?q=38.46643,-121.49646
+                        - img [ref=e885]
+                        - text: Maps
+                      - link "Details" [ref=e888]:
+                        - /url: /camera/D03-138
+                        - img [ref=e889]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e893]:
+                        - img [ref=e894]
+                        - text: Zoom on Map
+                      - generic [ref=e897]:
+                        - button "Mark as passed" [ref=e898]:
+                          - img [ref=e899]
+                        - button "Favorite" [ref=e901]:
+                          - img [ref=e902]
+                - generic [ref=e905]: 2.0 mi
+              - generic [ref=e906]:
+                - generic [ref=e908]:
+                  - generic [ref=e909]:
+                    - img "Laguna SB" [ref=e912] [cursor=pointer]
+                    - generic [ref=e916]: Live
+                    - generic [ref=e917]: "16"
+                  - generic [ref=e918] [cursor=pointer]:
+                    - generic [ref=e919]:
+                      - img "I-5 shield" [ref=e920]
+                      - heading "Laguna SB" [level=3] [ref=e921]
+                    - paragraph [ref=e922]: South · Sacramento, Sacramento Co.
+                    - generic [ref=e923]:
+                      - generic [ref=e924]: 13m away
+                      - generic [ref=e925]: 0.2 mi to next
+                    - generic [ref=e927]:
+                      - link "Maps" [ref=e928]:
+                        - /url: https://www.google.com/maps?q=38.4386,-121.490253
+                        - img [ref=e929]
+                        - text: Maps
+                      - link "Details" [ref=e932]:
+                        - /url: /camera/D03-91
+                        - img [ref=e933]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e937]:
+                        - img [ref=e938]
+                        - text: Zoom on Map
+                      - generic [ref=e941]:
+                        - button "Mark as passed" [ref=e942]:
+                          - img [ref=e943]
+                        - button "Favorite" [ref=e945]:
+                          - img [ref=e946]
+                - generic [ref=e949]: 0.2 mi
+              - generic [ref=e950]:
+                - generic [ref=e952]:
+                  - generic [ref=e953]:
+                    - img "Laguna NB" [ref=e956] [cursor=pointer]
+                    - generic [ref=e960]: Live
+                    - generic [ref=e961]: "17"
+                  - generic [ref=e962] [cursor=pointer]:
+                    - generic [ref=e963]:
+                      - img "I-5 shield" [ref=e964]
+                      - heading "Laguna NB" [level=3] [ref=e965]
+                    - paragraph [ref=e966]: North · Elk Grove, Sacramento Co.
+                    - generic [ref=e967]:
+                      - generic [ref=e968]: 13m away
+                      - generic [ref=e969]: 1.9 mi to next
+                    - generic [ref=e971]:
+                      - link "Maps" [ref=e972]:
+                        - /url: https://www.google.com/maps?q=38.435527,-121.489032
+                        - img [ref=e973]
+                        - text: Maps
+                      - link "Details" [ref=e976]:
+                        - /url: /camera/D03-92
+                        - img [ref=e977]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e981]:
+                        - img [ref=e982]
+                        - text: Zoom on Map
+                      - generic [ref=e985]:
+                        - button "Mark as passed" [ref=e986]:
+                          - img [ref=e987]
+                        - button "Favorite" [ref=e989]:
+                          - img [ref=e990]
+                - generic [ref=e993]:
+                  - generic [ref=e995]:
+                    - generic [ref=e996]: GUSTY
+                    - generic [ref=e997]: WINDS
+                    - generic [ref=e998]: AHEAD
+                  - generic [ref=e999]:
+                    - generic [ref=e1000]:
+                      - generic [ref=e1001]: Highway Sign
+                      - img "I-5 shield" [ref=e1002]
+                    - paragraph [ref=e1003]: 1 - NB I-5 JNO GRPVNE TRK INSP (PM 12.2)
+                    - paragraph [ref=e1004]: North · Elk Grove
+                    - link "Maps" [ref=e1007] [cursor=pointer]:
+                      - /url: https://www.google.com/maps?q=34.96794,-118.939197
+                      - img [ref=e1008]
+                      - text: Maps
+                - generic [ref=e1012]:
+                  - generic [ref=e1014]:
+                    - generic [ref=e1015]: GUSTY
+                    - generic [ref=e1016]: WINDS
+                    - generic [ref=e1017]: AHEAD
+                  - generic [ref=e1018]:
+                    - generic [ref=e1019]:
+                      - generic [ref=e1020]: Highway Sign
+                      - img "I-5 shield" [ref=e1021]
+                    - paragraph [ref=e1022]: NB I-5 S/O RTE 41 (PM 13.5)
+                    - paragraph [ref=e1023]: North · Elk Grove
+                    - link "Maps" [ref=e1026] [cursor=pointer]:
+                      - /url: https://www.google.com/maps?q=35.947469,-119.92495
+                      - img [ref=e1027]
+                      - text: Maps
+                - generic [ref=e1031]:
+                  - generic [ref=e1033]:
+                    - generic [ref=e1034]: DON'T DRINK
+                    - generic [ref=e1035]: AND DRIVE
+                  - generic [ref=e1036]:
+                    - generic [ref=e1037]:
+                      - generic [ref=e1038]: Highway Sign
+                      - img "I-5 shield" [ref=e1039]
+                    - paragraph [ref=e1040]: NB 5 JNO 28TH ST
+                    - paragraph [ref=e1041]: North · Elk Grove
+                    - link "Maps" [ref=e1044] [cursor=pointer]:
+                      - /url: https://www.google.com/maps?q=32.698002,-117.13764
+                      - img [ref=e1045]
+                      - text: Maps
+                - generic [ref=e1049]: 1.9 mi
+              - generic [ref=e1050]:
+                - generic [ref=e1052]:
+                  - generic [ref=e1053]:
+                    - img "Elk Grove" [ref=e1056] [cursor=pointer]
+                    - generic [ref=e1060]: Live
+                    - generic [ref=e1061]: "18"
+                  - generic [ref=e1062] [cursor=pointer]:
+                    - generic [ref=e1063]:
+                      - img "I-5 shield" [ref=e1064]
+                      - heading "Elk Grove" [level=3] [ref=e1065]
+                    - paragraph [ref=e1066]: · Elk Grove, Sacramento Co.
+                    - generic [ref=e1067]:
+                      - generic [ref=e1068]: 15m away
+                      - generic [ref=e1069]: 9.3 mi to next
+                    - generic [ref=e1071]:
+                      - link "Maps" [ref=e1072]:
+                        - /url: https://www.google.com/maps?q=38.408888,-121.484446
+                        - img [ref=e1073]
+                        - text: Maps
+                      - link "Details" [ref=e1076]:
+                        - /url: /camera/D03-139
+                        - img [ref=e1077]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e1081]:
+                        - img [ref=e1082]
+                        - text: Zoom on Map
+                      - generic [ref=e1085]:
+                        - button "Mark as passed" [ref=e1086]:
+                          - img [ref=e1087]
+                        - button "Favorite" [ref=e1089]:
+                          - img [ref=e1090]
+                - generic [ref=e1093]: 9.3 mi
+              - generic [ref=e1094]:
+                - generic [ref=e1096]:
+                  - generic [ref=e1097]:
+                    - img "Twin Cities" [ref=e1100] [cursor=pointer]
+                    - generic [ref=e1104]: Live
+                    - generic [ref=e1105]: "19"
+                  - generic [ref=e1106] [cursor=pointer]:
+                    - generic [ref=e1107]:
+                      - img "I-5 shield" [ref=e1108]
+                      - heading "Twin Cities" [level=3] [ref=e1109]
+                    - paragraph [ref=e1110]: North · Elk Grove, Sacramento Co.
+                    - generic [ref=e1111]:
+                      - generic [ref=e1112]: 25m away
+                      - generic [ref=e1113]: 302 ft to next
+                    - generic [ref=e1115]:
+                      - link "Maps" [ref=e1116]:
+                        - /url: https://www.google.com/maps?q=38.27609,-121.45575
+                        - img [ref=e1117]
+                        - text: Maps
+                      - link "Details" [ref=e1120]:
+                        - /url: /camera/D03-130
+                        - img [ref=e1121]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e1125]:
+                        - img [ref=e1126]
+                        - text: Zoom on Map
+                      - generic [ref=e1129]:
+                        - button "Mark as passed" [ref=e1130]:
+                          - img [ref=e1131]
+                        - button "Favorite" [ref=e1133]:
+                          - img [ref=e1134]
+                - generic [ref=e1137]: 302 ft
+              - generic [ref=e1138]:
+                - generic [ref=e1140]:
+                  - generic [ref=e1141]:
+                    - img "SB I-5 Sac/SJ County Line" [ref=e1144] [cursor=pointer]
+                    - generic [ref=e1148]: Live
+                    - generic [ref=e1149]: "20"
+                  - generic [ref=e1150] [cursor=pointer]:
+                    - generic [ref=e1151]:
+                      - img "I-5 shield" [ref=e1152]
+                      - heading "SB I-5 Sac/SJ County Line" [level=3] [ref=e1153]
+                    - paragraph [ref=e1154]: South · Walnut Grove, Sacramento Co.
+                    - generic [ref=e1155]:
+                      - generic [ref=e1156]: 25m away
+                      - generic [ref=e1157]: 8.0 mi to next
+                    - generic [ref=e1159]:
+                      - link "Maps" [ref=e1160]:
+                        - /url: https://www.google.com/maps?q=38.2753,-121.45606
+                        - img [ref=e1161]
+                        - text: Maps
+                      - link "Details" [ref=e1164]:
+                        - /url: /camera/D10-132
+                        - img [ref=e1165]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e1169]:
+                        - img [ref=e1170]
+                        - text: Zoom on Map
+                      - generic [ref=e1173]:
+                        - button "Mark as passed" [ref=e1174]:
+                          - img [ref=e1175]
+                        - button "Favorite" [ref=e1177]:
+                          - img [ref=e1178]
+                - generic [ref=e1181]: 8.0 mi
+              - generic [ref=e1182]:
+                - generic [ref=e1184]:
+                  - generic [ref=e1185]:
+                    - img "SB I-5 S/O Peltier Road" [ref=e1188] [cursor=pointer]
+                    - generic [ref=e1192]: Live
+                    - generic [ref=e1193]: "21"
+                  - generic [ref=e1194] [cursor=pointer]:
+                    - generic [ref=e1195]:
+                      - img "I-5 shield" [ref=e1196]
+                      - heading "SB I-5 S/O Peltier Road" [level=3] [ref=e1197]
+                    - paragraph [ref=e1198]: South · Lodi, San Joaquin Co.
+                    - generic [ref=e1199]:
+                      - generic [ref=e1200]: 34m away
+                      - generic [ref=e1201]: 9.6 mi to next
+                    - generic [ref=e1203]:
+                      - link "Maps" [ref=e1204]:
+                        - /url: https://www.google.com/maps?q=38.16783,-121.40004
+                        - img [ref=e1205]
+                        - text: Maps
+                      - link "Details" [ref=e1208]:
+                        - /url: /camera/D10-59
+                        - img [ref=e1209]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e1213]:
+                        - img [ref=e1214]
+                        - text: Zoom on Map
+                      - generic [ref=e1217]:
+                        - button "Mark as passed" [ref=e1218]:
+                          - img [ref=e1219]
+                        - button "Favorite" [ref=e1221]:
+                          - img [ref=e1222]
+                - generic [ref=e1225]:
+                  - generic [ref=e1227]:
+                    - generic [ref=e1228]: CONTROL BURN
+                    - generic [ref=e1229]: PLEASE DO NOT
+                    - generic [ref=e1230]: REPORT
+                  - generic [ref=e1231]:
+                    - generic [ref=e1232]:
+                      - generic [ref=e1233]: Highway Sign
+                      - img "I-5 shield" [ref=e1234]
+                    - paragraph [ref=e1235]: Lakehead Rest - S/B
+                    - paragraph [ref=e1236]: South · Lodi
+                    - link "Maps" [ref=e1239] [cursor=pointer]:
+                      - /url: https://www.google.com/maps?q=40.92589,-122.411313
+                      - img [ref=e1240]
+                      - text: Maps
+                - generic [ref=e1244]:
+                  - generic [ref=e1246]:
+                    - generic [ref=e1247]: GUSTY
+                    - generic [ref=e1248]: WINDS
+                    - generic [ref=e1249]: AHEAD
+                  - generic [ref=e1250]:
+                    - generic [ref=e1251]:
+                      - generic [ref=e1252]: Highway Sign
+                      - img "I-5 shield" [ref=e1253]
+                    - paragraph [ref=e1254]: 4 - SB I-5 N/O RTE 43 (PM 43.9)
+                    - paragraph [ref=e1255]: South · Lodi
+                    - link "Maps" [ref=e1258] [cursor=pointer]:
+                      - /url: https://www.google.com/maps?q=35.32017,-119.287498
+                      - img [ref=e1259]
+                      - text: Maps
+                - generic [ref=e1263]:
+                  - generic [ref=e1265]:
+                    - generic [ref=e1266]: OLD RIVER BR
+                    - generic [ref=e1267]: ONE WAY TRAFFIC
+                    - generic [ref=e1268]: THRU NOV 2026
+                    - generic [ref=e1270]: TRUCKS OVER 34FT
+                    - generic [ref=e1271]: USE ALT ROUTE
+                    - generic [ref=e1272]: TUNE TO 1670AM
+                  - generic [ref=e1273]:
+                    - generic [ref=e1274]:
+                      - generic [ref=e1275]: Highway Sign
+                      - img "I-5 shield" [ref=e1276]
+                    - paragraph [ref=e1277]: SB I-5 S/O Peltier Rd
+                    - paragraph [ref=e1278]: South · Lodi
+                    - link "Maps" [ref=e1281] [cursor=pointer]:
+                      - /url: https://www.google.com/maps?q=38.16796,-121.40004
+                      - img [ref=e1282]
+                      - text: Maps
+                - generic [ref=e1286]: 9.6 mi
+              - generic [ref=e1287]:
+                - generic [ref=e1289]:
+                  - generic [ref=e1290]:
+                    - img "NB I-5 N/O Hammer Lane" [ref=e1293] [cursor=pointer]
+                    - generic [ref=e1297]: Live
+                    - generic [ref=e1298]: "22"
+                  - generic [ref=e1299] [cursor=pointer]:
+                    - generic [ref=e1300]:
+                      - img "I-5 shield" [ref=e1301]
+                      - heading "NB I-5 N/O Hammer Lane" [level=3] [ref=e1302]
+                    - paragraph [ref=e1303]: North · Stockton, San Joaquin Co.
+                    - generic [ref=e1304]:
+                      - generic [ref=e1305]: 44m away
+                      - generic [ref=e1306]: 405 ft to next
+                    - generic [ref=e1308]:
+                      - link "Maps" [ref=e1309]:
+                        - /url: https://www.google.com/maps?q=38.03179,-121.36366
+                        - img [ref=e1310]
+                        - text: Maps
+                      - link "Details" [ref=e1313]:
+                        - /url: /camera/D10-60
+                        - img [ref=e1314]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e1318]:
+                        - img [ref=e1319]
+                        - text: Zoom on Map
+                      - generic [ref=e1322]:
+                        - button "Mark as passed" [ref=e1323]:
+                          - img [ref=e1324]
+                        - button "Favorite" [ref=e1326]:
+                          - img [ref=e1327]
+                - generic [ref=e1330]: 405 ft
+              - generic [ref=e1331]:
+                - generic [ref=e1333]:
+                  - generic [ref=e1334]:
+                    - img "SB I-5 N/O Hammer Lane" [ref=e1337] [cursor=pointer]
+                    - generic [ref=e1341]: Live
+                    - generic [ref=e1342]: "23"
+                  - generic [ref=e1343] [cursor=pointer]:
+                    - generic [ref=e1344]:
+                      - img "I-5 shield" [ref=e1345]
+                      - heading "SB I-5 N/O Hammer Lane" [level=3] [ref=e1346]
+                    - paragraph [ref=e1347]: South · Stockton, San Joaquin Co.
+                    - generic [ref=e1348]:
+                      - generic [ref=e1349]: 44m away
+                      - generic [ref=e1350]: 3.3 mi to next
+                    - generic [ref=e1352]:
+                      - link "Maps" [ref=e1353]:
+                        - /url: https://www.google.com/maps?q=38.03068,-121.36373
+                        - img [ref=e1354]
+                        - text: Maps
+                      - link "Details" [ref=e1357]:
+                        - /url: /camera/D10-131
+                        - img [ref=e1358]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e1362]:
+                        - img [ref=e1363]
+                        - text: Zoom on Map
+                      - generic [ref=e1366]:
+                        - button "Mark as passed" [ref=e1367]:
+                          - img [ref=e1368]
+                        - button "Favorite" [ref=e1370]:
+                          - img [ref=e1371]
+                - generic [ref=e1374]: 3.3 mi
+              - generic [ref=e1375]:
+                - generic [ref=e1377]:
+                  - generic [ref=e1378]:
+                    - img "NB I-5 March Lane" [ref=e1381] [cursor=pointer]
+                    - generic [ref=e1385]: Live
+                    - generic [ref=e1386]: "24"
+                  - generic [ref=e1387] [cursor=pointer]:
+                    - generic [ref=e1388]:
+                      - img "I-5 shield" [ref=e1389]
+                      - heading "NB I-5 March Lane" [level=3] [ref=e1390]
+                    - paragraph [ref=e1391]: North · Stockton, San Joaquin Co.
+                    - generic [ref=e1392]:
+                      - generic [ref=e1393]: 48m away
+                      - generic [ref=e1394]: 0.1 mi to next
+                    - generic [ref=e1396]:
+                      - link "Maps" [ref=e1397]:
+                        - /url: https://www.google.com/maps?q=37.98593,-121.34366
+                        - img [ref=e1398]
+                        - text: Maps
+                      - link "Details" [ref=e1401]:
+                        - /url: /camera/D10-93
+                        - img [ref=e1402]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e1406]:
+                        - img [ref=e1407]
+                        - text: Zoom on Map
+                      - generic [ref=e1410]:
+                        - button "Mark as passed" [ref=e1411]:
+                          - img [ref=e1412]
+                        - button "Favorite" [ref=e1414]:
+                          - img [ref=e1415]
+                - generic [ref=e1418]:
+                  - generic [ref=e1420]:
+                    - generic [ref=e1421]: GUSTY
+                    - generic [ref=e1422]: WINDS
+                    - generic [ref=e1423]: AHEAD
+                  - generic [ref=e1424]:
+                    - generic [ref=e1425]:
+                      - generic [ref=e1426]: Highway Sign
+                      - img "I-5 shield" [ref=e1427]
+                    - paragraph [ref=e1428]: 3 - NB I-5 S/O RTE 223 (PM 29.9)
+                    - paragraph [ref=e1429]: North · Stockton
+                    - link "Maps" [ref=e1432] [cursor=pointer]:
+                      - /url: https://www.google.com/maps?q=35.170266,-119.119907
+                      - img [ref=e1433]
+                      - text: Maps
+                - generic [ref=e1437]:
+                  - generic [ref=e1439]:
+                    - generic [ref=e1440]: SPLIT LANE AHEAD
+                    - generic [ref=e1441]: 8 MILE EXIT
+                    - generic [ref=e1442]: RIGHT LANE ONLY
+                  - generic [ref=e1443]:
+                    - generic [ref=e1444]:
+                      - generic [ref=e1445]: Highway Sign
+                      - img "I-5 shield" [ref=e1446]
+                    - paragraph [ref=e1447]: NB I5 N of March Lane
+                    - paragraph [ref=e1448]: North · Stockton
+                    - link "Maps" [ref=e1451] [cursor=pointer]:
+                      - /url: https://www.google.com/maps?q=37.985934,-121.343665
+                      - img [ref=e1452]
+                      - text: Maps
+                - generic [ref=e1456]: 0.1 mi
+              - generic [ref=e1457]:
+                - generic [ref=e1459]:
+                  - generic [ref=e1460]:
+                    - img "6 - SB I-5 at March Lane" [ref=e1463] [cursor=pointer]
+                    - generic [ref=e1467]: Live
+                    - generic [ref=e1468]: "25"
+                  - generic [ref=e1469] [cursor=pointer]:
+                    - generic [ref=e1470]:
+                      - img "I-5 shield" [ref=e1471]
+                      - heading "6 - SB I-5 at March Lane" [level=3] [ref=e1472]
+                    - paragraph [ref=e1473]: South · Stockton, San Joaquin Co.
+                    - generic [ref=e1474]:
+                      - generic [ref=e1475]: 48m away
+                      - generic [ref=e1476]: 2.1 mi to next
+                    - generic [ref=e1478]:
+                      - link "Maps" [ref=e1479]:
+                        - /url: https://www.google.com/maps?q=37.98425,-121.34359
+                        - img [ref=e1480]
+                        - text: Maps
+                      - link "Details" [ref=e1483]:
+                        - /url: /camera/D10-6
+                        - img [ref=e1484]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e1488]:
+                        - img [ref=e1489]
+                        - text: Zoom on Map
+                      - generic [ref=e1492]:
+                        - button "Mark as passed" [ref=e1493]:
+                          - img [ref=e1494]
+                        - button "Favorite" [ref=e1496]:
+                          - img [ref=e1497]
+                - generic [ref=e1500]:
+                  - generic [ref=e1502]:
+                    - generic [ref=e1503]: OLD RIVER BR
+                    - generic [ref=e1504]: ONE WAY TRAFFIC
+                    - generic [ref=e1505]: THRU NOV 2026
+                    - generic [ref=e1507]: TRUCKS OVER 34FT
+                    - generic [ref=e1508]: USE ALT ROUTE
+                    - generic [ref=e1509]: TUNE TO 1670AM
+                  - generic [ref=e1510]:
+                    - generic [ref=e1511]:
+                      - generic [ref=e1512]: Highway Sign
+                      - img "I-5 shield" [ref=e1513]
+                    - paragraph [ref=e1514]: SB I-5 S/O MARCH LANE
+                    - paragraph [ref=e1515]: South · Stockton
+                    - link "Maps" [ref=e1518] [cursor=pointer]:
+                      - /url: https://www.google.com/maps?q=37.97832,-121.341259
+                      - img [ref=e1519]
+                      - text: Maps
+                - generic [ref=e1523]: 2.1 mi
+              - generic [ref=e1524]:
+                - generic [ref=e1526]:
+                  - generic [ref=e1527]:
+                    - img "SB 5 S/O Monte Diablo Ave" [ref=e1530] [cursor=pointer]
+                    - generic [ref=e1534]: Live
+                    - generic [ref=e1535]: "26"
+                  - generic [ref=e1536] [cursor=pointer]:
+                    - generic [ref=e1537]:
+                      - img "I-5 shield" [ref=e1538]
+                      - heading "SB 5 S/O Monte Diablo Ave" [level=3] [ref=e1539]
+                    - paragraph [ref=e1540]: South · Stockton, San Joaquin Co.
+                    - generic [ref=e1541]:
+                      - generic [ref=e1542]: 50m away
+                      - generic [ref=e1543]: 0.2 mi to next
+                    - generic [ref=e1545]:
+                      - link "Maps" [ref=e1546]:
+                        - /url: https://www.google.com/maps?q=37.95658,-121.32879
+                        - img [ref=e1547]
+                        - text: Maps
+                      - link "Details" [ref=e1550]:
+                        - /url: /camera/D10-162
+                        - img [ref=e1551]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e1555]:
+                        - img [ref=e1556]
+                        - text: Zoom on Map
+                      - generic [ref=e1559]:
+                        - button "Mark as passed" [ref=e1560]:
+                          - img [ref=e1561]
+                        - button "Favorite" [ref=e1563]:
+                          - img [ref=e1564]
+                - generic [ref=e1567]: 0.2 mi
+              - generic [ref=e1568]:
+                - generic [ref=e1570]:
+                  - generic [ref=e1571]:
+                    - img "NB I-5 Monte Diablo Ave" [ref=e1574] [cursor=pointer]
+                    - generic [ref=e1578]: Live
+                    - generic [ref=e1579]: "27"
+                  - generic [ref=e1580] [cursor=pointer]:
+                    - generic [ref=e1581]:
+                      - img "I-5 shield" [ref=e1582]
+                      - heading "NB I-5 Monte Diablo Ave" [level=3] [ref=e1583]
+                    - paragraph [ref=e1584]: North · Stockton, San Joaquin Co.
+                    - generic [ref=e1585]:
+                      - generic [ref=e1586]: 50m away
+                      - generic [ref=e1587]: 1.2 mi to next
+                    - generic [ref=e1589]:
+                      - link "Maps" [ref=e1590]:
+                        - /url: https://www.google.com/maps?q=37.95649,-121.32565
+                        - img [ref=e1591]
+                        - text: Maps
+                      - link "Details" [ref=e1594]:
+                        - /url: /camera/D10-92
+                        - img [ref=e1595]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e1599]:
+                        - img [ref=e1600]
+                        - text: Zoom on Map
+                      - generic [ref=e1603]:
+                        - button "Mark as passed" [ref=e1604]:
+                          - img [ref=e1605]
+                        - button "Favorite" [ref=e1607]:
+                          - img [ref=e1608]
+                - generic [ref=e1611]:
+                  - generic [ref=e1613]:
+                    - generic [ref=e1614]: AIRPORT 4 MIN
+                    - generic [ref=e1615]: WOODLAND 11 MIN
+                    - generic [ref=e1616]: MRYSVILLE 33 MIN
+                  - generic [ref=e1617]:
+                    - generic [ref=e1618]:
+                      - generic [ref=e1619]: Highway Sign
+                      - img "I-5 shield" [ref=e1620]
+                    - paragraph [ref=e1621]: Del Paso Rd
+                    - paragraph [ref=e1622]: North · Stockton
+                    - link "Maps" [ref=e1625] [cursor=pointer]:
+                      - /url: https://www.google.com/maps?q=38.649704,-121.529425
+                      - img [ref=e1626]
+                      - text: Maps
+                - generic [ref=e1630]:
+                  - generic [ref=e1632]:
+                    - generic [ref=e1633]: SPLIT LANE AHEAD
+                    - generic [ref=e1634]: 8 MILE EXIT
+                    - generic [ref=e1635]: RIGHT LANE ONLY
+                  - generic [ref=e1636]:
+                    - generic [ref=e1637]:
+                      - generic [ref=e1638]: Highway Sign
+                      - img "I-5 shield" [ref=e1639]
+                    - paragraph [ref=e1640]: NB I5 S of Monte Diablo Ave
+                    - paragraph [ref=e1641]: North · Stockton
+                    - link "Maps" [ref=e1644] [cursor=pointer]:
+                      - /url: https://www.google.com/maps?q=37.9565,-121.32564
+                      - img [ref=e1645]
+                      - text: Maps
+                - generic [ref=e1649]: 1.2 mi
+              - generic [ref=e1650]:
+                - generic [ref=e1652]:
+                  - generic [ref=e1653]:
+                    - img "5 - SB I-5 North Of SR 4" [ref=e1656] [cursor=pointer]
+                    - generic [ref=e1660]: Live
+                    - generic [ref=e1661]: "28"
+                  - generic [ref=e1662] [cursor=pointer]:
+                    - generic [ref=e1663]:
+                      - img "I-5 shield" [ref=e1664]
+                      - heading "5 - SB I-5 North Of SR 4" [level=3] [ref=e1665]
+                    - paragraph [ref=e1666]: South · Stockton, San Joaquin Co.
+                    - generic [ref=e1667]:
+                      - generic [ref=e1668]: 52m away
+                      - generic [ref=e1669]: 0.5 mi to next
+                    - generic [ref=e1671]:
+                      - link "Maps" [ref=e1672]:
+                        - /url: https://www.google.com/maps?q=37.95067,-121.30528
+                        - img [ref=e1673]
+                        - text: Maps
+                      - link "Details" [ref=e1676]:
+                        - /url: /camera/D10-5
+                        - img [ref=e1677]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e1681]:
+                        - img [ref=e1682]
+                        - text: Zoom on Map
+                      - generic [ref=e1685]:
+                        - button "Mark as passed" [ref=e1686]:
+                          - img [ref=e1687]
+                        - button "Favorite" [ref=e1689]:
+                          - img [ref=e1690]
+                - generic [ref=e1693]:
+                  - generic [ref=e1695]:
+                    - generic [ref=e1696]: "MINUTES TO:"
+                    - generic [ref=e1697]: US 50 3
+                    - generic [ref=e1698]: ELK GROVE 14
+                  - generic [ref=e1699]:
+                    - generic [ref=e1700]:
+                      - generic [ref=e1701]: Highway Sign
+                      - img "I-5 shield" [ref=e1702]
+                    - paragraph [ref=e1703]: W El Camino Ave
+                    - paragraph [ref=e1704]: South · Stockton
+                    - link "Maps" [ref=e1707] [cursor=pointer]:
+                      - /url: https://www.google.com/maps?q=38.611336,-121.510865
+                      - img [ref=e1708]
+                      - text: Maps
+                - generic [ref=e1712]: 0.5 mi
+              - generic [ref=e1713]:
+                - generic [ref=e1715]:
+                  - generic [ref=e1716]:
+                    - img "4 - NB I-5 Church Street" [ref=e1719] [cursor=pointer]
+                    - generic [ref=e1723]: Live
+                    - generic [ref=e1724]: "29"
+                  - generic [ref=e1725] [cursor=pointer]:
+                    - generic [ref=e1726]:
+                      - img "I-5 shield" [ref=e1727]
+                      - heading "4 - NB I-5 Church Street" [level=3] [ref=e1728]
+                    - paragraph [ref=e1729]: North · Stockton, San Joaquin Co.
+                    - generic [ref=e1731]: 52m away
+                    - generic [ref=e1733]:
+                      - link "Maps" [ref=e1734]:
+                        - /url: https://www.google.com/maps?q=37.94567,-121.2986
+                        - img [ref=e1735]
+                        - text: Maps
+                      - link "Details" [ref=e1738]:
+                        - /url: /camera/D10-4
+                        - img [ref=e1739]
+                        - text: Details
+                      - button "Zoom on Map" [ref=e1743]:
+                        - img [ref=e1744]
+                        - text: Zoom on Map
+                      - generic [ref=e1747]:
+                        - button "Mark as passed" [ref=e1748]:
+                          - img [ref=e1749]
+                        - button "Favorite" [ref=e1751]:
+                          - img [ref=e1752]
+                - generic [ref=e1755]:
+                  - generic [ref=e1757]:
+                    - generic [ref=e1758]: CONTROL BURN
+                    - generic [ref=e1759]: PLEASE DO NOT
+                    - generic [ref=e1760]: REPORT
+                  - generic [ref=e1761]:
+                    - generic [ref=e1762]:
+                      - generic [ref=e1763]: Highway Sign
+                      - img "I-5 shield" [ref=e1764]
+                    - paragraph [ref=e1765]: North Mountain Gate
+                    - paragraph [ref=e1766]: North · Stockton
+                    - link "Maps" [ref=e1769] [cursor=pointer]:
+                      - /url: https://www.google.com/maps?q=40.727853,-122.321841
+                      - img [ref=e1770]
+                      - text: Maps
+                - generic [ref=e1774]:
+                  - generic [ref=e1776]:
+                    - generic [ref=e1777]: OLD RIVER BRIDGE
+                    - generic [ref=e1778]: ONE WAY TRAFFIC
+                    - generic [ref=e1779]: THRU NOV 2026
+                  - generic [ref=e1780]:
+                    - generic [ref=e1781]:
+                      - generic [ref=e1782]: Highway Sign
+                      - img "I-5 shield" [ref=e1783]
+                    - paragraph [ref=e1784]: NB I5 S of Charter Way
+                    - paragraph [ref=e1785]: North · Stockton
+                    - link "Maps" [ref=e1788] [cursor=pointer]:
+                      - /url: https://www.google.com/maps?q=37.93549,-121.297059
+                      - img [ref=e1789]
+                      - text: Maps
+          - generic [ref=e1792]:
+            - generic [ref=e1794]:
+              - heading "Route Overview" [level=3] [ref=e1795]
+              - generic [ref=e1796]:
+                - generic [ref=e1797]:
+                  - generic [ref=e1798]: Distance
+                  - generic [ref=e1799]: 50 mi
+                - generic [ref=e1800]:
+                  - generic [ref=e1801]: Cameras
+                  - generic [ref=e1802]: "29"
+                - generic [ref=e1803]:
+                  - generic [ref=e1804]: Drive Time
+                  - generic [ref=e1805]: ~53m
+            - generic [ref=e1806]:
+              - heading "Directions" [level=3] [ref=e1807]
+              - generic [ref=e1808]:
+                - generic [ref=e1809]:
+                  - generic [ref=e1810]: "1"
+                  - generic [ref=e1811]:
+                    - paragraph [ref=e1812]: Drive south on 9th Street. 9th Street
+                    - paragraph [ref=e1813]: 0.0 mi · ~1 min
+                - generic [ref=e1814]:
+                  - generic [ref=e1815]: "2"
+                  - generic [ref=e1816]:
+                    - paragraph [ref=e1817]: Turn left onto J Street. J Street
+                    - paragraph [ref=e1818]: 0.1 mi · ~1 min
+                - generic [ref=e1819]:
+                  - generic [ref=e1820]: "3"
+                  - generic [ref=e1821]:
+                    - paragraph [ref=e1822]: Turn left onto 10th Street. 10th Street
+                    - paragraph [ref=e1823]: 0.1 mi · ~1 min
+                - generic [ref=e1824]:
+                  - generic [ref=e1825]: "4"
+                  - generic [ref=e1826]:
+                    - paragraph [ref=e1827]: Turn left onto I Street. I Street
+                    - paragraph [ref=e1828]: 0.5 mi · ~1 min
+                - generic [ref=e1829]:
+                  - generic [ref=e1830]: "5"
+                  - generic [ref=e1831]:
+                    - paragraph [ref=e1832]: Keep right at the fork. Keep right at the fork.
+                    - paragraph [ref=e1833]: 0.1 mi · ~1 min
+                - generic [ref=e1834]:
+                  - generic [ref=e1835]: "6"
+                  - generic [ref=e1836]:
+                    - paragraph [ref=e1837]: Take the I 5 South ramp on the left. I 5 South
+                    - paragraph [ref=e1838]: 12.7 mi · ~13 min
+                - generic [ref=e1839]:
+                  - generic [ref=e1840]: "7"
+                  - generic [ref=e1841]:
+                    - paragraph [ref=e1842]: Keep left to stay on I 5 South/Westside Freeway/Route 5. I 5 South
+                    - paragraph [ref=e1843]: 34.3 mi · ~33 min
+                - generic [ref=e1844]:
+                  - generic [ref=e1845]: "8"
+                  - generic [ref=e1846]:
+                    - paragraph [ref=e1847]: Take exit 472 onto CA 4. Take exit 472 onto CA 4.
+                    - paragraph [ref=e1848]: 0.2 mi · ~1 min
+                - generic [ref=e1849]:
+                  - generic [ref=e1850]: "9"
+                  - generic [ref=e1851]:
+                    - paragraph [ref=e1852]: Keep left to take CA 4. CA 4
+                    - paragraph [ref=e1853]: 0.7 mi · ~1 min
+                - generic [ref=e1854]:
+                  - generic [ref=e1855]: "10"
+                  - generic [ref=e1856]:
+                    - paragraph [ref=e1857]: Keep right at the fork. Keep right at the fork.
+                    - paragraph [ref=e1858]: 0.2 mi · ~1 min
+                - generic [ref=e1859]:
+                  - generic [ref=e1860]: "11"
+                  - generic [ref=e1861]:
+                    - paragraph [ref=e1862]: Continue on East Lafayette Street. East Lafayette Street
+                    - paragraph [ref=e1863]: 0.1 mi · ~1 min
+                - generic [ref=e1864]:
+                  - generic [ref=e1865]: "12"
+                  - generic [ref=e1866]:
+                    - paragraph [ref=e1867]: Turn left onto South El Dorado Street. South El Dorado Street
+                    - paragraph [ref=e1868]: 0.6 mi · ~2 min
+    - contentinfo [ref=e1869]:
+      - generic [ref=e1870]:
+        - paragraph [ref=e1871]:
+          - text: Data from
+          - link "Caltrans" [ref=e1872] [cursor=pointer]:
+            - /url: https://dot.ca.gov
+          - text: ","
+          - link "CHP" [ref=e1873] [cursor=pointer]:
+            - /url: https://www.chp.ca.gov
+          - text: ", and"
+          - link "NWS" [ref=e1874] [cursor=pointer]:
+            - /url: https://www.weather.gov
+          - text: . Public domain data.
+        - generic [ref=e1875]:
+          - generic [ref=e1876]:
+            - text: Built by
+            - link "Brendan Welsh" [ref=e1877] [cursor=pointer]:
+              - /url: https://linkedin.com/in/brendan-welsh
+            - text: ·
+            - link "GitHub" [ref=e1878] [cursor=pointer]:
+              - /url: https://github.com/brendanwelsh
+          - link "Support this project" [ref=e1879] [cursor=pointer]:
+            - /url: https://buymeacoffee.com/brendanwelsh
+  - generic [ref=e1882]:
+    - button "Menu" [ref=e1883]:
+      - img [ref=e1885]
+      - generic: Menu
+    - button "Inspect" [ref=e1889]:
+      - img [ref=e1891]
+      - generic: Inspect
+    - button "Audit" [ref=e1893]:
+      - generic [ref=e1894]:
+        - img [ref=e1895]
+        - img [ref=e1898]
+      - generic: Audit
+    - button "Settings" [ref=e1901]:
+      - img [ref=e1903]
+      - generic: Settings

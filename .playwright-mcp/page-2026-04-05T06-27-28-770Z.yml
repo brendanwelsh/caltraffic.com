@@ -1,0 +1,137 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "CalTraffic.com" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - img [ref=e6]
+          - generic [ref=e9]: CalTraffic.com
+        - generic [ref=e10]:
+          - link "Route Planner" [ref=e11] [cursor=pointer]:
+            - /url: /
+          - link "All Cameras" [ref=e12] [cursor=pointer]:
+            - /url: /cameras
+          - link "Featured" [ref=e13] [cursor=pointer]:
+            - /url: /featured
+          - link "Custom Views" [ref=e14] [cursor=pointer]:
+            - /url: /favorites
+          - link "Reports" [ref=e15] [cursor=pointer]:
+            - /url: /reports
+          - link "Stats" [ref=e16] [cursor=pointer]:
+            - /url: /stats
+          - link "About" [ref=e17] [cursor=pointer]:
+            - /url: /about
+          - button "Toggle theme" [ref=e18]:
+            - img [ref=e19]
+    - main [ref=e21]:
+      - generic [ref=e23]:
+        - button "Back" [ref=e25]:
+          - img [ref=e26]
+          - text: Back
+        - generic [ref=e28]:
+          - generic [ref=e29]:
+            - generic [ref=e30]:
+              - img "I-5 shield" [ref=e31]
+              - generic [ref=e32]:
+                - heading "P St" [level=1] [ref=e33]
+                - paragraph [ref=e34]: South — Sacramento, Sacramento — D03 · 13 ft
+            - button "Add to favorites" [ref=e35]:
+              - img [ref=e36]
+          - generic [ref=e38]:
+            - generic [ref=e43]: Live Stream
+            - generic [ref=e45]:
+              - heading "History (11)" [level=3] [ref=e46]:
+                - img [ref=e47]
+                - text: History (11)
+              - generic [ref=e51]:
+                - button "P St - 1 updates ago" [ref=e52]:
+                  - img "P St - 1 updates ago" [ref=e53]
+                - button "P St - 2 updates ago" [ref=e54]:
+                  - img "P St - 2 updates ago" [ref=e55]
+                - button "P St - 3 updates ago" [ref=e56]:
+                  - img "P St - 3 updates ago" [ref=e57]
+                - button "P St - 4 updates ago" [ref=e58]:
+                  - img "P St - 4 updates ago" [ref=e59]
+                - button "P St - 5 updates ago" [ref=e60]:
+                  - img "P St - 5 updates ago" [ref=e61]
+                - button "P St - 6 updates ago" [ref=e62]:
+                  - img "P St - 6 updates ago" [ref=e63]
+                - button "P St - 7 updates ago" [ref=e64]:
+                  - img "P St - 7 updates ago" [ref=e65]
+                - button "P St - 8 updates ago" [ref=e66]:
+                  - img "P St - 8 updates ago" [ref=e67]
+                - button "P St - 9 updates ago" [ref=e68]:
+                  - img "P St - 9 updates ago" [ref=e69]
+                - button "P St - 10 updates ago" [ref=e70]:
+                  - img "P St - 10 updates ago" [ref=e71]
+                - button "P St - 11 updates ago" [ref=e72]:
+                  - img "P St - 11 updates ago" [ref=e73]
+            - generic [ref=e74]:
+              - generic [ref=e75]:
+                - generic [ref=e76]:
+                  - generic [ref=e77]: "Route:"
+                  - img "I-5 shield" [ref=e78]
+                  - generic [ref=e79]: South
+                - generic [ref=e80]: "City: Sacramento"
+                - generic [ref=e81]: "County: Sacramento"
+                - generic [ref=e82]: "District: D03"
+                - generic [ref=e83]: "Postmile: 23.3"
+                - generic [ref=e84]: "Coords: 38.5778, -121.5076"
+              - generic [ref=e85]:
+                - link "Google Maps" [ref=e86] [cursor=pointer]:
+                  - /url: https://www.google.com/maps?q=38.577828,-121.507587
+                  - img [ref=e87]
+                  - text: Google Maps
+                - button "Copy Link" [ref=e90]:
+                  - img [ref=e91]
+                  - text: Copy Link
+                - link "Share on X" [ref=e94] [cursor=pointer]:
+                  - /url: https://x.com/intent/tweet?url=https%3A%2F%2Fcaltraffic.com%2Fcamera%2FD03-12&text=Live%20traffic%20camera%3A%20P%20St%20on%20I-5%20%E2%80%94%20CalTraffic.com
+                  - img [ref=e95]
+                  - text: Share
+                - link "Share on Facebook" [ref=e97] [cursor=pointer]:
+                  - /url: https://www.facebook.com/sharer/sharer.php?u=https%3A%2F%2Fcaltraffic.com%2Fcamera%2FD03-12
+                  - img [ref=e98]
+                  - text: Share
+                - link "Share on LinkedIn" [ref=e100] [cursor=pointer]:
+                  - /url: https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Fcaltraffic.com%2Fcamera%2FD03-12
+                  - img [ref=e101]
+                  - text: Share
+    - contentinfo [ref=e103]:
+      - generic [ref=e104]:
+        - paragraph [ref=e105]:
+          - text: Data from
+          - link "Caltrans" [ref=e106] [cursor=pointer]:
+            - /url: https://dot.ca.gov
+          - text: ","
+          - link "CHP" [ref=e107] [cursor=pointer]:
+            - /url: https://www.chp.ca.gov
+          - text: ", and"
+          - link "NWS" [ref=e108] [cursor=pointer]:
+            - /url: https://www.weather.gov
+          - text: . Public domain data.
+        - generic [ref=e109]:
+          - generic [ref=e110]:
+            - text: Built by
+            - link "Brendan Welsh" [ref=e111] [cursor=pointer]:
+              - /url: https://linkedin.com/in/brendan-welsh
+            - text: ·
+            - link "GitHub" [ref=e112] [cursor=pointer]:
+              - /url: https://github.com/brendanwelsh
+          - link "Support this project" [ref=e113] [cursor=pointer]:
+            - /url: https://buymeacoffee.com/brendanwelsh
+  - generic [ref=e116]:
+    - button "Menu" [ref=e117]:
+      - img [ref=e119]
+      - generic: Menu
+    - button "Inspect" [ref=e123]:
+      - img [ref=e125]
+      - generic: Inspect
+    - button "Audit" [ref=e127]:
+      - generic [ref=e128]:
+        - img [ref=e129]
+        - img [ref=e132]
+      - generic: Audit
+    - button "Settings" [ref=e135]:
+      - img [ref=e137]
+      - generic: Settings

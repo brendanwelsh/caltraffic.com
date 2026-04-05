@@ -1,0 +1,211 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - alert [ref=e3]:
+      - generic [ref=e4]:
+        - img "alert info icon" [ref=e5]
+        - generic [ref=e6]: "New: This website is undergoing a design update, but all datasets will remain the same."
+        - button "Close" [ref=e7] [cursor=pointer]:
+          - generic [ref=e8]: M
+    - generic [ref=e11]:
+      - generic [ref=e12]:
+        - link "CA.gov" [ref=e14] [cursor=pointer]:
+          - /url: https://www.ca.gov?utm_campaign=state_template_link&utm_medium=header&utm_source=external
+          - generic [ref=e15]: CA.gov
+        - paragraph [ref=e17]: Official website of the State of California
+      - generic [ref=e18]:
+        - link "Caltrans Home" [ref=e19] [cursor=pointer]:
+          - /url: https://dot.ca.gov
+        - link "About Caltrans" [ref=e20] [cursor=pointer]:
+          - /url: https://dot.ca.gov/about-caltrans
+        - link "Contact Us" [ref=e21] [cursor=pointer]:
+          - /url: https://dot.ca.gov/contact-us
+    - link "State Template Logo California Department of Transportation CWWP2" [ref=e25] [cursor=pointer]:
+      - /url: /index.html
+      - generic [ref=e26]:
+        - img "State Template Logo" [ref=e27]
+        - generic [ref=e28]:
+          - generic [ref=e29]: California Department of Transportation
+          - generic [ref=e30]: CWWP2
+  - main [ref=e32]:
+    - generic [ref=e36]:
+      - heading "Commercial Wholesale Web Portal (CWWP2)" [level=1] [ref=e37]
+      - generic [ref=e38]: View near-real-time traveler information across Caltrans's 12 districts.
+    - generic [ref=e39]:
+      - heading "CMS" [level=2] [ref=e40]
+      - generic [ref=e41]: Select District
+      - combobox "Select District" [ref=e42]:
+        - option "District 1" [selected]
+        - option "District 2"
+        - option "District 3"
+        - option "District 4"
+        - option "District 5"
+        - option "District 6"
+        - option "District 7"
+        - option "District 8"
+        - option "District 9"
+        - option "District 10"
+        - option "District 11"
+        - option "District 12"
+      - generic [ref=e43]:
+        - generic [ref=e44]: US-101
+        - generic [ref=e45]:
+          - generic [ref=e46]:
+            - generic [ref=e47]: "------------------"
+            - generic [ref=e48]:
+              - text: 1 - Men 101 PM 31.6 - N of 101/20 Calpella - FSBT
+              - text: US-101 Milepost 555.9
+          - generic [ref=e49]:
+            - generic [ref=e50]: "------------------"
+            - generic [ref=e51]:
+              - text: 2 - Men 101 PM 29.8 - S of 101/ 20 Calpella - FNBT
+              - text: US-101 Milepost 554.22
+          - generic [ref=e52]:
+            - generic [ref=e53]: "------------------"
+            - generic [ref=e54]:
+              - text: 3 - Hum 101 PM 58.7 - N of Jct 36 - FSBT
+              - text: US-101 Milepost 686.02
+          - generic [ref=e55]:
+            - generic [ref=e56]: "------------------"
+            - generic [ref=e57]:
+              - text: 4 - Hum 101 PM 87.7 - S of 101/299 - FNBT
+              - text: US-101 Milepost 714.96
+          - generic [ref=e58]:
+            - generic [ref=e59]: "------------------"
+            - generic [ref=e60]:
+              - text: 4b - US 101 / SR-299
+              - text: US-101 Milepost 714.96
+          - generic [ref=e61]:
+            - generic [ref=e62]: "------------------"
+            - generic [ref=e63]:
+              - text: 5 - Hum 101 PM 89.4 - N of 101/299 - FSBT
+              - text: US-101 Milepost 716.66
+          - generic [ref=e64]:
+            - generic [ref=e65]: "------------------"
+            - generic [ref=e66]:
+              - text: 8 - Men 101 PM 48.53 - N of Willits - FNBT
+              - text: US-101 Milepost 573.02
+          - generic [ref=e67]:
+            - generic [ref=e68]: "------------------"
+            - generic [ref=e69]:
+              - text: 13 - Hum 101 PM 55.96 - S of Jct 36 - FNBT
+              - text: US-101 Milepost 683.34
+          - generic [ref=e70]:
+            - generic [ref=e71]: "------------------"
+            - generic [ref=e72]:
+              - text: 14 - DN 101 PM 28.5 - S of 101/199 - FNBT
+              - text: US-101 Milepost 791.55
+          - generic [ref=e73]:
+            - generic [ref=e74]: "------------------"
+            - generic [ref=e75]:
+              - text: 15 - DN 101 PM 37.54 - N of 101/197 - FSBT
+              - text: US-101 Milepost 800.52
+          - generic [ref=e76]:
+            - generic [ref=e77]: "------------------"
+            - generic [ref=e78]:
+              - text: 17 - DN 101 PM 22.37 - Cushing Creek - FSBT
+              - text: US-101 Milepost 785.49
+          - generic [ref=e79]:
+            - generic [ref=e80]: "------------------"
+            - generic [ref=e81]:
+              - text: 18 - DN 101 PM 20.57 - Cushing Creek - FNBT
+              - text: US-101 Milepost 783.84
+          - generic [ref=e82]:
+            - generic [ref=e83]: "------------------"
+            - generic [ref=e84]:
+              - text: 19 - SB US-101 S of SR-20
+              - text: US-101 Milepost 567.27
+          - generic [ref=e85]:
+            - generic [ref=e86]: "------------------"
+            - generic [ref=e87]:
+              - text: 25 - SB US-101 North of Ridgewood Grade
+              - text: US-101 Milepost 564.65
+          - generic [ref=e88]:
+            - generic [ref=e89]: "------------------"
+            - generic [ref=e90]:
+              - text: 79 -Men 101 PM 8.44 - Hopland - FNBT
+              - text: US-101 Milepost 532.832
+        - generic [ref=e91]: SR-20
+        - generic [ref=e92]:
+          - generic [ref=e93]:
+            - generic [ref=e94]: "------------------"
+            - generic [ref=e95]:
+              - text: 6 - Men 20 PM 35.6 - E 0f 101/20 Calpella - FWBT
+              - text: SR-20 Milepost 35.54
+          - generic [ref=e96]:
+            - generic [ref=e97]: "------------------"
+            - generic [ref=e98]:
+              - text: 7 - Men 20 PM 32.29 - W of Willits - FWBT
+              - text: SR-20 Milepost 32.12
+          - generic [ref=e99]:
+            - generic [ref=e100]: "------------------"
+            - generic [ref=e101]:
+              - text: 9 - Lak 20 PM 7.7 - W of Jct 29 - FEBT
+              - text: SR-20 Milepost 51.75
+          - generic [ref=e102]:
+            - generic [ref=e103]: "------------------"
+            - generic [ref=e104]:
+              - text: 10 - Lak 20 PM 30.45 - W of Jct 53 - FEBT
+              - text: SR-20 Milepost 74.61
+          - generic [ref=e105]:
+            - generic [ref=e106]: "------------------"
+            - generic [ref=e107]:
+              - text: 11 - Lak 20 PM 31.94 - E of Jct 53 - FWBT
+              - text: SR-20 Milepost 76.22
+          - generic [ref=e108]:
+            - generic [ref=e109]: "------------------"
+            - generic [ref=e110]:
+              - text: 74 - Lak 20 PM 12.32 - E of SR-29 - FWBT
+              - text: SR-20 Milepost 59.033
+          - generic [ref=e111]:
+            - generic [ref=e112]: "------------------"
+            - generic [ref=e113]:
+              - text: 75 - Men 20 PM 0.25 Ft. Bragg FEBT
+              - text: SR-20 Milepost 0.27
+        - generic [ref=e114]: SR-53
+        - generic [ref=e115]:
+          - generic [ref=e116]:
+            - generic [ref=e117]: "------------------"
+            - generic [ref=e118]:
+              - text: 12 - Lak 53 PM 5.1 - S of Jct 53 - FNBT
+              - text: SR-53 Milepost 5.14
+          - generic [ref=e119]:
+            - generic [ref=e120]: "------------------"
+            - generic [ref=e121]:
+              - text: 77 - Lak 53 PM 1.23 - Dam Road - FSBT
+              - text: SR-53 Milepost 1.231
+        - generic [ref=e122]: US-199
+        - generic [ref=e124]:
+          - generic [ref=e125]: "------------------"
+          - generic [ref=e126]:
+            - text: 16 - DN 199 PM 36.1 - S of State Line - FSBT
+            - text: US-199 Milepost 35.91
+        - generic [ref=e127]: SR-29
+        - generic [ref=e128]:
+          - generic [ref=e129]:
+            - generic [ref=e130]: "------------------"
+            - generic [ref=e131]:
+              - text: 73 - Lak 29 PM 44.47 - S of SR-20 - FNBT
+              - text: SR-29 Milepost 98.944
+          - generic [ref=e132]:
+            - generic [ref=e133]: "------------------"
+            - generic [ref=e134]:
+              - text: 76 - Lak 29 PM 22.11 - W of SR-53 - FSBT
+              - text: SR-29 Milepost 76.579
+          - generic [ref=e135]:
+            - generic [ref=e136]: "------------------"
+            - generic [ref=e137]:
+              - text: 78 - Lak 29 PM 20.05 - S of SR-53 - FNBT
+              - text: SR-29 Milepost 74.522
+  - contentinfo [ref=e138]:
+    - generic [ref=e140]:
+      - link "CA.gov" [ref=e141] [cursor=pointer]:
+        - /url: https://ca.gov
+        - generic [ref=e142]: CA.gov
+      - list [ref=e144]:
+        - listitem [ref=e145]:
+          - link "Conditions of Use" [ref=e146] [cursor=pointer]:
+            - /url: https://dot.ca.gov/conditions-of-use
+      - generic [ref=e148]:
+        - text: ©
+        - generic [ref=e149]: "2026"
+        - text: State of California

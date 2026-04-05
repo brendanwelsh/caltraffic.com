@@ -1,0 +1,138 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - link "CalTraffic.com" [ref=e5] [cursor=pointer]:
+        - /url: /
+        - img [ref=e6]
+        - generic [ref=e9]: CalTraffic.com
+      - generic [ref=e10]:
+        - link "Routes" [ref=e11] [cursor=pointer]:
+          - /url: /
+        - link "All Cameras" [ref=e12] [cursor=pointer]:
+          - /url: /cameras
+        - link "Featured" [ref=e13] [cursor=pointer]:
+          - /url: /featured
+        - link "Custom Views" [ref=e14] [cursor=pointer]:
+          - /url: /favorites
+        - link "Reports" [ref=e15] [cursor=pointer]:
+          - /url: /reports
+        - link "Stats" [ref=e16] [cursor=pointer]:
+          - /url: /stats
+        - link "About" [ref=e17] [cursor=pointer]:
+          - /url: /about
+        - button "Toggle theme" [ref=e18]:
+          - img [ref=e19]
+  - main [ref=e21]:
+    - generic [ref=e24]:
+      - generic [ref=e26]:
+        - generic [ref=e27]:
+          - generic [ref=e28]: FROM
+          - combobox "City, address, or landmark" [ref=e29]
+        - button "Swap origin and destination" [ref=e30]:
+          - img [ref=e31]
+        - generic [ref=e34]:
+          - generic [ref=e35]: TO
+          - combobox "City, address, or landmark" [ref=e36]
+        - button "View Route" [disabled] [ref=e38]
+      - generic [ref=e39]:
+        - heading "Where are you starting?" [level=2] [ref=e40]
+        - paragraph [ref=e41]: Pick your starting city or type an address above
+        - textbox "Search cities..." [ref=e42]
+        - generic [ref=e43]:
+          - button "Anaheim" [ref=e44]:
+            - paragraph [ref=e46]: Anaheim
+          - button "Bakersfield" [ref=e47]:
+            - paragraph [ref=e49]: Bakersfield
+          - button "Bishop" [ref=e50]:
+            - paragraph [ref=e52]: Bishop
+          - button "Chico" [ref=e53]:
+            - paragraph [ref=e55]: Chico
+          - button "Eureka" [ref=e56]:
+            - paragraph [ref=e58]: Eureka
+          - button "Folsom" [ref=e59]:
+            - paragraph [ref=e61]: Folsom
+          - button "Fresno" [ref=e62]:
+            - paragraph [ref=e64]: Fresno
+          - button "Irvine" [ref=e65]:
+            - paragraph [ref=e67]: Irvine
+          - button "Lake Tahoe" [ref=e68]:
+            - paragraph [ref=e70]: Lake Tahoe
+          - button "Long Beach" [ref=e71]:
+            - paragraph [ref=e73]: Long Beach
+          - button "Los Angeles" [ref=e74]:
+            - paragraph [ref=e76]: Los Angeles
+          - button "Mammoth Lakes" [ref=e77]:
+            - paragraph [ref=e79]: Mammoth Lakes
+          - button "Merced" [ref=e80]:
+            - paragraph [ref=e82]: Merced
+          - button "Modesto" [ref=e83]:
+            - paragraph [ref=e85]: Modesto
+          - button "Monterey" [ref=e86]:
+            - paragraph [ref=e88]: Monterey
+          - button "Napa" [ref=e89]:
+            - paragraph [ref=e91]: Napa
+          - button "Oakland" [ref=e92]:
+            - paragraph [ref=e94]: Oakland
+          - button "Oceanside" [ref=e95]:
+            - paragraph [ref=e97]: Oceanside
+          - button "Palm Springs" [ref=e98]:
+            - paragraph [ref=e100]: Palm Springs
+          - button "Pasadena" [ref=e101]:
+            - paragraph [ref=e103]: Pasadena
+          - button "Redding" [ref=e104]:
+            - paragraph [ref=e106]: Redding
+          - button "Riverside" [ref=e107]:
+            - paragraph [ref=e109]: Riverside
+          - button "Sacramento" [ref=e110]:
+            - paragraph [ref=e112]: Sacramento
+          - button "San Bernardino" [ref=e113]:
+            - paragraph [ref=e115]: San Bernardino
+          - button "San Diego" [ref=e116]:
+            - paragraph [ref=e118]: San Diego
+          - button "San Francisco" [ref=e119]:
+            - paragraph [ref=e121]: San Francisco
+          - button "San Jose" [ref=e122]:
+            - paragraph [ref=e124]: San Jose
+          - button "San Luis Obispo" [ref=e125]:
+            - paragraph [ref=e127]: San Luis Obispo
+          - button "Santa Barbara" [ref=e128]:
+            - paragraph [ref=e130]: Santa Barbara
+          - button "Santa Cruz" [ref=e131]:
+            - paragraph [ref=e133]: Santa Cruz
+          - button "Santa Rosa" [ref=e134]:
+            - paragraph [ref=e136]: Santa Rosa
+          - button "Stockton" [ref=e137]:
+            - paragraph [ref=e139]: Stockton
+          - button "Temecula" [ref=e140]:
+            - paragraph [ref=e142]: Temecula
+          - button "Truckee" [ref=e143]:
+            - paragraph [ref=e145]: Truckee
+          - button "Visalia" [ref=e146]:
+            - paragraph [ref=e148]: Visalia
+          - button "Yosemite" [ref=e149]:
+            - paragraph [ref=e151]: Yosemite
+        - paragraph [ref=e152]: Or type any address in the search bar above
+        - paragraph [ref=e153]: 3,400+ cameras across all 12 Caltrans districts
+  - contentinfo [ref=e154]:
+    - generic [ref=e155]:
+      - paragraph [ref=e156]:
+        - text: Data from
+        - link "Caltrans" [ref=e157] [cursor=pointer]:
+          - /url: https://dot.ca.gov
+        - text: ","
+        - link "CHP" [ref=e158] [cursor=pointer]:
+          - /url: https://www.chp.ca.gov
+        - text: ", and"
+        - link "NWS" [ref=e159] [cursor=pointer]:
+          - /url: https://www.weather.gov
+        - text: . Public domain data.
+      - generic [ref=e160]:
+        - generic [ref=e161]:
+          - text: Built by
+          - link "Brendan Welsh" [ref=e162] [cursor=pointer]:
+            - /url: https://linkedin.com/in/brendan-welsh
+          - text: ·
+          - link "GitHub" [ref=e163] [cursor=pointer]:
+            - /url: https://github.com/brendanwelsh
+        - link "Support this project" [ref=e164] [cursor=pointer]:
+          - /url: https://buymeacoffee.com/brendanwelsh

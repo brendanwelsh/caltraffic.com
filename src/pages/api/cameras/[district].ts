@@ -98,15 +98,56 @@ function transformCameras(data: unknown, districtNum: number) {
     .filter(Boolean);
 }
 
+const STALE_THRESHOLD = 30 * 60 * 1000; // 30 minutes
+
+/** HEAD-check a sample of image URLs to detect district-wide staleness */
+async function checkDistrictFreshness(cameras: { imageUrl: string }[]): Promise<boolean> {
+  const sample = cameras.filter((_, i) => i % Math.max(1, Math.floor(cameras.length / 5)) === 0).slice(0, 5);
+  if (sample.length === 0) return false;
+
+  const results = await Promise.allSettled(
+    sample.map(async (cam) => {
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 2000);
+      try {
+        const res = await fetch(cam.imageUrl, { method: 'HEAD', signal: controller.signal });
+        const lastMod = res.headers.get('last-modified');
+        if (lastMod) return Date.now() - new Date(lastMod).getTime() > STALE_THRESHOLD;
+        return false;
+      } finally {
+        clearTimeout(timeout);
+      }
+    })
+  );
+
+  const staleCount = results.filter((r) => r.status === 'fulfilled' && r.value === true).length;
+  // If majority of sampled images are stale, the district is stale
+  return staleCount > sample.length / 2;
+}
+
 async function fetchDistrict(d: number) {
   const url = buildCwwp2Url('cctv', d);
   const res = await fetch(url);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();
-  return transformCameras(data, d);
+  const cameras = transformCameras(data, d);
+
+  // Check freshness via image Last-Modified headers (sampled)
+  const districtStale = await checkDistrictFreshness(cameras as { imageUrl: string }[]);
+  if (districtStale) {
+    return cameras.map((cam: Record<string, unknown>) => ({ ...cam, isStale: true }));
+  }
+
+  return cameras;
 }
 
-export const GET: APIRoute = async ({ params }) => {
+/** Rewrite Caltrans image URL to go through our edge-cached proxy */
+function proxyUrl(url: string, origin: string): string {
+  if (!url || !url.startsWith('http')) return url;
+  return `${origin}/api/img?src=${encodeURIComponent(url)}`;
+}
+
+export const GET: APIRoute = async ({ params, request }) => {
   const districtParam = params.district!;
 
   const districtNum = parseInt(districtParam, 10);
@@ -119,13 +160,25 @@ export const GET: APIRoute = async ({ params }) => {
 
   try {
     const cameras = await fetchDistrict(districtNum);
-    return new Response(JSON.stringify(cameras), {
-      headers: { 'Content-Type': 'application/json' },
+    const origin = new URL(request.url).origin;
+    const proxied = cameras.map((cam: Record<string, unknown>) => ({
+      ...cam,
+      imageUrl: proxyUrl(cam.imageUrl as string, origin),
+      historicalImages: (cam.historicalImages as string[]).map((u) => proxyUrl(u, origin)),
+    }));
+    return new Response(JSON.stringify(proxied), {
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, max-age=30, s-maxage=60',
+      },
     });
   } catch (error) {
     return new Response(JSON.stringify({ error: 'upstream_error', message: String(error) }), {
       status: 502,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Cache-Control': 'public, max-age=10, s-maxage=15',
+      },
     });
   }
 };

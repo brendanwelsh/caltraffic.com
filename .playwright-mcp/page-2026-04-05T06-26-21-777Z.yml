@@ -1,0 +1,62 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "CalTraffic.com" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - img [ref=e6]
+          - generic [ref=e9]: CalTraffic.com
+        - generic [ref=e10]:
+          - link "Route Planner" [ref=e11] [cursor=pointer]:
+            - /url: /
+          - link "All Cameras" [ref=e12] [cursor=pointer]:
+            - /url: /cameras
+          - link "Featured" [ref=e13] [cursor=pointer]:
+            - /url: /featured
+          - link "Custom Views" [ref=e14] [cursor=pointer]:
+            - /url: /favorites
+          - link "Reports" [ref=e15] [cursor=pointer]:
+            - /url: /reports
+          - link "Stats" [ref=e16] [cursor=pointer]:
+            - /url: /stats
+          - link "About" [ref=e17] [cursor=pointer]:
+            - /url: /about
+          - button "Toggle theme" [ref=e18]:
+            - img [ref=e19]
+    - main [ref=e21]
+    - contentinfo [ref=e27]:
+      - generic [ref=e28]:
+        - paragraph [ref=e29]:
+          - text: Data from
+          - link "Caltrans" [ref=e30] [cursor=pointer]:
+            - /url: https://dot.ca.gov
+          - text: ","
+          - link "CHP" [ref=e31] [cursor=pointer]:
+            - /url: https://www.chp.ca.gov
+          - text: ", and"
+          - link "NWS" [ref=e32] [cursor=pointer]:
+            - /url: https://www.weather.gov
+          - text: . Public domain data.
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - text: Built by
+            - link "Brendan Welsh" [ref=e35] [cursor=pointer]:
+              - /url: https://linkedin.com/in/brendan-welsh
+            - text: ·
+            - link "GitHub" [ref=e36] [cursor=pointer]:
+              - /url: https://github.com/brendanwelsh
+          - link "Support this project" [ref=e37] [cursor=pointer]:
+            - /url: https://buymeacoffee.com/brendanwelsh
+  - generic [ref=e40]:
+    - button "Menu" [ref=e41]:
+      - img [ref=e43]
+      - generic: Menu
+    - button "Inspect" [ref=e47]:
+      - img [ref=e49]
+      - generic: Inspect
+    - button "Audit" [ref=e51]:
+      - img [ref=e53]
+      - generic: Audit
+    - button "Settings" [ref=e56]:
+      - img [ref=e58]
+      - generic: Settings

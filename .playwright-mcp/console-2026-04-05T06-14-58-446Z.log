@@ -1,0 +1,3 @@
+[     391ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ https://cwwp2.dot.ca.gov/tools/images/favicon.ico:0
+[     410ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ https://cwwp2.dot.ca.gov/tools/images/favicon.svg:0
+[     427ms] [ERROR] Failed to load resource: the server responded with a status of 500 (Internal Server Error) @ https://cwwp2.dot.ca.gov/tools/images/favicon-96x96.png:0

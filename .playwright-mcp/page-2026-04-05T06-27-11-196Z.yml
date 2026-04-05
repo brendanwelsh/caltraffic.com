@@ -1,0 +1,85 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2]:
+    - banner [ref=e3]:
+      - generic [ref=e4]:
+        - link "CalTraffic.com" [ref=e5] [cursor=pointer]:
+          - /url: /
+          - img [ref=e6]
+          - generic [ref=e9]: CalTraffic.com
+        - generic [ref=e10]:
+          - link "Route Planner" [ref=e11] [cursor=pointer]:
+            - /url: /
+          - link "All Cameras" [ref=e12] [cursor=pointer]:
+            - /url: /cameras
+          - link "Featured" [ref=e13] [cursor=pointer]:
+            - /url: /featured
+          - link "Custom Views" [ref=e14] [cursor=pointer]:
+            - /url: /favorites
+          - link "Reports" [ref=e15] [cursor=pointer]:
+            - /url: /reports
+          - link "Stats" [ref=e16] [cursor=pointer]:
+            - /url: /stats
+          - link "About" [ref=e17] [cursor=pointer]:
+            - /url: /about
+          - button "Toggle theme" [ref=e18]:
+            - img [ref=e19]
+    - main [ref=e21]:
+      - generic [ref=e24]:
+        - generic [ref=e26]:
+          - generic [ref=e27]:
+            - generic [ref=e28]: FROM
+            - combobox "City, address, or landmark" [ref=e29]: Sacramento
+            - img [ref=e31]
+          - button "Swap origin and destination" [ref=e33]:
+            - img [ref=e34]
+          - generic [ref=e37]:
+            - generic [ref=e38]: TO
+            - combobox "City, address, or landmark" [ref=e39]: Stockton
+            - img [ref=e41]
+          - generic [ref=e43]:
+            - button "Loading..." [disabled] [ref=e44]
+            - button "Copy shareable link" [ref=e45]:
+              - img [ref=e46]
+            - button "Clear route" [ref=e49]:
+              - img [ref=e50]
+        - generic [ref=e53]:
+          - paragraph [ref=e55]: Loading cameras along your route...
+          - paragraph [ref=e56]: This may take a moment for longer routes
+    - contentinfo [ref=e57]:
+      - generic [ref=e58]:
+        - paragraph [ref=e59]:
+          - text: Data from
+          - link "Caltrans" [ref=e60] [cursor=pointer]:
+            - /url: https://dot.ca.gov
+          - text: ","
+          - link "CHP" [ref=e61] [cursor=pointer]:
+            - /url: https://www.chp.ca.gov
+          - text: ", and"
+          - link "NWS" [ref=e62] [cursor=pointer]:
+            - /url: https://www.weather.gov
+          - text: . Public domain data.
+        - generic [ref=e63]:
+          - generic [ref=e64]:
+            - text: Built by
+            - link "Brendan Welsh" [ref=e65] [cursor=pointer]:
+              - /url: https://linkedin.com/in/brendan-welsh
+            - text: ·
+            - link "GitHub" [ref=e66] [cursor=pointer]:
+              - /url: https://github.com/brendanwelsh
+          - link "Support this project" [ref=e67] [cursor=pointer]:
+            - /url: https://buymeacoffee.com/brendanwelsh
+  - generic [ref=e70]:
+    - button "Menu" [ref=e71]:
+      - img [ref=e73]
+      - generic: Menu
+    - button "Inspect" [ref=e77]:
+      - img [ref=e79]
+      - generic: Inspect
+    - button "Audit" [ref=e81]:
+      - generic [ref=e82]:
+        - img [ref=e83]
+        - img [ref=e86]
+      - generic: Audit
+    - button "Settings" [ref=e89]:
+      - img [ref=e91]
+      - generic: Settings

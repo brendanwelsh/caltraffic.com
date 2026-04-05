@@ -200,5 +200,6 @@ export function useRoutePlanner(initialOrigin?: Location | null, initialDestinat
     routeDistance,
     routeDuration,
     routeSteps,
+    corridorDistricts,
   };
 }

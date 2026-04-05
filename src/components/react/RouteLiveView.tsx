@@ -28,11 +28,22 @@ function haversineKm(lat1: number, lon1: number, lat2: number, lon2: number): nu
   return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+interface PemsStation {
+  latitude: number;
+  longitude: number;
+  speed: number | null;
+  name: string;
+  freewayId: string;
+  freewayDir: string;
+  flow: number;
+}
+
 interface RouteLiveViewProps {
   cameras: RouteCamera[];
   routeDuration: number;
   onCameraFocus?: (id: string) => void;
   onUserLocationChange?: (loc: { lat: number; lon: number } | null) => void;
+  pemsStations?: PemsStation[];
 }
 
 /** Max concurrent HLS streams — prevents bandwidth competition */
@@ -178,7 +189,7 @@ function CMSFeedCard({ cms, camera }: { cms: any; camera: RouteCamera }) {
   );
 }
 
-function FeedCard({ camera, routeDuration, cameraIndex, forcePlay, onCameraFocus, onMarkPassed, onOpenDetail }: {
+function FeedCard({ camera, routeDuration, cameraIndex, forcePlay, onCameraFocus, onMarkPassed, onOpenDetail, nearestSpeed }: {
   camera: RouteCamera;
   routeDuration: number;
   cameraIndex?: number;
@@ -186,6 +197,7 @@ function FeedCard({ camera, routeDuration, cameraIndex, forcePlay, onCameraFocus
   onCameraFocus?: () => void;
   onMarkPassed?: () => void;
   onOpenDetail?: () => void;
+  nearestSpeed?: number | null;
 }) {
   const { isFavorite, toggle: toggleFavorite } = useFavorites();
   const etaMinutes = routeDuration > 0 && !isNaN(routeDuration) ? Math.round(camera.progressAlongRoute * (routeDuration / 60)) : null;
@@ -226,11 +238,20 @@ function FeedCard({ camera, routeDuration, cameraIndex, forcePlay, onCameraFocus
           </div>
           <p className="text-xs text-muted-foreground mt-0.5">{camera.direction} · {camera.city}, {camera.county} Co.</p>
 
-          {/* ETA + distance side by side */}
+          {/* ETA + speed + distance side by side */}
           <div className="flex items-center gap-2 mt-1.5">
             {etaMinutes != null && (
               <span className="rounded-md bg-primary/10 border border-primary/20 px-2 py-0.5 text-[10px] font-semibold text-primary shrink-0">
                 {formatDuration(etaMinutes)} away
+              </span>
+            )}
+            {nearestSpeed != null && (
+              <span className={`rounded-md px-2 py-0.5 text-[10px] font-semibold shrink-0 border ${
+                nearestSpeed >= 50 ? 'bg-green-500/10 border-green-500/30 text-green-400'
+                : nearestSpeed >= 25 ? 'bg-yellow-500/10 border-yellow-500/30 text-yellow-400'
+                : 'bg-red-500/10 border-red-500/30 text-red-400'
+              }`}>
+                {Math.round(nearestSpeed)} mph
               </span>
             )}
             {camera.distanceToNext != null && (
@@ -294,7 +315,25 @@ function MiniCard({ camera, routeDuration }: { camera: RouteCamera; routeDuratio
   );
 }
 
-export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLocationChange }: RouteLiveViewProps) {
+/** Find nearest PeMS station within ~2km of a point */
+function findNearestSpeed(lat: number, lon: number, stations?: PemsStation[]): number | null {
+  if (!stations || stations.length === 0) return null;
+  let best: PemsStation | null = null;
+  let bestDist = Infinity;
+  for (const s of stations) {
+    const dlat = s.latitude - lat;
+    const dlon = s.longitude - lon;
+    const dist = dlat * dlat + dlon * dlon;
+    if (dist < bestDist) {
+      bestDist = dist;
+      best = s;
+    }
+  }
+  // ~2km threshold (0.02 degrees ≈ 2km)
+  return bestDist < 0.0004 && best?.speed != null ? best.speed : null;
+}
+
+export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLocationChange, pemsStations }: RouteLiveViewProps) {
   const [passedIds, setPassedIds] = useState<Set<string>>(new Set());
   const playAll = useStore(playAllLive);
   const [tracking, setTracking] = useState(false);
@@ -570,6 +609,7 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLoc
                 onCameraFocus={() => onCameraFocus?.(camera.id)}
                 onMarkPassed={() => setPassedIds((prev) => new Set(prev).add(camera.id))}
                 onOpenDetail={() => setSelectedCamera(camera)}
+                nearestSpeed={findNearestSpeed(camera.latitude, camera.longitude, pemsStations)}
               />
 
               {/* CMS signs as separate full-width cards */}

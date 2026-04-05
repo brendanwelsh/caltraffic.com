@@ -125,7 +125,7 @@ export const GET: APIRoute = async ({ url }) => {
   const q = url.searchParams.get('q');
   if (!q || q.length < 2) {
     return new Response(JSON.stringify([]), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=10, s-maxage=15' },
     });
   }
 
@@ -157,7 +157,7 @@ export const GET: APIRoute = async ({ url }) => {
     });
   } catch {
     return new Response(JSON.stringify([]), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=10, s-maxage=15' },
     });
   }
 };

@@ -10,6 +10,8 @@ import { RouteShield } from './RouteShield';
 import { CameraDetailDialog } from './CameraDetailDialog';
 import { RouteDropdown } from './RouteDropdown';
 import { unavailableCameras, markUnavailable, playAllLive } from '@/stores/filters';
+import { gridDensity } from '@/stores/preferences';
+import { GridDensityControl } from './GridDensityControl';
 import { useFavorites } from '@/hooks/use-favorites';
 
 type Category = FeaturedCamera['category'];
@@ -50,7 +52,8 @@ function LazyFeed({ streamUrl, imageUrl, cameraName, cameraId, paused, offline }
         const data = ctx.getImageData(0, 0, 32, 32).data;
         let total = 0, count = 0;
         for (let i = 0; i < data.length; i += 16) { total += (data[i] + data[i+1] + data[i+2]) / 3; count++; }
-        if (total / count > 210) { setBroken(true); markUnavailable(cameraId); return; }
+        const mean = total / count;
+        if (mean > 210 || mean < 15) { setBroken(true); markUnavailable(cameraId); return; }
       }
     } catch { /* CORS — ignore */ }
     setChecked(true);
@@ -67,7 +70,7 @@ function LazyFeed({ streamUrl, imageUrl, cameraName, cameraId, paused, offline }
   const showVideo = checked && !paused && !!streamUrl;
 
   return (
-    <div ref={ref} className="aspect-video overflow-hidden bg-black rounded-md">
+    <div ref={ref} className="aspect-video overflow-hidden bg-muted/50 rounded-md">
       {!visible ? (
         <div className="w-full h-full animate-pulse bg-muted/20" />
       ) : showVideo ? (
@@ -114,6 +117,15 @@ function shuffleArray<T>(arr: T[], seed: number): T[] {
   return shuffled;
 }
 
+const GRID_COLS_CLASS: Record<number, string> = {
+  1: 'grid-cols-1',
+  2: 'grid-cols-1 sm:grid-cols-2',
+  3: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
+  4: 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4',
+  5: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5',
+  6: 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6',
+};
+
 // Stable session seed — changes per page load for variety
 const SESSION_SEED = Date.now();
 
@@ -126,6 +138,7 @@ export function FeaturedCameras() {
   const [visibleCount, setVisibleCount] = useState(18);
   const playing = useStore(playAllLive);
   const broken = useStore(unavailableCameras);
+  const columns = useStore(gridDensity);
   const { isFavorite, toggle: toggleFavorite } = useFavorites();
 
   const matchedFeatured = useMemo<MatchedFeatured[]>(() => {
@@ -238,6 +251,10 @@ export function FeaturedCameras() {
           onChange={setActiveRoute}
         />
 
+        <span className="text-border mx-0.5">|</span>
+
+        <GridDensityControl />
+
         <span className="text-xs text-muted-foreground ml-auto shrink-0">
           {liveCount} live · {filtered.length} total
         </span>
@@ -262,7 +279,7 @@ export function FeaturedCameras() {
 
       {/* Loading */}
       {isLoading && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className={`grid gap-4 ${GRID_COLS_CLASS[columns]}`}>
           {Array.from({ length: 6 }).map((_, i) => (
             <div key={i} className="animate-pulse rounded-lg border border-border bg-card p-4">
               <div className="aspect-video rounded-md bg-muted" />
@@ -282,7 +299,7 @@ export function FeaturedCameras() {
 
       {/* Cards with descriptions — route shield is central */}
       {!isLoading && filtered.length > 0 && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className={`grid gap-4 ${GRID_COLS_CLASS[columns]}`}>
           {filtered.slice(0, visibleCount).map((featured) => {
             const cam = featured.camera;
             const cat = CATEGORY_LABELS[featured.category];

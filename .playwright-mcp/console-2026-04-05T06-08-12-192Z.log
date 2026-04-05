@@ -1,0 +1,41 @@
+[     443ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:4321/node_modules/.vite/deps/chunk-QC7BOYLY.js?v=ef70f8ed:20102
+[    1121ms] [ERROR] Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+1. You might have mismatching versions of React and the renderer (such as React DOM)
+2. You might be breaking the Rules of Hooks
+3. You might have more than one copy of React in the same app
+See https://react.dev/link/invalid-hook-call for tips about how to debug and fix this problem. @ http://localhost:4321/node_modules/.vite/deps/chunk-RY7GF66K.js?v=eafb24e2:391
+[    1122ms] [ERROR] Invalid hook call. Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:
+1. You might have mismatching versions of React and the renderer (such as React DOM)
+2. You might be breaking the Rules of Hooks
+3. You might have more than one copy of React in the same app
+See https://react.dev/link/invalid-hook-call for tips about how to debug and fix this problem. @ http://localhost:4321/node_modules/.vite/deps/chunk-RY7GF66K.js?v=eafb24e2:391
+[    1126ms] TypeError: Cannot read properties of null (reading 'useContext')
+    at exports.useContext (http://localhost:4321/node_modules/.vite/deps/chunk-RY7GF66K.js?v=eafb24e2:911:27)
+    at useSWRConfig (http://localhost:4321/node_modules/.vite/deps/swr.js?v=8c7298f6:594:53)
+    at useSWRArgs (http://localhost:4321/node_modules/.vite/deps/swr.js?v=8c7298f6:628:28)
+    at useRoutePlanner (http://localhost:4321/src/hooks/use-route-planner.ts:76:60)
+    at RoutePlanner (http://localhost:4321/Users/welsh-macmini/projects/prod/caltraffic.com/src/components/react/RoutePlanner:294:7)
+    at Object.react_stack_bottom_frame (http://localhost:4321/node_modules/.vite/deps/chunk-QC7BOYLY.js?v=ef70f8ed:18509:20)
+    at renderWithHooks (http://localhost:4321/node_modules/.vite/deps/chunk-QC7BOYLY.js?v=ef70f8ed:5654:24)
+    at updateFunctionComponent (http://localhost:4321/node_modules/.vite/deps/chunk-QC7BOYLY.js?v=ef70f8ed:7475:21)
+    at beginWork (http://localhost:4321/node_modules/.vite/deps/chunk-QC7BOYLY.js?v=ef70f8ed:8525:20)
+    at runWithFiberInDEV (http://localhost:4321/node_modules/.vite/deps/chunk-QC7BOYLY.js?v=ef70f8ed:997:72)
+[    1123ms] [WARNING] %s
+
+%s
+ An error occurred in the <RoutePlanner> component. Consider adding an error boundary to your tree to customize error handling behavior.
+Visit https://react.dev/link/error-boundaries to learn more about error boundaries. @ http://localhost:4321/node_modules/.vite/deps/chunk-QC7BOYLY.js?v=ef70f8ed:6965
+[    1270ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:4321/node_modules/.vite/deps/chunk-UTQ67KV7.js?v=eafb24e2:20102
+[    3350ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:4321/api/chain-control/4:0
+[    3377ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:4321/api/chain-control/5:0
+[    3505ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:4321/api/chain-control/12:0
+[   23137ms] [ERROR] Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. CMS-D12-1 @ http://localhost:4321/node_modules/.vite/deps/chunk-UTQ67KV7.js?v=eafb24e2:4924
+[   23161ms] [ERROR] Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. CMS-D12-1 @ http://localhost:4321/node_modules/.vite/deps/chunk-UTQ67KV7.js?v=eafb24e2:4924
+[   23879ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:4321/node_modules/.vite/deps/chunk-UTQ67KV7.js?v=8c48af40:20102
+[   24079ms] [ERROR] Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. CMS-D12-1 @ http://localhost:4321/node_modules/.vite/deps/chunk-UTQ67KV7.js?v=8c48af40:4924
+[   24102ms] [ERROR] Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. CMS-D12-1 @ http://localhost:4321/node_modules/.vite/deps/chunk-UTQ67KV7.js?v=8c48af40:4924
+[   24127ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:4321/api/chain-control/5:0
+[   24127ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:4321/api/chain-control/4:0
+[   24127ms] [ERROR] Failed to load resource: the server responded with a status of 502 (Bad Gateway) @ http://localhost:4321/api/chain-control/12:0
+[   24150ms] [ERROR] Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. CMS-D12-1 @ http://localhost:4321/node_modules/.vite/deps/chunk-UTQ67KV7.js?v=8c48af40:4924
+[   24168ms] [ERROR] Encountered two children with the same key, `%s`. Keys should be unique so that components maintain their identity across updates. Non-unique keys may cause children to be duplicated and/or omitted — the behavior is unsupported and could change in a future version. CMS-D12-1 @ http://localhost:4321/node_modules/.vite/deps/chunk-UTQ67KV7.js?v=8c48af40:4924

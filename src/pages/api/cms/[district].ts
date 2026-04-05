@@ -73,7 +73,7 @@ export const GET: APIRoute = async ({ params }) => {
       .filter((r) => r.status === 'fulfilled')
       .flatMap((r) => (r as PromiseFulfilledResult<unknown[]>).value);
     return new Response(JSON.stringify(all), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=30, s-maxage=60' },
     });
   }
 
@@ -81,19 +81,19 @@ export const GET: APIRoute = async ({ params }) => {
   if (isNaN(districtNum) || districtNum < 1 || districtNum > 12) {
     return new Response(JSON.stringify({ error: 'invalid_district' }), {
       status: 400,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=10, s-maxage=15' },
     });
   }
 
   try {
     const cms = await fetchDistrict(districtNum);
     return new Response(JSON.stringify(cms), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=30, s-maxage=60' },
     });
   } catch (error) {
     return new Response(JSON.stringify({ error: 'upstream_error' }), {
       status: 502,
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Cache-Control': 'public, max-age=10, s-maxage=15' },
     });
   }
 };
