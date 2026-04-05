@@ -12,13 +12,15 @@ interface RouteMapViewProps {
   onCameraClick?: (camera: RouteCamera) => void;
   focusedCameraId?: string | null;
   userLocation?: { lat: number; lon: number } | null;
+  pemsStations?: { latitude: number; longitude: number; speed: number | null; name: string; freewayId: string; freewayDir: string; flow: number }[];
 }
 
-export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, destination, onCameraClick, focusedCameraId, userLocation }: RouteMapViewProps) {
+export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, destination, onCameraClick, focusedCameraId, userLocation, pemsStations }: RouteMapViewProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
   const routeLayerRef = useRef<L.LayerGroup | null>(null);
   const cameraLayerRef = useRef<L.LayerGroup | null>(null);
+  const speedLayerRef = useRef<L.LayerGroup | null>(null);
   const cameraMarkersRef = useRef<Map<string, L.Marker>>(new Map());
   const userMarkerRef = useRef<L.Marker | null>(null);
 
@@ -37,6 +39,7 @@ export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, d
 
     routeLayerRef.current = L.layerGroup().addTo(map);
     cameraLayerRef.current = L.layerGroup().addTo(map);
+    speedLayerRef.current = L.layerGroup().addTo(map);
     mapInstance.current = map;
 
     return () => {
@@ -75,8 +78,8 @@ export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, d
 
       L.polyline(latLngs, {
         color: '#3b82f6',
-        weight: 4,
-        opacity: 0.8,
+        weight: pemsStations && pemsStations.length > 0 ? 2 : 4,
+        opacity: pemsStations && pemsStations.length > 0 ? 0.3 : 0.8,
       }).addTo(routeLayerRef.current);
 
       // Direction arrows along route every ~50 points
@@ -118,7 +121,61 @@ export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, d
       });
       L.marker([destination.lat, destination.lon], { icon: endIcon }).addTo(routeLayerRef.current);
     }
-  }, [routeCoords, origin, destination]);
+  }, [routeCoords, origin, destination, pemsStations]);
+
+  // PeMS speed overlay
+  useEffect(() => {
+    if (!mapInstance.current || !speedLayerRef.current) return;
+    speedLayerRef.current.clearLayers();
+
+    if (!routeCoords || routeCoords.length < 2 || !pemsStations || pemsStations.length === 0) return;
+
+    const latLngs: [number, number][] = routeCoords.map(([lon, lat]) => [lat, lon]);
+
+    // Helper: find nearest PeMS station to a point
+    function nearestStation(lat: number, lon: number) {
+      let best = null;
+      let bestDist = Infinity;
+      for (const s of pemsStations!) {
+        const dlat = s.latitude - lat;
+        const dlon = s.longitude - lon;
+        const dist = dlat * dlat + dlon * dlon;
+        if (dist < bestDist) {
+          bestDist = dist;
+          best = s;
+        }
+      }
+      // Only match within ~2km (roughly 0.02 degrees)
+      return bestDist < 0.0004 ? best : null;
+    }
+
+    function speedColor(speed: number | null): string {
+      if (speed === null) return '#6b7280'; // gray
+      if (speed >= 50) return '#22c55e'; // green
+      if (speed >= 25) return '#eab308'; // yellow
+      return '#ef4444'; // red
+    }
+
+    // Build colored segments (group every 5 points)
+    const step = 5;
+    for (let i = 0; i < latLngs.length - 1; i += step) {
+      const end = Math.min(i + step + 1, latLngs.length);
+      const segPoints = latLngs.slice(i, end);
+      if (segPoints.length < 2) continue;
+
+      // Use midpoint to find nearest station
+      const midIdx = Math.floor(segPoints.length / 2);
+      const mid = segPoints[midIdx];
+      const station = nearestStation(mid[0], mid[1]);
+      const color = speedColor(station?.speed ?? null);
+
+      L.polyline(segPoints, {
+        color,
+        weight: 6,
+        opacity: 0.85,
+      }).addTo(speedLayerRef.current!);
+    }
+  }, [routeCoords, pemsStations]);
 
   // Camera markers
   useEffect(() => {
@@ -275,6 +332,25 @@ export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, d
           <span className="w-4 h-4 rounded-full bg-red-500 border-2 border-white text-[8px] text-white font-bold flex items-center justify-center">B</span>
           <span>End</span>
         </div>
+        {pemsStations && pemsStations.length > 0 && (
+          <>
+            <div className="border-t border-border my-1.5 pt-1.5">
+              <div className="text-[9px] font-semibold text-muted-foreground mb-1">Traffic Speed</div>
+            </div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="w-4 h-1 rounded bg-green-500 inline-block"></span>
+              <span>&gt;50 mph</span>
+            </div>
+            <div className="flex items-center gap-2 mb-1">
+              <span className="w-4 h-1 rounded bg-yellow-500 inline-block"></span>
+              <span>25-50 mph</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-4 h-1 rounded bg-red-500 inline-block"></span>
+              <span>&lt;25 mph</span>
+            </div>
+          </>
+        )}
       </div>
     </div>
   );
