@@ -37,7 +37,7 @@ interface RouteLiveViewProps {
 
 /** Max concurrent HLS streams — prevents bandwidth competition */
 const MAX_STREAMS = 4;
-const activeStreams = { count: 0 };
+const activeStreamIds = new Set<string>();
 
 /** Show static image immediately, mount video only when in viewport, unmount when scrolled away. */
 function StableFeed({ camera, onClick, forcePlay }: { camera: RouteCamera; onClick?: () => void; forcePlay?: boolean }) {
@@ -45,7 +45,6 @@ function StableFeed({ camera, onClick, forcePlay }: { camera: RouteCamera; onCli
   const [inViewport, setInViewport] = useState(false);
   const [videoPlaying, setVideoPlaying] = useState(false);
   const [imgLoaded, setImgLoaded] = useState(false);
-  const streamSlotRef = useRef(false);
 
   // Viewport enter/exit observer
   useEffect(() => {
@@ -54,9 +53,8 @@ function StableFeed({ camera, onClick, forcePlay }: { camera: RouteCamera; onCli
 
     const enterObserver = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !streamSlotRef.current && activeStreams.count < MAX_STREAMS) {
-          streamSlotRef.current = true;
-          activeStreams.count++;
+        if (entry.isIntersecting && !activeStreamIds.has(camera.id) && activeStreamIds.size < MAX_STREAMS) {
+          activeStreamIds.add(camera.id);
           setInViewport(true);
         }
       },
@@ -65,9 +63,8 @@ function StableFeed({ camera, onClick, forcePlay }: { camera: RouteCamera; onCli
 
     const exitObserver = new IntersectionObserver(
       ([entry]) => {
-        if (!entry.isIntersecting && streamSlotRef.current) {
-          streamSlotRef.current = false;
-          activeStreams.count--;
+        if (!entry.isIntersecting && activeStreamIds.has(camera.id)) {
+          activeStreamIds.delete(camera.id);
           setInViewport(false);
           setVideoPlaying(false);
         }
@@ -81,20 +78,18 @@ function StableFeed({ camera, onClick, forcePlay }: { camera: RouteCamera; onCli
     return () => {
       enterObserver.disconnect();
       exitObserver.disconnect();
-      if (streamSlotRef.current) {
-        streamSlotRef.current = false;
-        activeStreams.count--;
-      }
+      activeStreamIds.delete(camera.id);
     };
-  }, [forcePlay, camera.streamUrl]);
+  }, [forcePlay, camera.streamUrl, camera.id]);
 
   // When Play All is off but camera has a stream, still use viewport observer for on-demand play
   useEffect(() => {
     if (forcePlay || !camera.streamUrl) return;
-    // No video — just show static image
+    // Play All turned off — release stream slot, show static image
+    activeStreamIds.delete(camera.id);
     setInViewport(false);
     setVideoPlaying(false);
-  }, [forcePlay, camera.streamUrl]);
+  }, [forcePlay, camera.streamUrl, camera.id]);
 
   const showVideo = forcePlay && inViewport && camera.streamUrl;
 
