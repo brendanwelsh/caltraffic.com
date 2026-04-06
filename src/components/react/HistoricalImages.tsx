@@ -50,17 +50,7 @@ export function HistoricalImages({ images, cameraName }: HistoricalImagesProps) 
           </div>
         </div>
       ) : (
-        <div className={`grid gap-1.5 ${
-          // Pick column count that divides evenly or minimizes orphans
-          (() => {
-            const n = images.length;
-            if (n <= 4) return 'grid-cols-2';
-            if (n % 4 === 0 || n >= 12) return 'grid-cols-4';
-            if (n % 3 === 0) return 'grid-cols-3';
-            if (n % 4 <= n % 3) return 'grid-cols-4';
-            return 'grid-cols-3';
-          })()
-        }`}>
+        <div className={`grid gap-1.5 ${images.length <= 4 ? 'grid-cols-2' : 'grid-cols-3'}`}>
           {images.map((url, i) => (
             <button
               key={i}

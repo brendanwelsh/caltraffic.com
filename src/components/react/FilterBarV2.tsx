@@ -1,5 +1,6 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useStore } from '@nanostores/react';
+import { useSWRConfig } from 'swr';
 import { GridDensityControl } from './GridDensityControl';
 import {
   feedType,
@@ -37,7 +38,15 @@ export function FilterBarV2({ cameraCount, availableCities = [], availableRoutes
   const hideBroken = useStore(hideUnavailable);
 
   const [searchInput, setSearchInput] = useState(search);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const { mutate } = useSWRConfig();
   const availableCounties = useMemo(() => getCountiesForDistrict(district), [district]);
+
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true);
+    await mutate(() => true, undefined, { revalidate: true });
+    setTimeout(() => setIsRefreshing(false), 600);
+  }, [mutate]);
 
   // Sync external search changes into local input
   useEffect(() => {
@@ -98,6 +107,18 @@ export function FilterBarV2({ cameraCount, availableCities = [], availableRoutes
             title="Search by camera name, route, or city"
           />
         </div>
+
+        {/* Refresh */}
+        <button
+          onClick={handleRefresh}
+          disabled={isRefreshing}
+          className="inline-flex items-center justify-center rounded-md border border-input h-8 w-8 shrink-0 text-muted-foreground hover:bg-accent hover:text-foreground transition-colors disabled:opacity-50"
+          title="Refresh all camera data"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={isRefreshing ? 'animate-spin' : ''}>
+            <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/>
+          </svg>
+        </button>
 
         {/* Grid density — only in tiles/grid view, hidden on mobile */}
         {view !== 'map' && (
