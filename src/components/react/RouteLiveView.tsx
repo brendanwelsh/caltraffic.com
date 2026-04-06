@@ -47,11 +47,11 @@ interface RouteLiveViewProps {
 }
 
 /** Max concurrent HLS streams — prevents bandwidth competition */
-const MAX_STREAMS = 4;
+const MAX_STREAMS = 6;
 const activeStreamIds = new Set<string>();
 
 /** Show static image immediately, mount video only when in viewport, unmount when scrolled away. */
-function StableFeed({ camera, onClick, forcePlay }: { camera: RouteCamera; onClick?: () => void; forcePlay?: boolean }) {
+function StableFeed({ camera, onClick, forcePlay, onPlayingChange }: { camera: RouteCamera; onClick?: () => void; forcePlay?: boolean; onPlayingChange?: (playing: boolean) => void }) {
   const ref = useRef<HTMLDivElement>(null);
   const [inViewport, setInViewport] = useState(false);
   const [videoPlaying, setVideoPlaying] = useState(false);
@@ -78,6 +78,7 @@ function StableFeed({ camera, onClick, forcePlay }: { camera: RouteCamera; onCli
           activeStreamIds.delete(camera.id);
           setInViewport(false);
           setVideoPlaying(false);
+          onPlayingChange?.(false);
         }
       },
       { rootMargin: '600px' },
@@ -100,6 +101,7 @@ function StableFeed({ camera, onClick, forcePlay }: { camera: RouteCamera; onCli
     activeStreamIds.delete(camera.id);
     setInViewport(false);
     setVideoPlaying(false);
+    onPlayingChange?.(false);
   }, [forcePlay, camera.streamUrl, camera.id]);
 
   const showVideo = forcePlay && inViewport && camera.streamUrl;
@@ -126,7 +128,7 @@ function StableFeed({ camera, onClick, forcePlay }: { camera: RouteCamera; onCli
             imageUrl={camera.imageUrl}
             cameraName={camera.location}
             hideControls
-            onPlaying={() => setVideoPlaying(true)}
+            onPlaying={() => { setVideoPlaying(true); onPlayingChange?.(true); }}
           />
         </div>
       )}
@@ -200,6 +202,7 @@ function FeedCard({ camera, routeDuration, cameraIndex, forcePlay, onCameraFocus
   nearestSpeed?: number | null;
 }) {
   const { isFavorite, toggle: toggleFavorite } = useFavorites();
+  const [isActuallyPlaying, setIsActuallyPlaying] = useState(false);
   const etaMinutes = routeDuration > 0 && !isNaN(routeDuration) ? Math.round(camera.progressAlongRoute * (routeDuration / 60)) : null;
   const favorite = isFavorite(camera.id);
 
@@ -209,9 +212,9 @@ function FeedCard({ camera, routeDuration, cameraIndex, forcePlay, onCameraFocus
         {/* Feed — 35% on desktop, fixed aspect ratio */}
         <div className="md:w-[35%] shrink-0 overflow-hidden relative">
           <div className="aspect-video md:aspect-auto md:h-[180px]">
-            <StableFeed camera={camera} onClick={onOpenDetail} forcePlay={forcePlay} />
+            <StableFeed camera={camera} onClick={onOpenDetail} forcePlay={forcePlay} onPlayingChange={setIsActuallyPlaying} />
           </div>
-          {camera.hasVideo && camera.streamUrl && (
+          {isActuallyPlaying && (
             <span className="absolute top-1.5 right-1.5 flex items-center gap-1 rounded-md bg-black/70 px-1.5 py-0.5">
               <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" />
               <span className="text-[9px] font-bold text-white uppercase">Live</span>
