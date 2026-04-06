@@ -186,6 +186,36 @@ export function useRoutePlanner(initialOrigin?: Location | null, initialDestinat
     })) ?? [];
   }, [osrmRoute]);
 
+  // CMS signs near the route (within 1km of route polyline)
+  const routeCMS = useMemo(() => {
+    if (!osrmRoute?.geometry?.coordinates || allCMS.length === 0) return [];
+    const coords = osrmRoute.geometry.coordinates;
+    return allCMS.filter((sign: any) => {
+      if (!sign.latitude || !sign.longitude || !sign.inService) return false;
+      if (!sign.phase1Lines?.some((l: string) => l.trim())) return false;
+      for (let i = 0; i < coords.length; i += 5) {
+        const [lon, lat] = coords[Math.min(i, coords.length - 1)];
+        if (haversineDistance(sign.latitude, sign.longitude, lat, lon) < 1) return true;
+      }
+      return false;
+    });
+  }, [osrmRoute, allCMS]);
+
+  // Nearby cameras not on the route (within 5km of route polyline, excluding route cameras)
+  const nearbyCameras = useMemo(() => {
+    if (!osrmRoute?.geometry?.coordinates || allCameras.length === 0) return [];
+    const routeIds = new Set(routeCameras.map((c) => c.id));
+    const coords = osrmRoute.geometry.coordinates;
+    return allCameras.filter((cam) => {
+      if (routeIds.has(cam.id) || cam.latitude === 0) return false;
+      for (let i = 0; i < coords.length; i += 10) {
+        const [lon, lat] = coords[Math.min(i, coords.length - 1)];
+        if (haversineDistance(cam.latitude, cam.longitude, lat, lon) < 5) return true;
+      }
+      return false;
+    });
+  }, [osrmRoute, allCameras, routeCameras]);
+
   return {
     origin,
     destination,
@@ -200,5 +230,7 @@ export function useRoutePlanner(initialOrigin?: Location | null, initialDestinat
     routeDistance,
     routeDuration,
     routeSteps,
+    routeCMS,
+    nearbyCameras,
   };
 }

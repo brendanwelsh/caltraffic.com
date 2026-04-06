@@ -143,7 +143,7 @@ export function CameraGrid({ cameraFilter, overrideDistrict }: CameraGridProps =
   const hasMore = displayed.length < filteredCameras.length;
 
   const handleCameraClick = useCallback((camera: EnrichedCamera) => {
-    setSelectedCamera(camera);
+    window.location.href = `/camera/${camera.id}`;
   }, []);
 
   if (error) {

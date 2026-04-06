@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import type { RouteCamera } from '@/hooks/use-route-planner';
+import type { CMS, Camera } from '@/lib/schemas';
 
 interface RouteMapViewProps {
   routeCoords: [number, number][] | null; // null = still loading
@@ -12,13 +13,17 @@ interface RouteMapViewProps {
   onCameraClick?: (camera: RouteCamera) => void;
   focusedCameraId?: string | null;
   userLocation?: { lat: number; lon: number } | null;
+  cmsSigns?: CMS[];
+  nearbyCameras?: Camera[];
 }
 
-export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, destination, onCameraClick, focusedCameraId, userLocation }: RouteMapViewProps) {
+export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, destination, onCameraClick, focusedCameraId, userLocation, cmsSigns = [], nearbyCameras = [] }: RouteMapViewProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
   const routeLayerRef = useRef<L.LayerGroup | null>(null);
   const cameraLayerRef = useRef<L.LayerGroup | null>(null);
+  const cmsLayerRef = useRef<L.LayerGroup | null>(null);
+  const nearbyLayerRef = useRef<L.LayerGroup | null>(null);
   const cameraMarkersRef = useRef<Map<string, L.Marker>>(new Map());
   const userMarkerRef = useRef<L.Marker | null>(null);
 
@@ -36,7 +41,9 @@ export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, d
     }).addTo(map);
 
     routeLayerRef.current = L.layerGroup().addTo(map);
+    nearbyLayerRef.current = L.layerGroup().addTo(map);
     cameraLayerRef.current = L.layerGroup().addTo(map);
+    cmsLayerRef.current = L.layerGroup().addTo(map);
     mapInstance.current = map;
 
     return () => {
@@ -207,6 +214,54 @@ export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, d
     marker.openPopup();
   }, [focusedCameraId]);
 
+  // CMS sign markers
+  useEffect(() => {
+    if (!mapInstance.current || !cmsLayerRef.current) return;
+    cmsLayerRef.current.clearLayers();
+
+    cmsSigns.forEach((sign) => {
+      if (!sign.latitude || !sign.longitude) return;
+      const text = sign.phase1Lines.filter((l) => l.trim()).join(' / ');
+      const icon = L.divIcon({
+        className: 'cms-marker',
+        html: `<div style="
+          width:18px;height:14px;border-radius:2px;background:#f59e0b;
+          border:1.5px solid white;box-shadow:0 0 3px rgba(0,0,0,0.3);
+          display:flex;align-items:center;justify-content:center;
+          font-size:9px;color:white;font-weight:bold;
+        ">CMS</div>`,
+        iconSize: [18, 14],
+        iconAnchor: [9, 7],
+      });
+      L.marker([sign.latitude, sign.longitude], { icon })
+        .bindTooltip(`${sign.route} ${sign.direction} — ${text}`, { direction: 'top', offset: [0, -10] })
+        .addTo(cmsLayerRef.current!);
+    });
+  }, [cmsSigns]);
+
+  // Nearby cameras (grayed out, off-route)
+  useEffect(() => {
+    if (!mapInstance.current || !nearbyLayerRef.current) return;
+    nearbyLayerRef.current.clearLayers();
+
+    nearbyCameras.forEach((cam) => {
+      if (cam.latitude === 0 && cam.longitude === 0) return;
+      const icon = L.divIcon({
+        className: 'nearby-camera-marker',
+        html: `<div style="
+          width:10px;height:10px;border-radius:50%;background:#6b7280;
+          border:1.5px solid white;box-shadow:0 0 2px rgba(0,0,0,0.2);
+          opacity:0.4;
+        "></div>`,
+        iconSize: [10, 10],
+        iconAnchor: [5, 5],
+      });
+      L.marker([cam.latitude, cam.longitude], { icon, interactive: true })
+        .bindTooltip(`${cam.route} ${cam.direction} — ${cam.location || cam.city} (off route)`, { direction: 'top', offset: [0, -8] })
+        .addTo(nearbyLayerRef.current!);
+    });
+  }, [nearbyCameras]);
+
   // User location blue pulsing dot
   useEffect(() => {
     if (!mapInstance.current) return;
@@ -266,6 +321,14 @@ export function RouteMapView({ routeCoords, routeLineLoading, cameras, origin, d
         <div className="flex items-center gap-2 mb-1">
           <span className="w-3 h-3 rounded-full bg-red-500 border border-white inline-block"></span>
           <span>Camera (incident)</span>
+        </div>
+        <div className="flex items-center gap-2 mb-1">
+          <span className="w-4 h-3 rounded-sm bg-amber-500 border border-white text-[7px] text-white font-bold flex items-center justify-center">CMS</span>
+          <span>Highway sign</span>
+        </div>
+        <div className="flex items-center gap-2 mb-1">
+          <span className="w-2.5 h-2.5 rounded-full bg-gray-500 border border-white inline-block opacity-40"></span>
+          <span>Nearby (off route)</span>
         </div>
         <div className="flex items-center gap-2 mb-1">
           <span className="w-4 h-4 rounded-full bg-green-500 border-2 border-white text-[8px] text-white font-bold flex items-center justify-center">A</span>

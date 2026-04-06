@@ -214,6 +214,7 @@ export function RoutePlanner() {
     routeLineCoords, routeLineLoading, hasRoute,
     routeCameras, routeLoading,
     routeDistance, routeDuration, routeSteps,
+    routeCMS, nearbyCameras,
   } = useRoutePlanner();
   const originAC = useGeocodeAutocomplete();
   const destAC = useGeocodeAutocomplete();
@@ -505,6 +506,8 @@ export function RoutePlanner() {
                         destination={destination}
                         focusedCameraId={focusedCameraId}
                         userLocation={userLocation}
+                        cmsSigns={routeCMS}
+                        nearbyCameras={nearbyCameras}
                         onCameraClick={(cam) => {
                           setFocusedCameraId(cam.id);
                           document.getElementById(`feed-${cam.id}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -705,6 +708,8 @@ export function RoutePlanner() {
                       destination={destination}
                       focusedCameraId={focusedCameraId}
                       userLocation={userLocation}
+                      cmsSigns={routeCMS}
+                      nearbyCameras={nearbyCameras}
                       onCameraClick={(cam) => {
                         setFocusedCameraId(cam.id);
                         setMobileTab('cameras');
