@@ -2,7 +2,7 @@ import { useState, useCallback, useMemo } from 'react';
 import { useStore } from '@nanostores/react';
 import {
   selectedDistrict, searchQuery, selectedRoute, selectedCity, selectedCounty, viewMode,
-  feedType, filterFavorites, playAllLive,
+  feedType, filterFavorites, filterIncidents, playAllLive,
   unavailableCameras, hideUnavailable, markUnavailable, clearAllFilters,
 } from '@/stores/filters';
 import { gridDensity } from '@/stores/preferences';
@@ -75,6 +75,7 @@ export function CameraGrid({ cameraFilter, overrideDistrict }: CameraGridProps =
   const feed = useStore(feedType);
   const playing = useStore(playAllLive);
   const showFavs = useStore(filterFavorites);
+  const showIncidents = useStore(filterIncidents);
   const brokenCameras = useStore(unavailableCameras);
   const hideBroken = useStore(hideUnavailable);
   const columns = useStore(gridDensity);
@@ -98,6 +99,7 @@ export function CameraGrid({ cameraFilter, overrideDistrict }: CameraGridProps =
       if (feed === 'live' && (!cam.hasVideo || cam.isStale || !cam.inService)) return false;
       if (feed === 'still' && cam.hasVideo) return false;
       if (showFavs && !isFavorite(cam.id)) return false;
+      if (showIncidents && cam.nearbyIncidents.length === 0) return false;
       if (hideBroken && brokenCameras.has(cam.id)) return false;
       if (search) {
         const q = search.toLowerCase();
@@ -116,7 +118,7 @@ export function CameraGrid({ cameraFilter, overrideDistrict }: CameraGridProps =
       if (a.isStale !== b.isStale) return a.isStale ? 1 : -1;
       return 0;
     });
-  }, [cameras, cameraFilter, routeFilter, cityFilter, countyFilter, feed, showFavs, isFavorite, brokenCameras, hideBroken, search]);
+  }, [cameras, cameraFilter, routeFilter, cityFilter, countyFilter, feed, showFavs, showIncidents, isFavorite, brokenCameras, hideBroken, search]);
 
   // CMS signs for map view only
   const filteredCMS = useMemo(() => {

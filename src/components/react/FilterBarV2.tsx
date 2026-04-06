@@ -1,9 +1,10 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useStore } from '@nanostores/react';
 import { GridDensityControl } from './GridDensityControl';
 import {
   feedType,
   filterFavorites,
+  filterIncidents,
   playAllLive,
   hideUnavailable,
   selectedDistrict,
@@ -22,9 +23,13 @@ interface FilterBarV2Props {
   cameraCount: number;
   availableCities?: string[];
   availableRoutes?: string[];
+  /** Camera data for search autocomplete suggestions */
+  cameraNames?: Array<{ location: string; city: string; route: string; county: string }>;
+  /** Count of cameras with nearby incidents for filter badge */
+  incidentCameraCount?: number;
 }
 
-export function FilterBarV2({ cameraCount, availableCities = [], availableRoutes = [] }: FilterBarV2Props) {
+export function FilterBarV2({ cameraCount, availableCities = [], availableRoutes = [], cameraNames = [], incidentCameraCount = 0 }: FilterBarV2Props) {
   const district = useStore(selectedDistrict);
   const route = useStore(selectedRoute);
   const city = useStore(selectedCity);
@@ -33,10 +38,14 @@ export function FilterBarV2({ cameraCount, availableCities = [], availableRoutes
   const view = useStore(viewMode);
   const feed = useStore(feedType);
   const favorites = useStore(filterFavorites);
+  const incidents = useStore(filterIncidents);
   const playing = useStore(playAllLive);
   const hideBroken = useStore(hideUnavailable);
 
   const [searchInput, setSearchInput] = useState(search);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [selectedSuggestion, setSelectedSuggestion] = useState(-1);
+  const searchRef = useRef<HTMLDivElement>(null);
   const availableCounties = useMemo(() => getCountiesForDistrict(district), [district]);
 
   // Sync external search changes into local input
@@ -50,9 +59,74 @@ export function FilterBarV2({ cameraCount, availableCities = [], availableRoutes
     return () => clearTimeout(timer);
   }, [searchInput]);
 
+  // Search suggestions from camera data
+  const suggestions = useMemo(() => {
+    if (!searchInput || searchInput.length < 2 || !cameraNames.length) return [];
+    const q = searchInput.toLowerCase();
+    const seen = new Set<string>();
+    const results: Array<{ label: string; type: 'location' | 'city' | 'route' | 'county' }> = [];
+
+    for (const cam of cameraNames) {
+      if (results.length >= 8) break;
+      if (cam.location && cam.location.toLowerCase().includes(q) && !seen.has(cam.location)) {
+        seen.add(cam.location);
+        results.push({ label: cam.location, type: 'location' });
+      }
+    }
+    for (const cam of cameraNames) {
+      if (results.length >= 8) break;
+      if (cam.city && cam.city.toLowerCase().includes(q) && !seen.has(cam.city)) {
+        seen.add(cam.city);
+        results.push({ label: cam.city, type: 'city' });
+      }
+    }
+    for (const cam of cameraNames) {
+      if (results.length >= 8) break;
+      if (cam.route && cam.route.toLowerCase().includes(q) && !seen.has(cam.route)) {
+        seen.add(cam.route);
+        results.push({ label: cam.route, type: 'route' });
+      }
+    }
+    return results;
+  }, [searchInput, cameraNames]);
+
+  // Close suggestions on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const handleSuggestionSelect = useCallback((label: string) => {
+    setSearchInput(label);
+    searchQuery.set(label);
+    setShowSuggestions(false);
+    setSelectedSuggestion(-1);
+  }, []);
+
+  const handleSearchKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (!showSuggestions || !suggestions.length) return;
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedSuggestion((i) => (i + 1) % suggestions.length);
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedSuggestion((i) => (i - 1 + suggestions.length) % suggestions.length);
+    } else if (e.key === 'Enter' && selectedSuggestion >= 0) {
+      e.preventDefault();
+      handleSuggestionSelect(suggestions[selectedSuggestion].label);
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false);
+    }
+  }, [showSuggestions, suggestions, selectedSuggestion, handleSuggestionSelect]);
+
   const hasAnyFilter = useMemo(() => {
-    return feed !== 'live' || favorites || !!route || !!city || !!county || district !== null || search !== '';
-  }, [feed, favorites, route, city, county, district, search]);
+    return feed !== 'live' || favorites || incidents || !!route || !!city || !!county || district !== null || search !== '';
+  }, [feed, favorites, incidents, route, city, county, district, search]);
 
   const selectStyle = {
     backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'10\' height=\'10\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'%23888\' stroke-width=\'2\'%3E%3Cpath d=\'m6 9 6 6 6-6\'/%3E%3C/svg%3E")',
@@ -84,8 +158,8 @@ export function FilterBarV2({ cameraCount, availableCities = [], availableRoutes
           {playing ? 'Stop All' : 'Play All'}
         </button>
 
-        {/* Search */}
-        <div className="relative flex-1 min-w-[120px]">
+        {/* Search with autocomplete */}
+        <div ref={searchRef} className="relative min-w-[120px] max-w-[280px] flex-1">
           <svg className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
           </svg>
@@ -93,10 +167,29 @@ export function FilterBarV2({ cameraCount, availableCities = [], availableRoutes
             type="text"
             placeholder="Search cameras..."
             value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
+            onChange={(e) => { setSearchInput(e.target.value); setShowSuggestions(true); setSelectedSuggestion(-1); }}
+            onFocus={() => setShowSuggestions(true)}
+            onKeyDown={handleSearchKeyDown}
             className="h-8 w-full rounded-md border border-input bg-background pl-8 pr-2 text-xs placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
             title="Search by camera name, route, or city"
           />
+          {showSuggestions && suggestions.length > 0 && (
+            <div className="absolute top-full left-0 right-0 z-50 mt-1 rounded-md border border-border bg-popover shadow-lg overflow-hidden">
+              {suggestions.map((s, i) => (
+                <button
+                  key={s.label}
+                  onClick={() => handleSuggestionSelect(s.label)}
+                  className={cn(
+                    'flex items-center gap-2 w-full px-3 py-1.5 text-xs text-left hover:bg-accent transition-colors',
+                    i === selectedSuggestion && 'bg-accent',
+                  )}
+                >
+                  <span className="truncate flex-1">{s.label}</span>
+                  <span className="text-[9px] text-muted-foreground/50 uppercase shrink-0">{s.type}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Grid density — only in tiles/grid view, hidden on mobile */}
@@ -189,6 +282,29 @@ export function FilterBarV2({ cameraCount, availableCities = [], availableRoutes
             <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           )}
         </button>
+
+        {/* Incidents filter */}
+        {incidentCameraCount > 0 && (
+          <button
+            onClick={() => filterIncidents.set(!incidents)}
+            className={cn(
+              'inline-flex items-center gap-1.5 rounded-md border px-2.5 py-0.5 text-[11px] font-medium transition-all whitespace-nowrap shrink-0',
+              incidents
+                ? 'bg-red-500/15 border-red-500/40 text-red-400'
+                : 'border-border text-muted-foreground hover:bg-red-500/10 hover:text-red-400'
+            )}
+            title="Show only cameras with nearby traffic incidents"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><path d="M12 9v4"/><path d="M12 17h.01"/>
+            </svg>
+            Incidents
+            <span className="rounded-full bg-red-500/20 px-1 min-w-[14px] text-[9px] font-bold">{incidentCameraCount}</span>
+            {incidents && (
+              <svg xmlns="http://www.w3.org/2000/svg" width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+            )}
+          </button>
+        )}
 
         {/* Hide Unavailable toggle */}
         <button

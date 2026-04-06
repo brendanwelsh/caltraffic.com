@@ -34,13 +34,23 @@ export function VideoPlayer({ streamUrl, imageUrl, cameraName, hideControls }: V
       });
 
       return () => {
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
         hls.destroy();
       };
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
       video.src = streamUrl;
-      video.addEventListener('loadedmetadata', () => {
+      const handleMetadata = () => {
         video.play().then(() => setIsPlaying(true)).catch(() => setError(true));
-      });
+      };
+      video.addEventListener('loadedmetadata', handleMetadata);
+      return () => {
+        video.removeEventListener('loadedmetadata', handleMetadata);
+        video.pause();
+        video.removeAttribute('src');
+        video.load();
+      };
     } else {
       setError(true);
     }

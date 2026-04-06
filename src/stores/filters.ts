@@ -13,6 +13,9 @@ export const feedType = atom<'all' | 'live' | 'still'>('live');
 // Favorites filter
 export const filterFavorites = atom<boolean>(false);
 
+// Show only cameras with nearby incidents
+export const filterIncidents = atom<boolean>(false);
+
 // Play all state — on by default
 export const playAllLive = atom<boolean>(true);
 
@@ -70,6 +73,7 @@ export function clearAllFilters() {
   searchQuery.set('');
   feedType.set('live');
   filterFavorites.set(false);
+  filterIncidents.set(false);
   featuredCategory.set('all');
   showDisabledFeatured.set(false);
 }

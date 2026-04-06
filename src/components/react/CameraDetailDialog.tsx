@@ -17,23 +17,24 @@ interface CameraDetailDialogProps {
 export function CameraDetailDialog({ camera, onClose, isFavorite = false, onToggleFavorite }: CameraDetailDialogProps) {
   const [copiedLink, setCopiedLink] = useState(false);
   const pushedRef = useRef(false);
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
 
   // Push /camera/{id} URL when dialog opens, restore on close
   useEffect(() => {
     const cameraUrl = `/camera/${camera.id}`;
-    const previousUrl = window.location.pathname + window.location.search;
 
     // Only push if we're not already on this camera URL
     if (window.location.pathname !== cameraUrl) {
-      window.history.pushState({ cameraDialog: true, previousUrl }, '', cameraUrl);
+      window.history.pushState({ cameraDialog: true }, '', cameraUrl);
       pushedRef.current = true;
     }
 
-    const handlePopState = (e: PopStateEvent) => {
+    const handlePopState = () => {
       // User pressed browser back — close the dialog
       if (pushedRef.current) {
         pushedRef.current = false;
-        onClose();
+        onCloseRef.current();
       }
     };
 
@@ -46,7 +47,7 @@ export function CameraDetailDialog({ camera, onClose, isFavorite = false, onTogg
         window.history.back();
       }
     };
-  }, [camera.id, onClose]);
+  }, [camera.id]);
 
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {

@@ -50,9 +50,10 @@ export function useUrlState() {
     isInitialized.current = true;
   }, []);
 
-  // Sync stores back to URL
+  // Sync stores back to URL (skip when CameraDetailDialog has pushed a /camera/ URL)
   useEffect(() => {
     if (!isInitialized.current || typeof window === 'undefined') return;
+    if (window.location.pathname.startsWith('/camera/')) return;
 
     const params = new URLSearchParams();
 

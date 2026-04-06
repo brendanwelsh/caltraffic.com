@@ -52,7 +52,7 @@ function LazyFeed({ streamUrl, imageUrl, cameraName, cameraId, paused, offline }
         for (let i = 0; i < data.length; i += 16) { total += (data[i] + data[i+1] + data[i+2]) / 3; count++; }
         if (total / count > 210) { setBroken(true); markUnavailable(cameraId); return; }
       }
-    } catch { /* CORS — ignore */ }
+    } catch { /* CORS — still mark as checked so video can play */ }
     setChecked(true);
   }, [cameraId]);
 
@@ -124,6 +124,7 @@ export function FeaturedCameras() {
   const [sortMode, setSortMode] = useState<SortMode>('shuffle');
   const [selectedCamera, setSelectedCamera] = useState<EnrichedCamera | null>(null);
   const [visibleCount, setVisibleCount] = useState(18);
+  const [searchInput, setSearchInput] = useState('');
   const playing = useStore(playAllLive);
   const broken = useStore(unavailableCameras);
   const { isFavorite, toggle: toggleFavorite } = useFavorites();
@@ -160,6 +161,18 @@ export function FeaturedCameras() {
     if (activeCategory !== 'all') result = result.filter((f) => f.category === activeCategory);
     if (activeRoute) result = result.filter((f) => f.route === activeRoute);
 
+    // Text search
+    if (searchInput.length >= 2) {
+      const q = searchInput.toLowerCase();
+      result = result.filter((f) =>
+        f.name.toLowerCase().includes(q) ||
+        f.description.toLowerCase().includes(q) ||
+        f.route.toLowerCase().includes(q) ||
+        f.camera.city.toLowerCase().includes(q) ||
+        f.camera.location.toLowerCase().includes(q)
+      );
+    }
+
     // Sort
     switch (sortMode) {
       case 'shuffle':
@@ -177,7 +190,7 @@ export function FeaturedCameras() {
 
     // Always push offline to the end
     return result.sort((a, b) => (a.isOffline === b.isOffline ? 0 : a.isOffline ? 1 : -1));
-  }, [matchedFeatured, activeCategory, activeRoute, sortMode]);
+  }, [matchedFeatured, activeCategory, activeRoute, sortMode, searchInput]);
 
   const liveCount = filtered.filter((f) => !f.isOffline).length;
 
@@ -191,7 +204,7 @@ export function FeaturedCameras() {
         </p>
       </div>
 
-      {/* Row 1: Play/Stop + Sort + Route filter */}
+      {/* Row 1: Play/Stop + Search + Sort + Route filter */}
       <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5" style={{ WebkitOverflowScrolling: 'touch' }}>
         <button
           onClick={() => playAllLive.set(!playing)}
@@ -207,6 +220,20 @@ export function FeaturedCameras() {
           </svg>
           {playing ? 'Stop All' : 'Play All'}
         </button>
+
+        {/* Search */}
+        <div className="relative min-w-[100px] max-w-[200px] flex-shrink-0">
+          <svg className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground pointer-events-none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            className="h-7 w-full rounded-md border border-input bg-background pl-7 pr-2 text-[11px] placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+          />
+        </div>
 
         <span className="text-border mx-0.5">|</span>
 

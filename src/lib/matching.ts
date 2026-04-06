@@ -2,9 +2,20 @@ import { haversineDistance } from './utils';
 import type { Camera, CMS, Incident, LaneClosure, ChainControl, RWIS, TravelTime } from './schemas';
 
 const CMS_POSTMILE_THRESHOLD = 1;
-const INCIDENT_DISTANCE_KM = 2;
+const INCIDENT_DISTANCE_KM = 1;
 const CLOSURE_POSTMILE_THRESHOLD = 2;
 const RWIS_MAX_DISTANCE_KM = 50;
+
+/** Minor incident types unlikely to affect traffic — exclude from camera matching */
+const MINOR_INCIDENT_TYPES = new Set([
+  'Disabled Vehicle',
+  'Traffic Hazard',
+  'Animal on Roadway',
+  'Pedestrian on Freeway',
+  'Bicycle on Freeway',
+  'Defective Traffic Signal',
+  'Suspect Evading',
+]);
 
 export function matchCMSToCamera(camera: Camera, cmsList: CMS[]): CMS[] {
   return cmsList.filter(
@@ -19,6 +30,7 @@ export function matchCMSToCamera(camera: Camera, cmsList: CMS[]): CMS[] {
 export function matchIncidentsToCamera(camera: Camera, incidents: Incident[]): Incident[] {
   return incidents.filter(
     (inc) =>
+      !MINOR_INCIDENT_TYPES.has(inc.type) &&
       haversineDistance(camera.latitude, camera.longitude, inc.latitude, inc.longitude) <= INCIDENT_DISTANCE_KM
   );
 }

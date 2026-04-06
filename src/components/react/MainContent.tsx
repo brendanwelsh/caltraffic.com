@@ -26,6 +26,14 @@ export function MainContent() {
     });
   }, [cameras]);
 
+  const cameraNames = useMemo(() => {
+    return cameras.map((c) => ({ location: c.location, city: c.city, route: c.route, county: c.county }));
+  }, [cameras]);
+
+  const incidentCameraCount = useMemo(() => {
+    return cameras.filter((c) => c.nearbyIncidents.length > 0).length;
+  }, [cameras]);
+
   return (
     <ErrorBoundary>
       <WeatherAlertBanner />
@@ -33,6 +41,8 @@ export function MainContent() {
         cameraCount={cameras.length}
         availableCities={availableCities}
         availableRoutes={availableRoutes}
+        cameraNames={cameraNames}
+        incidentCameraCount={incidentCameraCount}
       />
       <div className="mt-4">
         <CameraGrid />
