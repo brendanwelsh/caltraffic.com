@@ -114,7 +114,7 @@ export function CameraGrid({ cameraFilter, overrideDistrict }: CameraGridProps =
       if (a.hasVideo !== b.hasVideo) return a.hasVideo ? -1 : 1;
       if (a.nearbyIncidents.length !== b.nearbyIncidents.length) return b.nearbyIncidents.length - a.nearbyIncidents.length;
       if (a.isStale !== b.isStale) return a.isStale ? 1 : -1;
-      return 0;
+      return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
     });
   }, [cameras, cameraFilter, routeFilter, cityFilter, countyFilter, feed, showFavs, isFavorite, brokenCameras, hideBroken, search]);
 

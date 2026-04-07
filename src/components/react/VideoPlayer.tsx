@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import { useRef, useEffect, useState, memo } from 'react';
 import Hls from 'hls.js';
 
 interface VideoPlayerProps {
@@ -8,7 +8,7 @@ interface VideoPlayerProps {
   hideControls?: boolean;
 }
 
-export function VideoPlayer({ streamUrl, imageUrl, cameraName, hideControls }: VideoPlayerProps) {
+export const VideoPlayer = memo(function VideoPlayer({ streamUrl, imageUrl, cameraName, hideControls }: VideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [error, setError] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -79,4 +79,4 @@ export function VideoPlayer({ streamUrl, imageUrl, cameraName, hideControls }: V
       )}
     </div>
   );
-}
+});

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback, memo } from 'react';
 import { RouteShield } from './RouteShield';
 import { ConditionIcons } from './ConditionIcons';
 import { VideoPlayer } from './VideoPlayer';
@@ -50,7 +50,7 @@ function detectPlaceholder(img: HTMLImageElement): boolean {
   }
 }
 
-export function CameraCard({ camera, onClick, isFavorite = false, onToggleFavorite, playAll = false }: CameraCardProps) {
+export const CameraCard = memo(function CameraCard({ camera, onClick, isFavorite = false, onToggleFavorite, playAll = false }: CameraCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [imageError, setImageError] = useState(false);
   const [isPlaceholder, setIsPlaceholder] = useState(false);
@@ -190,4 +190,14 @@ export function CameraCard({ camera, onClick, isFavorite = false, onToggleFavori
       </div>
     </div>
   );
-}
+}, (prev, next) =>
+  prev.camera.id === next.camera.id &&
+  prev.camera.streamUrl === next.camera.streamUrl &&
+  prev.camera.imageUrl === next.camera.imageUrl &&
+  prev.camera.hasVideo === next.camera.hasVideo &&
+  prev.camera.isStale === next.camera.isStale &&
+  prev.camera.nearbyIncidents.length === next.camera.nearbyIncidents.length &&
+  prev.camera.chainControls.length === next.camera.chainControls.length &&
+  prev.isFavorite === next.isFavorite &&
+  prev.playAll === next.playAll,
+);

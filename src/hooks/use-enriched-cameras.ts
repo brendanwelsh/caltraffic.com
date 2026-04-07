@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef } from 'react';
 import { useCameras } from './use-cameras';
 import { useCMS } from './use-cms';
 import { useIncidents } from './use-incidents';
@@ -33,20 +33,51 @@ export function useEnrichedCameras(district: number | null) {
   const { data: closures = [] } = useClosures(district);
   const { data: travelTimes = [] } = useTravelTimes(district);
 
+  const prevRef = useRef<Map<string, EnrichedCamera>>(new Map());
+
   const enrichedCameras = useMemo(() => {
     if (!cameras.length) return [];
 
-    return cameras
+    const prevMap = prevRef.current;
+    const nextMap = new Map<string, EnrichedCamera>();
+
+    const result = cameras
       .filter((c) => c.inService)
-      .map((camera): EnrichedCamera => ({
-        ...camera,
-        nearbyCMS: matchCMSToCamera(camera, cmsList),
-        nearbyIncidents: matchIncidentsToCamera(camera, incidents),
-        weatherAlerts: weatherAlerts,
-        chainControls: matchChainControlToCamera(camera, chainControls),
-        nearbyClosures: matchClosuresToCamera(camera, closures),
-        travelTime: matchTravelTimeToCamera(camera, travelTimes),
-      }));
+      .map((camera): EnrichedCamera => {
+        const nearbyIncidents = matchIncidentsToCamera(camera, incidents);
+        const cameraChainControls = matchChainControlToCamera(camera, chainControls);
+        const prev = prevMap.get(camera.id);
+
+        // Reuse previous object if nothing meaningful changed to preserve reference stability
+        if (
+          prev &&
+          prev.streamUrl === camera.streamUrl &&
+          prev.imageUrl === camera.imageUrl &&
+          prev.hasVideo === camera.hasVideo &&
+          prev.isStale === camera.isStale &&
+          prev.inService === camera.inService &&
+          prev.nearbyIncidents.length === nearbyIncidents.length &&
+          prev.chainControls.length === cameraChainControls.length
+        ) {
+          nextMap.set(camera.id, prev);
+          return prev;
+        }
+
+        const enriched: EnrichedCamera = {
+          ...camera,
+          nearbyCMS: matchCMSToCamera(camera, cmsList),
+          nearbyIncidents,
+          weatherAlerts: weatherAlerts,
+          chainControls: cameraChainControls,
+          nearbyClosures: matchClosuresToCamera(camera, closures),
+          travelTime: matchTravelTimeToCamera(camera, travelTimes),
+        };
+        nextMap.set(camera.id, enriched);
+        return enriched;
+      });
+
+    prevRef.current = nextMap;
+    return result;
   }, [cameras, cmsList, incidents, weatherAlerts, chainControls, closures, travelTimes]);
 
   return {
