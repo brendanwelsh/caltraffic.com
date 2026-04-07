@@ -232,8 +232,12 @@ const FeedCard = memo(function FeedCard({ camera, routeDuration, cameraIndex, fo
   prev.camera.streamUrl === next.camera.streamUrl &&
   prev.camera.imageUrl === next.camera.imageUrl &&
   prev.camera.hasVideo === next.camera.hasVideo &&
+  prev.camera.isStale === next.camera.isStale &&
   prev.camera.nearbyIncidents.length === next.camera.nearbyIncidents.length &&
   prev.camera.chainControls.length === next.camera.chainControls.length &&
+  (prev.camera.chainControls[0]?.level ?? null) === (next.camera.chainControls[0]?.level ?? null) &&
+  (prev.camera.travelTime?.delay ?? null) === (next.camera.travelTime?.delay ?? null) &&
+  prev.camera.nearbyCMS.length === next.camera.nearbyCMS.length &&
   prev.routeDuration === next.routeDuration &&
   prev.cameraIndex === next.cameraIndex &&
   prev.forcePlay === next.forcePlay,
