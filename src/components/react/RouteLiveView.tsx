@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import { useState, useRef, useEffect, useCallback, useMemo, memo } from 'react';
 import { useStore } from '@nanostores/react';
 import { playAllLive } from '@/stores/filters';
 import { VideoPlayer } from './VideoPlayer';
@@ -36,7 +36,7 @@ interface RouteLiveViewProps {
 }
 
 /** Mount video once seen, keep mounted. Static images always show. */
-function StableFeed({ camera, onClick, forcePlay }: { camera: RouteCamera; onClick?: () => void; forcePlay?: boolean }) {
+const StableFeed = memo(function StableFeed({ camera, onClick, forcePlay }: { camera: RouteCamera; onClick?: () => void; forcePlay?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const [hasBeenSeen, setHasBeenSeen] = useState(false);
 
@@ -64,7 +64,12 @@ function StableFeed({ camera, onClick, forcePlay }: { camera: RouteCamera; onCli
       )}
     </div>
   );
-}
+}, (prev, next) =>
+  prev.camera.id === next.camera.id &&
+  prev.camera.streamUrl === next.camera.streamUrl &&
+  prev.camera.imageUrl === next.camera.imageUrl &&
+  prev.forcePlay === next.forcePlay,
+);
 
 /** Full-width CMS sign card — displayed as its own entity in the feed */
 function CMSFeedCard({ cms, camera }: { cms: any; camera: RouteCamera }) {
@@ -121,7 +126,7 @@ function CMSFeedCard({ cms, camera }: { cms: any; camera: RouteCamera }) {
   );
 }
 
-function FeedCard({ camera, routeDuration, cameraIndex, forcePlay, onCameraFocus, onMarkPassed, onOpenDetail }: {
+const FeedCard = memo(function FeedCard({ camera, routeDuration, cameraIndex, forcePlay, onCameraFocus, onMarkPassed, onOpenDetail }: {
   camera: RouteCamera;
   routeDuration: number;
   cameraIndex?: number;
@@ -222,7 +227,17 @@ function FeedCard({ camera, routeDuration, cameraIndex, forcePlay, onCameraFocus
       </div>
     </div>
   );
-}
+}, (prev, next) =>
+  prev.camera.id === next.camera.id &&
+  prev.camera.streamUrl === next.camera.streamUrl &&
+  prev.camera.imageUrl === next.camera.imageUrl &&
+  prev.camera.hasVideo === next.camera.hasVideo &&
+  prev.camera.nearbyIncidents.length === next.camera.nearbyIncidents.length &&
+  prev.camera.chainControls.length === next.camera.chainControls.length &&
+  prev.routeDuration === next.routeDuration &&
+  prev.cameraIndex === next.cameraIndex &&
+  prev.forcePlay === next.forcePlay,
+);
 
 /** Collapsed mini row for unavailable cameras */
 function MiniCard({ camera, routeDuration }: { camera: RouteCamera; routeDuration: number }) {
@@ -248,10 +263,12 @@ export function RouteLiveView({ cameras, routeDuration, onCameraFocus, onUserLoc
   const { isFavorite, toggle: toggleFavorite } = useFavorites();
   const watchIdRef = useRef<number | null>(null);
 
-  const sorted = [...cameras].sort((a, b) => a.progressAlongRoute - b.progressAlongRoute);
-  const available = sorted.filter(c => c.imageUrl && !c.isStale);
-  const unavailable = sorted.filter(c => !c.imageUrl || c.isStale);
-  const liveCount = available.filter(c => c.hasVideo && c.streamUrl).length;
+  const sorted = useMemo(
+    () => [...cameras].sort((a, b) => a.progressAlongRoute - b.progressAlongRoute),
+    [cameras],
+  );
+  const available = useMemo(() => sorted.filter(c => c.imageUrl && !c.isStale), [sorted]);
+  const liveCount = useMemo(() => available.filter(c => c.hasVideo && c.streamUrl).length, [available]);
 
   // Compute user's progress along route (0-1) based on nearest camera
   const userProgress = useMemo(() => {

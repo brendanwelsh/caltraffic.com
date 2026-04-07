@@ -1,4 +1,4 @@
-import { useMemo, useState, useRef, useEffect, useCallback } from 'react';
+import { useMemo, useState, useRef, useEffect, useCallback, memo } from 'react';
 import { useStore } from '@nanostores/react';
 import { FEATURED_CAMERAS, CATEGORY_LABELS } from '@/lib/featured-cameras';
 import type { FeaturedCamera } from '@/lib/featured-cameras';
@@ -16,7 +16,7 @@ type Category = FeaturedCamera['category'];
 type SortMode = 'default' | 'shuffle' | 'route' | 'category';
 
 /** Lazy feed — probes image for placeholder detection, then upgrades to video */
-function LazyFeed({ streamUrl, imageUrl, cameraName, cameraId, paused, offline }: {
+const LazyFeed = memo(function LazyFeed({ streamUrl, imageUrl, cameraName, cameraId, paused, offline }: {
   streamUrl: string | null;
   imageUrl: string;
   cameraName: string;
@@ -85,7 +85,7 @@ function LazyFeed({ streamUrl, imageUrl, cameraName, cameraId, paused, offline }
       )}
     </div>
   );
-}
+});
 
 const ALL_CATEGORIES: Array<{ key: Category | 'all'; label: string }> = [
   { key: 'all', label: 'All' },
